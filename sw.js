@@ -1,5 +1,5 @@
 /* Candoku service worker: cache the app shell so it works offline. Bump VERSION on each release. */
-const VERSION = 'candoku-v15';
+const VERSION = 'candoku-v16';
 const FILES = ['./', 'index.html', 'style.css', 'engine.js', 'hints.js', 'seeds.js', 'sound.js', 'music.js', 'voice.js', 'app.js', 'manifest.webmanifest', 'icon.svg', 'icon-180.png', 'icon-192.png', 'icon-512.png', 'icons/lollipop.png', 'icons/candy.png', 'icons/chocolate_bar.png', 'icons/doughnut.png', 'icons/cupcake.png', 'icons/cookie.png', 'icons/cherries.png', 'icons/soft_ice_cream.png', 'icons/shortcake.png', 'icons/dango.png', 'audio/voice/close.mp3', 'audio/voice/delicious.mp3', 'audio/voice/divine.mp3', 'audio/voice/first.mp3', 'audio/voice/go.mp3', 'audio/voice/hard.mp3', 'audio/voice/intro1.mp3', 'audio/voice/intro2.mp3', 'audio/voice/intro3.mp3', 'audio/voice/letsplay.mp3', 'audio/voice/lose.mp3', 'audio/voice/nice.mp3', 'audio/voice/perfect.mp3', 'audio/voice/ready.mp3', 'audio/voice/sugartastic.mp3', 'audio/voice/tasty.mp3', 'audio/voice/veryhard.mp3', 'audio/voice/verytasty.mp3', 'audio/voice/welcome.mp3', 'audio/voice/yummy.mp3', 'audio/voice/z0.mp3', 'audio/voice/z1.mp3', 'audio/voice/z2.mp3', 'audio/voice/z3.mp3'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));

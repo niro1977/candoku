@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
 
@@ -113,6 +113,7 @@
     <div class="score-top"><span class="rank" id="rankName">Rookie</span><span class="pts"><b id="ptsToday">0</b> pts today</span></div>
     <div class="score-bar"><i id="rankBar"></i></div>
     <div class="score-sub" id="scoreSub">Solve a board to start climbing</div>
+    <button class="link rank-btn" id="rankBtn" type="button">🏆 Daily ranking</button>
   </div>
   <p class="streak" id="streak"></p>
 
@@ -137,7 +138,7 @@
     <button class="btn" id="maybeBtn" type="button" aria-pressed="false"><b class="q">?</b>Maybe</button>
     <button class="btn" id="clearBtn" type="button">Restart</button>
   </div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v17</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v18</span></p>
 </main>
 
 <!-- WIN -->
@@ -165,6 +166,18 @@
     <p>Take a breath and try this level again.</p>
     <button class="btn main wide" id="retryBtn" type="button">Try again</button>
     <button class="link" id="loseHome" type="button">Back to map</button>
+  </div>
+</div>
+
+<!-- DAILY RANKING -->
+<div id="ranking" class="overlay" hidden>
+  <div class="card">
+    <h2>🏆 Daily ranking</h2>
+    <p class="small">Top players today. Resets every day at midnight (Israel time).</p>
+    <label class="namefield">Your name <input id="rankName2" maxlength="16" autocomplete="off" spellcheck="false"></label>
+    <div class="rlist" id="rankList"></div>
+    <p class="rmine" id="rankMine"></p>
+    <button class="btn main wide" id="rankClose" type="button">Close</button>
   </div>
 </div>
 
@@ -220,12 +233,12 @@
 <div id="wipe" hidden><svg><use href="#c0"/></svg></div>
 <div id="confetti" aria-hidden="true"></div>
 
-<script src="engine.js?v=17"></script>
-<script src="hints.js?v=17"></script>
-<script src="seeds.js?v=17"></script>
-<script src="sound.js?v=17"></script>
-<script src="music.js?v=17"></script>
-<script src="voice.js?v=17"></script>
-<script src="app.js?v=17"></script>
+<script src="engine.js?v=18"></script>
+<script src="hints.js?v=18"></script>
+<script src="seeds.js?v=18"></script>
+<script src="sound.js?v=18"></script>
+<script src="music.js?v=18"></script>
+<script src="voice.js?v=18"></script>
+<script src="app.js?v=18"></script>
 </body>
 </html>

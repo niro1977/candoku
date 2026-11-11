@@ -33,6 +33,43 @@
     const mult = Math.min(10, Math.max(1, run));
     return { mult, cap: n * 10, gain: Math.min(n * 10, 10 * mult) };
   }
+  /* ---------- daily ranking (Cloudflare Worker) ---------- */
+  const RANK_URL = 'https://candoku-ranking.niriangelo.workers.dev';
+  let pid = store.get('pid', ''), pname = store.get('pname', '');
+  if (!pid) { pid = (crypto.randomUUID ? crypto.randomUUID() : 'p' + Date.now() + Math.random().toString(36).slice(2, 10)); store.set('pid', pid); }
+  if (!pname) { pname = 'Player' + Math.floor(1000 + Math.random() * 9000); store.set('pname', pname); }
+  function postScore() {
+    if (!score.points) return Promise.resolve(null);
+    return fetch(RANK_URL + '/score', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: pid, name: pname, points: score.points }) })
+      .then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  }
+  function renderBoard(d) {
+    const box = $('rankList'); box.innerHTML = '';
+    if (!d || !d.top) { box.innerHTML = '<p class="small">Cannot reach the ranking. Check your connection and try again.</p>'; $('rankMine').textContent = ''; return; }
+    if (!d.top.length) box.innerHTML = '<p class="small">No one has scored yet today. Be the first!</p>';
+    for (const r of d.top) {
+      const row = document.createElement('div'); row.className = 'rrow' + (r.me ? ' me' : '');
+      const n = document.createElement('b'); n.textContent = r.rank <= 3 ? ['🥇', '🥈', '🥉'][r.rank - 1] : r.rank;
+      const nm = document.createElement('span'); nm.textContent = r.name;
+      const pt = document.createElement('em'); pt.textContent = r.points;
+      row.append(n, nm, pt); box.appendChild(row);
+    }
+    $('rankMine').textContent = d.mine ? 'You are #' + d.mine.rank + ' of ' + d.mine.players + ' today with ' + d.mine.points + ' pts' : (score.points ? '' : 'Solve a board to join the ranking today');
+  }
+  async function openRanking() {
+    S.unlock(); S.tap();
+    freshScore();
+    $('rankName2').value = pname;
+    $('rankList').innerHTML = '<p class="small">Loading…</p>'; $('rankMine').textContent = '';
+    $('ranking').hidden = false;
+    const posted = await postScore();     // also refreshes my row
+    if (posted) return renderBoard(posted);
+    try { const r = await fetch(RANK_URL + '/top?id=' + encodeURIComponent(pid)); renderBoard(r.ok ? await r.json() : null); } catch (e) { renderBoard(null); }
+  }
+  function saveName() {
+    const v = $('rankName2').value.replace(/[<>&"'`]/g, '').trim().slice(0, 16);
+    if (v && v !== pname) { pname = v; store.set('pname', pname); postScore().then((d) => { if (d && !$('ranking').hidden) renderBoard(d); }); }
+  }
   function renderScore() {
     freshScore();
     let i = 0; for (let k = 0; k < RANKS.length; k++) if (score.points >= RANKS[k][0]) i = k;
@@ -442,7 +479,7 @@
     score.run++;
     const pt = pointsFor(cur.n, score.run);
     score.points += pt.gain; score.best = Math.max(score.best || 0, score.points);
-    store.set('score', score);
+    store.set('score', score); postScore();
     $('winGain').innerHTML = '+' + pt.gain + ' pts<small>' + '×' + pt.mult + ' in a row · ' + score.points + ' today</small>';
     if (m.kind === 'level') {
       if (!stars[m.level] || stars[m.level] < earned) { stars[m.level] = earned; store.set('stars', stars); }
@@ -566,6 +603,9 @@
   $('daily').onclick = () => { S.unlock(); S.tap(); transition(() => startDaily()); };
   $('backBtn').onclick = () => { S.tap(); toMap(); };
   $('undoBtn').onclick = undo;
+  $('rankBtn').onclick = openRanking;
+  $('rankClose').onclick = () => { saveName(); S.tap(); $('ranking').hidden = true; };
+  $('rankName2').onchange = saveName;
   $('hintBtn').onclick = openHintInfo;
   $('hintUse').onclick = () => { $('hintInfo').hidden = true; hint(); };
   $('hintCancel').onclick = () => { S.tap(); $('hintInfo').hidden = true; };
