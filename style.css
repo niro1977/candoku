@@ -528,3 +528,9 @@ body.in-game .nav{display:none}
 .board.hard{background:linear-gradient(180deg,#ff6a4d,#b8281a)}
 .board.veryhard{background:linear-gradient(180deg,#a45cff,#5a1fb8)}
 .board.extreme{background:linear-gradient(180deg,#3a3a46,#0d0d12)}
+
+/* green is the button color */
+.btn.main,.card .btn.main{background:linear-gradient(180deg,#8cf060,#2fb82f);border:2px solid #1c8a1c;box-shadow:0 5px 0 #146b17;color:#fff;text-shadow:0 2px 0 rgba(8,70,20,.65)}
+.btn.main:disabled{filter:saturate(.5);opacity:.6}
+.bcard .front{background:linear-gradient(180deg,#8cf060,#2fb82f);box-shadow:0 4px 0 #146b17,0 0 0 2px #ffc247;text-shadow:0 2px 0 #146b17}
+.mcard .front{background:linear-gradient(180deg,#8cf060,#2fb82f);box-shadow:0 3px 0 #146b17}
