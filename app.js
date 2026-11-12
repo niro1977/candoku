@@ -5,7 +5,7 @@
   // vivid tiles, one per color region
   const COLORS = ['#22b8ff', '#7ee21f', '#ffd400', '#ff52c8', '#a45cff', '#00dcb0', '#ff8a00', '#ff3d3d', '#3a5cff', '#c98240'];
   const NAMES = ['Lollipop', 'Wrapped Candy', 'Chocolate Bar', 'Glazed Donut', 'Cupcake', 'Choc Chip Cookie', 'Cherries', 'Soft Serve', 'Shortcake', 'Candy Dango'];
-  const starSvg = (on) => '<svg class="' + (on ? '' : 'off') + '" viewBox="0 0 64 64"><use href="#' + (on ? 'star3d' : 'star3d-off') + '"/></svg>';
+  const starSvg = (on) => '<img class="star ' + (on ? '' : 'off') + '" src="art/star_' + (on ? 'gold' : 'grey') + '.webp" alt="" draggable="false">';
   const MAX_HEARTS = 3;
   const $ = (id) => document.getElementById(id);
   const M = window.CandokuMusic, V = window.CandokuVoice;
@@ -674,7 +674,7 @@
     $('nextBtn').textContent = m.kind === 'level' ? 'Next level' : 'Back to map';
     setTimeout(() => {
       $('win').hidden = false; confetti();
-      const els = $('winStars').querySelectorAll('svg');
+      const els = $('winStars').querySelectorAll('img.star');
       const box = $('winStars'), card = document.querySelector('#win .card');
       const burst = (el, good) => {
         const r = el.getBoundingClientRect(), b = box.getBoundingClientRect(), cx = r.left - b.left + r.width / 2, cy = r.top - b.top + r.height / 2;

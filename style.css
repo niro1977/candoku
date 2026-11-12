@@ -581,3 +581,17 @@ body.in-game .nav{display:none}
 #win .stars svg{width:84px;height:84px;margin:0 -4px}
 .stars svg.show:not(.off){filter:drop-shadow(0 0 10px rgba(255,225,77,.9)) drop-shadow(0 4px 2px rgba(110,60,0,.45))}
 .st svg{fill:none;stroke:none}
+
+/* painted stars */
+.stars img.star,.st img.star{display:block;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(90,40,0,.45))}
+#win .stars img.star{width:88px;height:88px;margin:0 -5px;opacity:0;transform:scale(.2)}
+#win .stars img.star.show{animation:starfly .8s cubic-bezier(.2,1.2,.4,1) both}
+#win .stars img.star.show:not(.off){filter:drop-shadow(0 0 12px rgba(255,225,77,.9)) drop-shadow(0 4px 2px rgba(110,60,0,.45))}
+.st img.star{width:20px;height:20px}
+/* only "Next level" stays green; everything else gets its own color */
+.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.card .btn:not(.main){background:linear-gradient(180deg,#7fd8ff,#2e9be8);border-color:#1b6fb5;box-shadow:0 4px 0 #14538a;text-shadow:0 2px 0 rgba(10,60,110,.6)}
+.card .btn:not(.main){box-shadow:0 5px 0 #14538a}
+.card .link:active,.rank-btn:active,.coach-actions .link:active,.intro-ctl .link:active{box-shadow:0 1px 0 #14538a}
+.btn.main,.card .btn.main,.daily-go,.play{background:linear-gradient(180deg,#ffd45a,#ff9a1f);border:2px solid #c96b00;box-shadow:0 5px 0 #a85500;color:#fff;text-shadow:0 2px 0 rgba(120,60,0,.6)}
+#nextBtn,#nextBtn.btn{background:linear-gradient(180deg,#8cf060,#2fb82f);border:2px solid #1c8a1c;box-shadow:0 5px 0 #146b17;color:#fff;text-shadow:0 2px 0 rgba(8,70,20,.65)}
+.bcard .front,.mcard .front{background:linear-gradient(180deg,#5fd8ff,#1fa3e8);box-shadow:0 4px 0 #0f74b3,0 0 0 2px #ffc247;text-shadow:0 2px 0 #0f74b3}
