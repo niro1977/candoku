@@ -71,9 +71,11 @@
     wrong() { if (!ready()) return; const t = ctx.currentTime; osc('sawtooth', 180, t, 0.28, 0.25, 90); osc('square', 140, t + 0.08, 0.25, 0.15, 70); },
     hint() { if (!ready()) return; const t = ctx.currentTime; [0, 4, 7, 12].forEach((s, i) => osc('sine', hz(s + 12), t + i * 0.07, 0.3, 0.22)); },
     win() { if (!ready()) return; const t = ctx.currentTime; [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => { osc('triangle', hz(s + 12), t + i * 0.09, 0.45, 0.28); osc('sine', hz(s + 24), t + i * 0.09, 0.3, 0.1); }); },
+    starIn() { if (!ready()) return; const t = ctx.currentTime; noise(t, 0.4, 0.18, 2400, 0.8); osc('sine', 280, t, 0.42, 0.1, 1600); },
     star(i, earned) {
       if (!ready()) return;
       const t = ctx.currentTime;
+      osc('sine', 130, t, 0.2, 0.4, 48);   // landing thump
       if (!earned) { osc('sine', 330, t, 0.2, 0.12, 200); return; }
       const base = [0, 4, 7][Math.min(i, 3) - 1] + 12;
       osc('triangle', hz(base + 12), t, 0.6, 0.3); osc('sine', hz(base + 24), t, 0.5, 0.18); osc('sine', hz(base + 31), t + 0.03, 0.4, 0.1);

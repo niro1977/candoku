@@ -566,3 +566,11 @@ body.in-game .nav{display:none}
 .card .link:active,.rank-btn:active,.coach-actions .link:active,.intro-ctl .link:active{box-shadow:0 1px 0 #146b17}
 .daily-go{background:linear-gradient(180deg,#8cf060,#2fb82f);border:2px solid #1c8a1c;box-shadow:0 4px 0 #146b17;color:#fff;text-shadow:0 2px 0 rgba(8,70,20,.65)}
 .play{background:linear-gradient(180deg,#8cf060,#2fb82f);border-color:#1c8a1c;box-shadow:0 6px 0 #146b17;color:#fff;text-shadow:0 2px 0 rgba(8,70,20,.65)}
+
+/* stars: fly in from above, spin, land with a thump, burst into sparkles */
+.stars{position:relative;overflow:visible;gap:8px}
+#win .stars svg{width:54px;height:54px}
+.stars svg.show{animation:starfly .8s cubic-bezier(.2,1.2,.4,1) both}
+@keyframes starfly{0%{opacity:0;transform:translateY(-170px) scale(2.5) rotate(-240deg)}55%{opacity:1;transform:translateY(7px) scale(.78) rotate(12deg)}78%{transform:translateY(-5px) scale(1.28) rotate(-7deg)}100%{opacity:1;transform:none}}
+.spark{position:absolute;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;pointer-events:none;animation:sparkout .75s ease-out forwards;box-shadow:0 0 6px rgba(255,255,255,.9)}
+@keyframes sparkout{from{opacity:1;transform:translate(0,0) scale(1)}to{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.2)}}

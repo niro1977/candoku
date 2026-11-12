@@ -633,7 +633,7 @@
   /* ---------- win ---------- */
   function win() {
     cur.done = true; buzz([30, 40, 60]); S.win();
-    if (V) setTimeout(() => V.win(cur.hearts), 2400);   // after the three stars have landed
+    if (V) setTimeout(() => V.win(cur.hearts), 3100);   // after the three stars have landed
     const m = cur.meta, earned = Math.max(1, cur.hearts);
     let reward = false;
     freshScore();
@@ -675,7 +675,26 @@
     setTimeout(() => {
       $('win').hidden = false; confetti();
       const els = $('winStars').querySelectorAll('svg');
-      els.forEach((el, k) => setTimeout(() => { el.classList.add('show'); S.star(k + 1, k + 1 <= earned); buzz(12); if (k === 2 && earned === 3) setTimeout(() => S.fanfare(), 150); }, 500 + k * 520));
+      const box = $('winStars'), card = document.querySelector('#win .card');
+      const burst = (el, good) => {
+        const r = el.getBoundingClientRect(), b = box.getBoundingClientRect(), cx = r.left - b.left + r.width / 2, cy = r.top - b.top + r.height / 2;
+        const cols = ['#ffe14d', '#ffffff', '#ffb347', '#ff8fd0', '#7fe3ff'];
+        for (let n = 0; n < (good ? 14 : 4); n++) {
+          const p = document.createElement('i'), ang = Math.random() * 6.283, dist = 34 + Math.random() * 40;
+          p.className = 'spark'; p.style.left = cx + 'px'; p.style.top = cy + 'px'; p.style.background = cols[n % cols.length];
+          p.style.setProperty('--dx', Math.cos(ang) * dist + 'px'); p.style.setProperty('--dy', Math.sin(ang) * dist + 'px');
+          box.appendChild(p); setTimeout(() => p.remove(), 800);
+        }
+      };
+      els.forEach((el, k) => {
+        const t0 = 500 + k * 640, good = k + 1 <= earned;
+        setTimeout(() => { el.classList.add('show'); S.starIn(); }, t0);
+        setTimeout(() => {
+          S.star(k + 1, good); buzz(good ? 18 : 8); burst(el, good);
+          if (card && card.animate) card.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(6px)' }, { transform: 'translateY(0)' }], { duration: 190, easing: 'ease-out' });
+          if (k === 2 && earned === 3) setTimeout(() => S.fanfare(), 160);
+        }, t0 + 420);
+      });
     }, 450);
   }
   function confetti() {
