@@ -120,10 +120,9 @@
   }
   /* ---------- illustrated worlds: a new landscape every 10 levels ---------- */
   const ZONES = [
-    { name: 'Lollipop Meadow', top: '#8fe3ff', bottom: '#b9f59b', decor: ['d-lolly', 'd-bush', 'd-cane', 'd-cloud', 'd-bush'] },
-    { name: 'Chocolate River', top: '#ffe1c2', bottom: '#d4915c', decor: ['d-choco', 'd-house', 'd-bush', 'd-cane', 'd-house'] },
-    { name: 'Frosting Mountains', top: '#ffe9f6', bottom: '#ffa8d6', decor: ['d-cone', 'd-cloud', 'd-cone', 'd-lolly', 'd-cane'] },
-    { name: 'Cotton Candy Sky', top: '#a99bff', bottom: '#ff94d6', decor: ['d-cloud', 'd-star', 'd-cloud', 'd-lolly', 'd-star'] }
+    { name: 'Lollipop Meadow' }, { name: 'Chocolate River' }, { name: 'Frosting Mountains' },
+    { name: 'Cotton Candy Sky' }, { name: 'Ice Cream Beach' }, { name: 'Gingerbread Winter' },
+    { name: 'Donut Lake' }, { name: 'Cookie Canyon' }, { name: 'Crystal Caves' }
   ];
   const ASPECT = { 'd-lolly': [0.6, 1], 'd-bush': [1, 0.6], 'd-cane': [0.5, 1], 'd-cloud': [2, 1], 'd-house': [1, 1], 'd-cone': [0.85, 1.15], 'd-choco': [0.8, 1], 'd-star': [1, 1] };
   const zoneOf = (lv) => ZONES[Math.floor((lv - 1) / 10) % ZONES.length];
@@ -135,19 +134,7 @@
       const z = ZONES[k % ZONES.length];
       const top = k === zones - 1 ? 0 : g.pos(k * 10 + 10).y - MAP_STEP / 2;
       const bottom = k === 0 ? g.Ht : g.pos(k * 10 + 1).y + MAP_STEP / 2;
-      html += '<div class="zone" style="top:' + top + 'px;height:' + (bottom - top) + 'px;background:linear-gradient(180deg,' + z.top + ',' + z.bottom + ')"></div>';
-    }
-    for (let lv = 1; lv <= g.count; lv++) {
-      const p = g.pos(lv), z = zoneOf(lv), onLeft = p.x < g.W / 2;
-      for (let j = 0; j < 2; j++) {
-        const h = hashn(lv * 7 + j * 131), type = z.decor[h % z.decor.length], asp = ASPECT[type];
-        const size = 44 + ((h >> 4) % 46), w = Math.round(size * asp[0] * (type === 'd-cloud' ? 1.15 : 1.3)), hh = Math.round(size * asp[1] * 1.3);
-        const edge = ((h >> 9) % 100) / 100;
-        const cx = onLeft ? g.W * (0.78 + 0.16 * edge) : g.W * (0.22 - 0.16 * edge);
-        const y = p.y + (j ? -MAP_STEP * 0.45 : 14) + ((h >> 13) % 24) - 12;
-        const cloud = type === 'd-cloud', star = type === 'd-star';
-        html += '<svg class="decor' + (cloud ? ' cloud' : star ? ' star' : '') + '" style="left:' + Math.round(cx - w / 2) + 'px;top:' + Math.round(y - hh) + 'px;width:' + w + 'px;height:' + hh + 'px;--sw:' + (3 + (h % 30) / 10).toFixed(1) + 's;--dl:-' + ((h >> 5) % 40) / 10 + 's"><use href="#' + type + '" width="100%" height="100%"/></svg>';
-      }
+      html += '<div class="zone" style="top:' + top + 'px;height:' + (bottom - top) + 'px;background:#2a1450 url(art/bg_' + (k % ZONES.length) + '.jpg) center/cover"></div>';
     }
     for (let k = 0; k < zones; k++) {
       const z = ZONES[k % ZONES.length], lvTop = Math.min(g.count, k * 10 + 10);
@@ -247,9 +234,8 @@
   }
   const worldIdx = (lv) => Math.floor((lv - 1) / 10) % ZONES.length;
   function setScene(i) {
-    const S2 = window.CandokuScenes, box = $('scene');
-    if (!S2 || !box) return;
-    box.innerHTML = S2.html(i); box.dataset.world = i;
+    const box = $('scene');
+    if (box) { box.style.backgroundImage = 'url(art/bg_' + i + '.jpg)'; box.dataset.world = i; }
     if (M) M.world(i);
   }
   function startLevel(lv) {
@@ -612,6 +598,11 @@
   $('daily').onclick = () => { S.unlock(); S.tap(); transition(() => startDaily()); };
   $('backBtn').onclick = () => { S.tap(); toMap(); };
   $('undoBtn').onclick = undo;
+  document.querySelectorAll('.card').forEach((card) => {
+    const x = document.createElement('button'); x.type = 'button'; x.className = 'xclose'; x.setAttribute('aria-label', 'Close');
+    x.onclick = () => { for (const id of ['#howClose', '#rankClose', '#hintCancel', '#homeBtn', '#loseHome']) { const b = card.querySelector(id); if (b) { b.click(); return; } } };
+    card.appendChild(x);
+  });
   $('rankBtn').onclick = openRanking;
   $('rankClose').onclick = () => { saveName(); S.tap(); $('ranking').hidden = true; };
   $('rankName2').onchange = saveName;

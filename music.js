@@ -52,7 +52,7 @@
       running = true; applyGain(0.6); play();
     },
     mood(m) { mood = m; play(); },
-    world(i) { world = i; if (mood === 'game') play(); },
+    world(i) { world = i % 4; if (mood === 'game') play(); },
     stop() {
       running = false;
       if (ctx && playing) { fadeOut(playing); playing = null; }

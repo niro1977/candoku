@@ -15,7 +15,8 @@
     perfect: 'Delicious! Perfect!', divine: 'Divine! Perfect!', sugartastic: 'Sugar-tastic! Perfect!',
     verytasty: 'Very tasty!', close: 'Sweet! That was close!', lose: 'Oh no! Try again!',
     go: "Let's go!", ready: 'Ready? Go!', hard: 'Hard level! You can do it!', veryhard: 'Very hard level! Good luck!',
-    z0: 'Welcome to Lollipop Meadow!', z1: 'Welcome to Chocolate River!', z2: 'Welcome to Frosting Mountains!', z3: 'Welcome to Cotton Candy Sky!'
+    z0: 'Welcome to Lollipop Meadow!', z1: 'Welcome to Chocolate River!', z2: 'Welcome to Frosting Mountains!', z3: 'Welcome to Cotton Candy Sky!',
+    z4: 'Welcome to Ice Cream Beach!', z5: 'Welcome to Gingerbread Winter!', z6: 'Welcome to Donut Lake!', z7: 'Welcome to Cookie Canyon!', z8: 'Welcome to Crystal Caves!'
   };
   const ID_OF = {}; Object.keys(CLIPS).forEach((k) => { ID_OF[CLIPS[k]] = k; });
   const buffers = {}, loading = {};
