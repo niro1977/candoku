@@ -250,6 +250,7 @@
     const S2 = window.CandokuScenes, box = $('scene');
     if (!S2 || !box) return;
     box.innerHTML = S2.html(i); box.dataset.world = i;
+    if (M) M.world(i);
   }
   function startLevel(lv) {
     setScene(worldIdx(lv));
