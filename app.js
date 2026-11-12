@@ -245,7 +245,14 @@
     $('lose').hidden = true; $('win').hidden = true; $('toast').classList.remove('show');
     buildBoard(); drawHearts(); drawFound();
   }
+  const worldIdx = (lv) => Math.floor((lv - 1) / 10) % ZONES.length;
+  function setScene(i) {
+    const S2 = window.CandokuScenes, box = $('scene');
+    if (!S2 || !box) return;
+    box.innerHTML = S2.html(i); box.dataset.world = i;
+  }
   function startLevel(lv) {
+    setScene(worldIdx(lv));
     const b = boardFor(lv);
     makeGame(b, 'Level ' + lv, { kind: 'level', level: lv }, tierOf(lv));
     show('game');
@@ -259,6 +266,7 @@
   }
   function startDaily() {
     const t = today(), n = dailySize();
+    setScene(new Date().getDate() % ZONES.length);
     makeGame(E.generate(n, hash('candoku-' + t)), 'Daily Candy', { kind: 'daily', date: t }, 'normal');
     show('game');
   }

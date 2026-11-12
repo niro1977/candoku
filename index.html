@@ -14,9 +14,10 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=19">
 </head>
 <body>
+<div id="scene" aria-hidden="true"></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -138,7 +139,7 @@
     <button class="btn" id="maybeBtn" type="button" aria-pressed="false"><b class="q">?</b>Maybe</button>
     <button class="btn" id="clearBtn" type="button">Restart</button>
   </div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v18</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v19</span></p>
 </main>
 
 <!-- WIN -->
@@ -233,12 +234,13 @@
 <div id="wipe" hidden><svg><use href="#c0"/></svg></div>
 <div id="confetti" aria-hidden="true"></div>
 
-<script src="engine.js?v=18"></script>
-<script src="hints.js?v=18"></script>
-<script src="seeds.js?v=18"></script>
-<script src="sound.js?v=18"></script>
-<script src="music.js?v=18"></script>
-<script src="voice.js?v=18"></script>
-<script src="app.js?v=18"></script>
+<script src="engine.js?v=19"></script>
+<script src="hints.js?v=19"></script>
+<script src="seeds.js?v=19"></script>
+<script src="scenes.js?v=19"></script>
+<script src="sound.js?v=19"></script>
+<script src="music.js?v=19"></script>
+<script src="voice.js?v=19"></script>
+<script src="app.js?v=19"></script>
 </body>
 </html>

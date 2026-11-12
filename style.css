@@ -300,3 +300,28 @@ body.in-game .screen{min-height:0;height:100dvh;padding-bottom:16px}
 .rrow em{font-style:normal;font-weight:800}
 .rrow.me{background:rgba(255,224,138,.35);outline:2px solid #ffe08a}
 .rmine{margin:4px 0 10px;font-weight:700;color:#ffe08a;min-height:1.2em}
+
+/* painted world behind the board */
+#scene{position:fixed;inset:0;z-index:0;display:none;overflow:hidden;background:#5b2fe0}
+#scene svg{position:absolute;inset:0;width:100%;height:100%}
+body.in-game #scene{display:block}
+body.in-game #scene::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,0) 40%,rgba(40,0,80,.14) 100%)}
+.screen{z-index:1}
+.drift{animation:drift var(--dur,30s) ease-in-out infinite alternate}
+.drift.d2{animation-direction:alternate-reverse}
+@keyframes drift{from{transform:translate(0,0)}to{transform:translate(var(--dx,20px),0)}}
+.tw{animation:twk 2.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes twk{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+.flow{stroke-dasharray:34 22;animation:flow 5s linear infinite}
+.flow.f2{animation-duration:7s;animation-direction:reverse}.flow.f3{animation-duration:9s}
+@keyframes flow{to{stroke-dashoffset:-112}}
+/* chunkier game frame and top panel */
+body.in-game .bar{padding:8px 10px;border-radius:22px;background:linear-gradient(180deg,rgba(255,248,234,.96),rgba(255,226,170,.96));border:4px solid #ffc247;box-shadow:0 5px 0 #e0902a,0 12px 22px rgba(40,0,80,.35);color:#5b2a14}
+body.in-game .bar .title b{color:#5b2a14;text-shadow:0 2px 0 rgba(255,255,255,.7)}
+body.in-game .bar .icon{color:#5b2a14}
+body.in-game .board{border-width:6px;box-shadow:0 8px 0 var(--edge2),0 0 0 3px rgba(255,255,255,.55),0 22px 36px rgba(40,0,80,.45)}
+body.in-game .help{color:#fff;text-shadow:0 1px 3px rgba(40,0,80,.7)}
+@media (prefers-reduced-motion:reduce){.drift,.tw,.flow{animation:none}}
+
+body.in-game .help{position:absolute;right:8px;bottom:4px;margin:0;font-size:0;line-height:1}
+body.in-game .help .ver{font-size:10px;opacity:.7}
