@@ -555,3 +555,5 @@ body.in-game .nav{display:none}
 .rank-btn{margin-top:8px}
 
 .card .btn:not(.main){background:linear-gradient(180deg,#7fd8ff,#2e9be8);color:#fff;border:2px solid #1b6fb5;box-shadow:0 5px 0 #14538a;text-shadow:0 2px 0 rgba(10,60,110,.6)}
+
+.hopper.gumi{width:58px;height:62px;margin:-74px 0 0 -29px;z-index:6;filter:drop-shadow(0 4px 3px rgba(0,0,0,.4))}

@@ -216,24 +216,29 @@
     const y = map.getBoundingClientRect().top + window.scrollY + g.pos(lv).y;
     window.scrollTo(0, Math.max(0, y - window.innerHeight * 0.55));
   }
+  let pendingHop = null;   // set when a win moves you on, played the next time the map is shown
   async function hopTo(from, to) {
-    const g = mapGeom(), a = g.pos(from), b = g.pos(to), map = $('map');
-    const h = document.createElement('div'); h.className = 'hopper';
-    h.style.left = a.x + 'px'; h.style.top = a.y + 'px'; h.innerHTML = '<svg><use href="#c' + ((from - 1) % 10) + '"/></svg>';
+    // our bear jumps from the level you just passed to the next one and stands there
+    const g = mapGeom(), a = g.pos(from), b = g.pos(to), map = $('map'), still = map.querySelector('.mascot');
+    if (still) still.style.visibility = 'hidden';
+    const h = document.createElement('div'); h.className = 'hopper gumi';
+    h.style.left = a.x + 'px'; h.style.top = (a.y - 30) + 'px'; h.innerHTML = '<svg><use href="#gumi"/></svg>';
     map.appendChild(h);
     const dx = b.x - a.x, dy = b.y - a.y;
     S.hop();
     const anim = h.animate([
-      { transform: 'translate(0,0) scale(1)' },
-      { transform: 'translate(' + dx * 0.5 + 'px,' + (dy * 0.5 - 70) + 'px) scale(1.25) rotate(180deg)', offset: 0.5 },
-      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1) rotate(360deg)' }
-    ], { duration: 800, easing: 'ease-in-out', fill: 'forwards' });
+      { transform: 'translate(0,0) scale(1,1)' },
+      { transform: 'translate(' + dx * 0.5 + 'px,' + (dy * 0.5 - 90) + 'px) scale(1.08,1.16)', offset: 0.5 },
+      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1.16,.84)', offset: 0.88 },
+      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1,1)' }
+    ], { duration: 950, easing: 'ease-in-out', fill: 'forwards' });
     await anim.finished.catch(() => {});
-    S.candy((to - 1) % 10, 3);
+    S.candy((to - 1) % 10, 3); buzz(15);
     const node = map.querySelector('.node[data-lv="' + to + '"]');
     if (node) node.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 400 });
-    await sleep(300);
+    if (still) still.style.visibility = '';
     h.remove();
+    await sleep(750);   // the bear stands on its new level for a moment
   }
 
   /* ---------- boards ---------- */
@@ -644,7 +649,7 @@
     if (m.kind === 'level') {
       if (!stars[m.level] || stars[m.level] < earned) { stars[m.level] = earned; store.set('stars', stars); }
       if (level === m.level) {
-        level = m.level + 1; store.set('level', level);
+        level = m.level + 1; store.set('level', level); pendingHop = { from: m.level, to: level };
         cleared++; store.set('cleared', cleared);                       // only a first-time pass counts toward the reward
         if (cleared % HINT_EVERY === 0) { hintsLeft++; store.set('hints', hintsLeft); reward = true; }
       }
@@ -755,12 +760,14 @@
 
   /* ---------- navigation ---------- */
   async function toMap() {
+    const p = pendingHop; pendingHop = null;
     await transition(() => { renderHome(); show('home'); scrollToLevel(level); });
+    if (p) { await sleep(250); await hopTo(p.from, p.to); }
   }
   async function nextLevel() {
     $('win').hidden = true;
     if (cur.meta.kind !== 'level') { await toMap(); return; }
-    const from = cur.meta.level, to = level;
+    const from = cur.meta.level, to = level; pendingHop = null;
     try {
       await transition(() => { renderHome(); show('home'); scrollToLevel(to); });
       await sleep(200);
