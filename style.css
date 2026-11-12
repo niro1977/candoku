@@ -443,3 +443,33 @@ body.in-game .nav{display:none}
 .shopbal img{width:32px;height:32px}
 .pico{object-fit:contain}
 .ico{object-fit:contain}
+
+/* colorful navigation tiles */
+.nav button .navico{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35));pointer-events:none}
+.nav button{gap:1px}
+.nav button.on{background:rgba(255,255,255,.22)}
+.nav button.dot::after{right:calc(50% - 26px)}
+/* 3D hearts */
+.hearts{gap:3px}
+.hearts img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(90,0,40,.4))}
+.hearts img.off{opacity:.85}
+/* boss */
+.node.veryhard::before{content:"👑";position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:22px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.4))}
+.map .ribbon{white-space:normal;width:max-content;max-width:calc(100% - 156px);text-align:center;line-height:1.1}
+/* 10x10 uses the whole screen width */
+.screen.n10{padding-left:4px;padding-right:4px}
+.boardwrap.n10{margin:0}
+.board.n10{width:min(calc(100vw - 8px),calc(100dvh - 236px),540px);gap:2px;padding:5px;border-radius:20px;border-width:5px}
+.screen.n10 .bar,.screen.n10 .tools{margin:0 12px}
+/* tutorial coach */
+#coach{position:fixed;inset:0;z-index:15;pointer-events:none}
+#coachRing{position:absolute;border:4px solid #ffe14d;border-radius:18px;box-shadow:0 0 0 3px rgba(255,255,255,.7),0 0 22px 6px rgba(255,225,77,.8);animation:ringpulse 1.2s ease-in-out infinite;transition:all .3s}
+@keyframes ringpulse{50%{transform:scale(1.025);box-shadow:0 0 0 3px rgba(255,255,255,.9),0 0 30px 10px rgba(255,225,77,.95)}}
+#coachBubble{position:absolute;left:50%;transform:translateX(-50%);width:min(94vw,430px);display:flex;gap:10px;align-items:flex-end;padding:12px 14px;border-radius:22px;background:linear-gradient(180deg,#fff8ea,#ffe3b0);border:4px solid #8a4a22;box-shadow:0 6px 0 #5b2a14,0 14px 28px rgba(40,0,80,.5);color:#5b2a14;pointer-events:auto}
+.coach-gumi{width:70px;height:78px;flex:none}
+.coach-body{flex:1;display:flex;flex-direction:column;gap:6px;text-align:left}
+.coach-body small{font:800 12px var(--display);opacity:.7}
+.coach-body p{margin:0;font-size:15px;line-height:1.3;font-weight:800}
+.coach-actions{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.coach-actions .btn{width:auto;padding:8px 18px}
+.coach-actions .link{background:none;color:#8a5a30;text-decoration:underline;font-size:14px}

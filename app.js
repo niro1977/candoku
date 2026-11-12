@@ -84,7 +84,7 @@
   const sizeFor = (lv) => Math.min(10, 5 + Math.floor((lv - 1) / 4));
   const tierOf = (lv) => (lv % 10 === 0 ? 'veryhard' : lv % 5 === 0 ? 'hard' : 'normal');
   const dailySize = () => [6, 7, 8, 9, 10, 8, 7][new Date().getDay()];
-  const tierLabel = { hard: 'Hard', veryhard: 'Very Hard' };
+  const tierLabel = { hard: 'Hard', veryhard: '👑 Boss' };
 
   function today() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -115,7 +115,7 @@
   const MAP_STEP = 96;
   function mapGeom() {
     const W = Math.min(window.innerWidth, 460) - 32;
-    const count = Math.min(150, Math.max(level + 7, 14));
+    const count = Math.min(300, Math.max(level + 25, 60));
     const Ht = count * MAP_STEP + 70;
     return { W, count, Ht, pos: (lv) => ({ x: W / 2 + Math.sin((lv - 1) * 0.9) * W * 0.3, y: Ht - 56 - (lv - 1) * MAP_STEP }) };
   }
@@ -229,6 +229,7 @@
     t.hidden = tier === 'normal'; t.className = 'tier ' + tier; t.textContent = tierLabel[tier] || '';
     const bd = $('board'); bd.className = 'board ' + (tier === 'normal' ? '' : tier);
     bd.style.setProperty('--n', n);
+    bd.classList.toggle('n10', n === 10); bd.parentElement.classList.toggle('n10', n === 10); $('game').classList.toggle('n10', n === 10);
     $('maybeBtn').setAttribute('aria-pressed', 'false');
     $('lose').hidden = true; $('win').hidden = true; $('toast').classList.remove('show');
     buildBoard(); drawHearts(); drawFound();
@@ -245,6 +246,8 @@
     makeGame(b, 'Level ' + lv, { kind: 'level', level: lv }, tierOf(lv));
     show('game');
     if (V) setTimeout(() => V.start(lv, tierOf(lv)), 700);
+    if (lv % 10 === 0) setTimeout(() => toast('👑 Boss level! Beat it for a big prize.'), 1200);
+    if (lv === 1 && (forceCoach || !store.get('seenCoach', false))) setTimeout(startCoach, 1000);
     if (lv > 1 && sizeFor(lv) > sizeFor(lv - 1)) {
       const id = sizeFor(lv) - 1;
       $('unlockIcon').innerHTML = '<use href="#c' + id + '"/>'; $('unlockName').textContent = NAMES[id];
@@ -260,7 +263,7 @@
   }
   function drawHearts() {
     const h = $('hearts'); h.innerHTML = '';
-    for (let i = 0; i < MAX_HEARTS; i++) h.insertAdjacentHTML('beforeend', '<svg class="' + (i < cur.hearts ? '' : 'off') + '"><use href="#heart"/></svg>');
+    for (let i = 0; i < MAX_HEARTS; i++) h.insertAdjacentHTML('beforeend', '<img class="' + (i < cur.hearts ? '' : 'off') + '" src="art/ic_' + (i < cur.hearts ? 'heart' : 'heart_off') + '.webp" alt="" draggable="false">');
   }
   function drawFound() {
     const f = $('found'), have = new Set();
@@ -616,6 +619,11 @@
     if (reward) { wr.hidden = false; wr.innerHTML = '🎁 Reward! <b>+1 hint</b> for passing ' + HINT_EVERY + ' levels'; }
     else if (m.kind === 'level') { wr.hidden = false; wr.textContent = (cleared % HINT_EVERY) + ' / ' + HINT_EVERY + ' levels to your next free hint'; }
     else wr.hidden = true;
+    if (m.kind === 'level' && m.level % 10 === 0) {
+      const flawless = cur.hearts >= MAX_HEARTS, bp = { coins: flawless ? 100 : 60, wands: 1, hints: flawless ? 2 : 0 };
+      give(bp); wr.hidden = false;
+      wr.innerHTML = '👑 Boss defeated! +' + bp.coins + ' coins, +1 wand' + (flawless ? ', +2 hints' : '<br><small>No hearts lost = an even bigger prize!</small>');
+    }
     updateHintUi();
     $('nextBtn').textContent = m.kind === 'level' ? 'Next level' : 'Back to map';
     setTimeout(() => { $('win').hidden = false; confetti(); }, 450);
@@ -764,6 +772,29 @@
   };
   document.addEventListener('visibilitychange', () => { if (document.hidden) return; });
 
+  /* ---------- tutorial coach (first level) ---------- */
+  let forceCoach = false, coachStep = 0;
+  const COACH = [
+    { sel: 'found', text: 'Welcome! Your goal: put exactly ONE candy in every color. The row up here shows which candies you still need.', at: 'bottom' },
+    { sel: 'board', text: 'Tap a square to mark an X, a square that cannot hold a candy. Tap the X again to remove it. Drag across squares to mark many.', at: 'bottom' },
+    { sel: 'board', text: 'Double-tap a square to place a candy. Only ONE candy in each row and each column, and candies can never touch, not even diagonally.', at: 'bottom' },
+    { sel: 'hearts', text: 'Careful! A wrong candy costs a heart. Lose all three hearts and you try the level again.', at: 'bottom' },
+    { sel: 'hintBtn', text: 'Stuck? The light bulb gives a hint, and the wand places a correct candy for you. You start with a few of each.', at: 'top' },
+    { sel: 'found', text: 'Place all the candies to win! You earn stars, coins and prizes. Good luck!', at: 'bottom' }
+  ];
+  function coachPlace() {
+    const st = COACH[coachStep], el = $(st.sel), r = el.getBoundingClientRect(), ring = $('coachRing'), b = $('coachBubble');
+    ring.style.left = (r.left - 6) + 'px'; ring.style.top = (r.top - 6) + 'px'; ring.style.width = (r.width + 12) + 'px'; ring.style.height = (r.height + 12) + 'px';
+    b.style.top = st.at === 'top' ? '84px' : 'auto'; b.style.bottom = st.at === 'top' ? 'auto' : '14px';
+    $('coachText').textContent = st.text; $('coachStep').textContent = 'Tutorial ' + (coachStep + 1) + ' / ' + COACH.length;
+    $('coachNext').textContent = coachStep === COACH.length - 1 ? "Let's play!" : 'Next';
+  }
+  function startCoach() { if (!cur || $('game').hidden) return; forceCoach = false; coachStep = 0; $('coach').hidden = false; coachPlace(); }
+  function endCoach() { store.set('seenCoach', true); $('coach').hidden = true; S.tap(); }
+  $('coachNext').onclick = () => { S.tap(); if (coachStep >= COACH.length - 1) endCoach(); else { coachStep++; coachPlace(); } };
+  $('coachSkip').onclick = endCoach;
+  window.addEventListener('resize', () => { if (!$('coach').hidden) coachPlace(); });
+  $('replayCoach').onclick = () => { $('how').hidden = true; forceCoach = true; transition(() => startLevel(1)); };
   /* ---------- extras: gifts, daily quests, chest, lucky wheel, mini-games ---------- */
   const HOUR = 3600e3, MAX_PLAYS = 2, CHEST_AT = 10;
   let quests = store.get('quests', null), chest = store.get('chest', { n: 0 }), wheel = store.get('wheel', { date: '', extra: 0 });

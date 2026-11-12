@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=27">
+<link rel="stylesheet" href="style.css?v=28">
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
@@ -156,7 +156,7 @@
     <button class="btn" id="maybeBtn" type="button" aria-pressed="false" aria-label="Maybe (mark a question)" title="Maybe"><img class="tico" src="art/ic_maybe.webp" alt="" draggable="false"></button>
     <button class="btn" id="clearBtn" type="button" aria-label="Restart" title="Restart"><img class="tico" src="art/ic_restart.webp" alt="" draggable="false"></button>
   </div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v27</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v28</span></p>
 </main>
 
 <!-- WIN -->
@@ -327,6 +327,7 @@
       <div class="opt"><span>Music</span><button class="sw" id="optMusic" role="switch" aria-checked="true" aria-label="Music"></button></div>
       <div class="opt"><span>Narrator voice</span><button class="sw" id="optVoice" role="switch" aria-checked="true" aria-label="Narrator voice"></button></div>
       <div class="opt"><span>All sound</span><button class="sw" id="optAll" role="switch" aria-checked="true" aria-label="All sound"></button></div>
+      <button class="link" id="replayCoach" type="button">Replay the tutorial</button>
       <button class="link" id="replayIntro" type="button">Replay the story</button>
     </div>
     <button class="btn main wide" id="howClose" type="button">Got it</button>
@@ -353,20 +354,31 @@
 <div id="wipe" hidden><svg><use href="#c0"/></svg></div>
 <div id="confetti" aria-hidden="true"></div>
 
+<div id="coach" hidden>
+  <div id="coachRing"></div>
+  <div id="coachBubble">
+    <svg class="coach-gumi"><use href="#gumi"/></svg>
+    <div class="coach-body">
+      <small id="coachStep"></small>
+      <p id="coachText"></p>
+      <div class="coach-actions"><button class="link" id="coachSkip" type="button">Skip</button><button class="btn main" id="coachNext" type="button">Next</button></div>
+    </div>
+  </div>
+</div>
 <nav class="nav" id="nav" aria-label="Main">
-  <button type="button" id="navGifts"><svg><use href="#i-gift"/></svg><span>Gifts</span></button>
-  <button type="button" id="navQuests"><svg><use href="#i-quest"/></svg><span>Quests</span></button>
-  <button type="button" id="navHome" class="on"><svg><use href="#i-home"/></svg><span>Home</span></button>
-  <button type="button" id="navShop"><svg><use href="#i-shop"/></svg><span>Shop</span></button>
-  <button type="button" id="navRank"><svg><use href="#i-trophy"/></svg><span>Ranking</span></button>
+  <button type="button" id="navGifts"><img class="navico" src="art/nav_gifts.webp" alt="" draggable="false"><span>Gifts</span></button>
+  <button type="button" id="navQuests"><img class="navico" src="art/nav_quests.webp" alt="" draggable="false"><span>Quests</span></button>
+  <button type="button" id="navHome" class="on"><img class="navico" src="art/nav_home.webp" alt="" draggable="false"><span>Home</span></button>
+  <button type="button" id="navShop"><img class="navico" src="art/nav_shop.webp" alt="" draggable="false"><span>Shop</span></button>
+  <button type="button" id="navRank"><img class="navico" src="art/nav_rank.webp" alt="" draggable="false"><span>Ranking</span></button>
 </nav>
-<script src="engine.js?v=27"></script>
-<script src="hints.js?v=27"></script>
-<script src="seeds.js?v=27"></script>
-<script src="scenes.js?v=27"></script>
-<script src="sound.js?v=27"></script>
-<script src="music.js?v=27"></script>
-<script src="voice.js?v=27"></script>
-<script src="app.js?v=27"></script>
+<script src="engine.js?v=28"></script>
+<script src="hints.js?v=28"></script>
+<script src="seeds.js?v=28"></script>
+<script src="scenes.js?v=28"></script>
+<script src="sound.js?v=28"></script>
+<script src="music.js?v=28"></script>
+<script src="voice.js?v=28"></script>
+<script src="app.js?v=28"></script>
 </body>
 </html>
