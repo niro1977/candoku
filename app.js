@@ -986,7 +986,7 @@
     freshDay(); if (plays.toss >= MAX_PLAYS) return;
     plays.toss++; store.set('plays', plays); updateSides(); closeAll();
     $('tossMsg').textContent = 'Tap to toss when the jar is above the candy!'; $('tossClose').textContent = 'Give up'; $('toss').hidden = false;
-    const cv = $('tossCv'), g = cv.getContext('2d'), W = cv.width = 270, H = cv.height = 330, img = new Image(); img.src = 'icons/candy.png';
+    const cv = $('tossCv'), g = cv.getContext('2d'), W = cv.width = 270, H = cv.height = 330, img = new Image(); img.src = 'art/cd_candy.webp';
     const JY = 64, JW = 64, SX = W / 2, SY = H - 46;
     let shot = 0, hits = 0, perfect = 0, flying = null, note = '', noteT = 0, over = false, t0 = performance.now(), lastT = t0, jx = W / 2;
     const jarPos = (t) => W / 2 + Math.sin(t / 1000 * (1.5 + shot * 0.5)) * (W / 2 - JW / 2 - 8);
