@@ -82,9 +82,9 @@
   }
 
   const sizeFor = (lv) => Math.min(10, 5 + Math.floor((lv - 1) / 4));
-  const tierOf = (lv) => (lv % 10 === 0 ? 'veryhard' : lv % 5 === 0 ? 'hard' : 'normal');
+  const tierOf = (lv) => (lv % 50 === 0 ? 'extreme' : lv % 10 === 0 ? 'veryhard' : lv % 5 === 0 ? 'hard' : 'normal');
   const dailySize = () => [6, 7, 8, 9, 10, 8, 7][new Date().getDay()];
-  const tierLabel = { hard: 'Hard', veryhard: '👑 Boss' };
+  const tierLabel = { hard: 'Hard', veryhard: '👑 Very Hard', extreme: '💀 Extremely Hard' };
 
   function today() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -117,7 +117,7 @@
     const W = Math.min(window.innerWidth, 460) - 32;
     const count = Math.min(300, Math.max(level + 25, 60));
     const Ht = count * MAP_STEP + 70;
-    return { W, count, Ht, pos: (lv) => ({ x: W / 2 + Math.sin((lv - 1) * 0.9) * W * 0.3, y: Ht - 56 - (lv - 1) * MAP_STEP }) };
+    return { W, count, Ht, pos: (lv) => ({ x: W / 2 + Math.sin((lv - 1) * 0.9) * W * 0.2, y: Ht - 56 - (lv - 1) * MAP_STEP }) };
   }
   /* ---------- illustrated worlds: a new landscape every 10 levels ---------- */
   const ZONES = [
@@ -169,7 +169,7 @@
       b.style.left = p.x + 'px'; b.style.top = p.y + 'px';
       if (tier === 'normal') b.style.setProperty('--c', COLORS[(n - 5) % COLORS.length]);
       let html = lv + '<small>' + n + '×' + n + '</small>';
-      if (tier !== 'normal') html += '<span class="badge">' + (tier === 'hard' ? 'HARD' : 'VERY HARD') + '</span>';
+      if (tier !== 'normal') html += '<span class="badge">' + (tier === 'hard' ? 'HARD' : tier === 'extreme' ? 'EXTREME' : 'VERY HARD') + '</span>';
       if (lv < level && stars[lv]) { html += '<span class="st">'; for (let i = 1; i <= 3; i++) html += STAR.replace('<svg', '<svg class="' + (i <= stars[lv] ? '' : 'off') + '"'); html += '</span>'; }
       b.innerHTML = html;
       b.onclick = () => { S.unlock(); S.tap(); transition(() => startLevel(lv)); };
@@ -207,11 +207,11 @@
     const n = sizeFor(lv), tier = tierOf(lv);
     if (tier !== 'normal') {
       const pool = (SEEDS[tier] || {})[n];
-      if (pool && pool.length) return E.generate(n, pool[Math.floor(lv / (tier === 'hard' ? 5 : 10)) % pool.length]);
+      if (pool && pool.length) return E.generate(n, pool[Math.floor(lv / (tier === 'hard' ? 5 : tier === 'extreme' ? 50 : 10)) % pool.length]);
     }
     // normal levels: skip boards that would need guessing
     let b = null;
-    for (let k = 0; k < 6; k++) {
+    for (let k = 0, tries = n >= 9 ? 2 : 6; k < tries; k++) {
       b = E.generate(n, n * 100000 + lv * 7919 + k * 13);
       if (H.rate(n, b.regions, b.solution).max <= 2) break;
     }
@@ -429,7 +429,14 @@
     drawHearts();
     if (cur.hearts <= 0) { cur.done = true; freshScore(); score.run = 0; store.set('score', score); setTimeout(() => { S.lose(); if (V) V.lose(); $('lose').hidden = false; }, 500); }
   }
-  function solved() { for (let y = 0; y < cur.n; y++) if (cur.state[y][cur.solution[y]] !== 2) return false; return true; }
+  function solved() {
+    const n = cur.n, pos = [];
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (cur.state[y][x] === 2) pos.push([y, x]);
+    if (pos.length !== n) return false;
+    if (new Set(pos.map((p) => p[0])).size !== n || new Set(pos.map((p) => p[1])).size !== n || new Set(pos.map((p) => cur.regions[p[0]][p[1]])).size !== n) return false;
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) if (Math.abs(pos[i][0] - pos[j][0]) <= 1 && Math.abs(pos[i][1] - pos[j][1]) <= 1) return false;
+    return true;
+  }
   function undo() { if (cur.done || !cur.history.length) return; S.tap(); cur.state = cur.history.pop(); paint(); }
 
   let toastTimer = null;
@@ -442,7 +449,7 @@
   function saveWallet() { store.set('coins', coins); store.set('wands', wands); store.set('hints', hintsLeft); }
   function updateHintUi() {
     const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };
-    set('hintBadge', hintsLeft); set('wandBadge', wands); set('coinN', coins); set('hintN', hintsLeft); set('wandN', wands);
+    set('heartN', MAX_HEARTS); set('hintBadge', hintsLeft); set('wandBadge', wands); set('coinN', coins); set('hintN', hintsLeft); set('wandN', wands);
     $('hintBtn').classList.toggle('empty', hintsLeft <= 0); $('wandBtn').classList.toggle('empty', wands <= 0);
   }
   const ITEMS = {
@@ -716,12 +723,17 @@
     $('win').hidden = true;
     if (cur.meta.kind !== 'level') { await toMap(); return; }
     const from = cur.meta.level, to = level;
-    await transition(() => { renderHome(); show('home'); scrollToLevel(to); });
-    await sleep(200);
-    await hopTo(from, to);
-    if (V && to > 1 && (to - 1) % 10 === 0) V.say('Welcome to ' + zoneOf(to).name + '!', true);
-    await sleep(250);
-    await transition(() => startLevel(to));
+    try {
+      await transition(() => { renderHome(); show('home'); scrollToLevel(to); });
+      await sleep(200);
+      await Promise.race([hopTo(from, to), sleep(3500)]);
+      if (V && to > 1 && (to - 1) % 10 === 0) V.say('Welcome to ' + zoneOf(to).name + '!', true);
+      await sleep(250);
+      await transition(() => startLevel(to));
+    } catch (e) {
+      console.error(e);
+      try { $('wipe').hidden = true; startLevel(to); } catch (e2) { renderHome(); show('home'); }
+    }
   }
 
   /* ---------- wiring ---------- */
