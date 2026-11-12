@@ -279,11 +279,30 @@
     if (box) { box.style.backgroundImage = 'url(art/bg_' + i + '.jpg)'; box.dataset.world = i; }
     if (M) M.world(i);
   }
+  /* ---------- keep the game in progress: leaving at any moment returns to the exact same board ---------- */
+  function saveGame() {
+    try {
+      if (!cur || cur.done || !cur.meta) { store.set('game', null); return; }
+      store.set('game', { meta: cur.meta, tier: cur.tier, label: cur.label, n: cur.n, state: cur.state, hearts: cur.hearts, hints: cur.hints,
+        wrong: [...cur.wrongMarks], pen: [...cur.penalized], saved: Date.now() });
+    } catch (e) {}
+  }
+  function applySaved(g) {
+    if (!g || g.n !== cur.n || !Array.isArray(g.state) || g.state.length !== cur.n) return false;
+    cur.state = g.state.map((r) => r.slice()); cur.hearts = g.hearts; cur.hints = g.hints || 0;
+    cur.wrongMarks = new Set(g.wrong || []); cur.penalized = new Set(g.pen || []);
+    cur.foundPrev = new Set(); for (let y = 0; y < cur.n; y++) for (let x = 0; x < cur.n; x++) if (cur.state[y][x] === 2) cur.foundPrev.add(cur.regions[y][x]);
+    drawHearts(); paint(); drawFound();
+    return true;
+  }
+  const savedFor = (meta) => { const g = store.get('game', null); if (!g || !g.meta || g.meta.kind !== meta.kind) return null; return (meta.kind === 'level' ? g.meta.level === meta.level : g.meta.date === meta.date) ? g : null; };
   function startLevel(lv) {
     setScene(worldIdx(lv));
     const b = boardFor(lv);
     makeGame(b, 'Level ' + lv, { kind: 'level', level: lv }, tierOf(lv));
+    const resumed = applySaved(savedFor(cur.meta));
     show('game');
+    if (resumed) setTimeout(() => toast('Welcome back! Continuing where you left off.'), 500);
     if (V) setTimeout(() => V.start(lv, tierOf(lv)), 700);
     if (lv % 10 === 0) setTimeout(() => toast('👑 Boss level! Beat it for a big prize.'), 1200);
     if (lv === 1 && (forceCoach || !store.get('seenCoach', false))) setTimeout(startCoach, 1000);
@@ -298,7 +317,9 @@
     const t = today(), n = dailySize();
     setScene(new Date().getDate() % ZONES.length);
     makeGame(E.generate(n, hash('candoku-' + t)), 'Daily Candy', { kind: 'daily', date: t }, 'normal');
+    const resumed = applySaved(savedFor(cur.meta));
     show('game');
+    if (resumed) setTimeout(() => toast('Welcome back! Continuing where you left off.'), 500);
   }
   function drawHearts() {
     const h = $('hearts'); h.innerHTML = '';
@@ -410,7 +431,7 @@
   }
   function placedCount() { let c = 0; for (const r of cur.state) for (const v of r) if (v === 2) c++; return c; }
   function paint() {
-    const n = cur.n;
+    const n = cur.n; setTimeout(saveGame, 0);
     for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
       const el = cellEl(y, x), s = cur.state[y][x];
       const wrongX = s === 1 && cur.wrongMarks.has(y + ',' + x);   // black X: only after a wrong candy attempt
@@ -498,8 +519,8 @@
     cur.hearts--; buzz([40, 30, 40]); S.wrong();
     const el = cellEl(y, x); el.classList.remove('wrong'); void el.offsetWidth; el.classList.add('wrong');
     const h = $('hearts'); h.classList.remove('hit'); void h.offsetWidth; h.classList.add('hit');
-    drawHearts();
-    if (cur.hearts <= 0) { cur.done = true; freshScore(); score.run = 0; store.set('score', score); setTimeout(() => { S.lose(); if (V) V.lose(); $('lose').hidden = false; }, 500); }
+    drawHearts(); saveGame();
+    if (cur.hearts <= 0) { cur.done = true; saveGame(); freshScore(); score.run = 0; store.set('score', score); setTimeout(() => { S.lose(); if (V) V.lose(); $('lose').hidden = false; }, 500); }
   }
   function solved() {
     const n = cur.n, pos = [];
@@ -665,7 +686,7 @@
 
   /* ---------- win ---------- */
   function win() {
-    cur.done = true; buzz([30, 40, 60]); S.win();
+    cur.done = true; saveGame(); buzz([30, 40, 60]); S.win();
     if (V) setTimeout(() => V.win(cur.hearts), 3100);   // after the three stars have landed
     const m = cur.meta, earned = Math.max(1, cur.hearts);
     let reward = false;
@@ -1146,11 +1167,18 @@
     $('tossClose').onclick = () => { S.tap(); stopToss(); $('toss').hidden = true; updateSides(); };
   }
   wireExtras();
+  document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
+  window.addEventListener('pagehide', saveGame);
   syncSound();
   renderHome();
   scrollToLevel(level);
   if (!store.get('seenIntro', false)) showIntro();
   else if (!store.get('seenHow', false)) $('how').hidden = false;
-  else maybeBonus();
+  else {
+    const g = store.get('game', null);
+    if (g && g.meta && ((g.meta.kind === 'level' && g.meta.level <= level) || (g.meta.kind === 'daily' && g.meta.date === today()))) {
+      if (g.meta.kind === 'level') startLevel(g.meta.level); else startDaily();
+    } else maybeBonus();
+  }
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
