@@ -338,3 +338,41 @@ body.in-game .help .ver{font-size:10px;opacity:.7}
 .card .xclose{position:absolute;left:calc(var(--k) * 613);top:calc(var(--k) * -147);width:calc(var(--k) * 124);height:calc(var(--k) * 124);background:transparent;border-radius:50%;z-index:2}
 .card p{color:#7a4a22}
 .card .link{color:#8a5a30}
+
+/* wallet, tools with wand, daily bonus, shop */
+.wallet{display:flex;gap:8px;justify-content:flex-end}
+.chip{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px 0 8px;border-radius:999px;background:rgba(255,255,255,.92);color:#5b2a14;border:2px solid #ffc247;box-shadow:0 3px 0 #e0902a;font:800 15px var(--display)}
+.chip svg{width:22px;height:22px}
+.chip svg.stroke,.pico.stroke,#itemIcon.stroke{color:#ff8a00;fill:none;stroke:currentColor}
+.chip i{font-style:normal;background:#2fbf4a;color:#fff;border-radius:50%;width:18px;height:18px;line-height:18px;text-align:center;font-size:15px}
+#walletCoins{cursor:pointer}
+.tools{grid-template-columns:repeat(5,1fr);gap:6px}
+.tools .btn{padding-left:2px;padding-right:2px;font-size:13px;position:relative}
+.tools .btn svg{width:20px;height:20px}
+#wandBtn .badge{position:absolute;top:-7px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#fff;color:#c2185b;font:800 12px/20px Poppins,system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+#wandBtn.empty{opacity:.65}
+.ico{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.2em}
+.reward.coins{margin-top:2px}
+.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0}
+.bcard{position:relative;aspect-ratio:1;border-radius:14px;padding:0;perspective:600px;background:none}
+.bcard .front,.bcard .back{position:absolute;inset:0;display:grid;place-items:center;border-radius:14px;backface-visibility:hidden;transition:transform .5s}
+.bcard .front{background:linear-gradient(180deg,#5fd8ff,#1fa3e8);border:3px solid #fff;box-shadow:0 4px 0 #0f74b3,0 0 0 2px #ffc247;font:800 38px var(--display);color:#fff;text-shadow:0 2px 0 #0f74b3}
+.bcard .back{background:linear-gradient(180deg,#fff8e8,#ffe0a8);border:3px solid #ffc247;transform:rotateY(180deg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#5b2a14;font:800 18px var(--display)}
+.bcard.open .front{transform:rotateY(180deg)}
+.bcard.open .back{transform:rotateY(0)}
+.bcard.dim{opacity:.6}
+.bcard.mine .back{box-shadow:0 0 0 3px #ffd84a,0 0 18px #ffd84a}
+.pico{width:32px;height:32px}
+.bgrid:not(:has(.open)) .bcard{animation:bwiggle 2.6s ease-in-out infinite}
+.bgrid .bcard:nth-child(2n){animation-delay:-.7s}
+.bgrid .bcard:nth-child(3n){animation-delay:-1.3s}
+@keyframes bwiggle{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-4deg)}95%{transform:rotate(4deg)}}
+.shopbal{display:flex;justify-content:center;align-items:center;gap:6px;font:800 24px var(--display);margin:0}
+.shopbal svg{width:30px;height:30px}
+.shoplist{display:flex;flex-direction:column;gap:8px}
+.shoprow{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.55);text-align:left}
+.shoprow span{flex:1;display:flex;flex-direction:column;line-height:1.15}
+.shoprow small{font-size:12px;opacity:.75}
+.shoprow .buy{width:auto;padding:8px 14px;display:flex;align-items:center;gap:4px}
+.shoprow .buy svg{width:20px;height:20px}
+.shoprow .buy:disabled{opacity:.5}

@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=24">
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
@@ -75,6 +75,8 @@
 
     <symbol id="back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="redo" viewBox="0 0 24 24"><path d="M4 4v6h6M4.5 15a8 8 0 1 0 2-8.5L4 10" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="#ffc53d" stroke="#c78a00" stroke-width="2"/><circle cx="12" cy="12" r="6.6" fill="none" stroke="#e5a41a" stroke-width="1.6"/><path d="M12 7.8l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#fff3b0"/></symbol>
+    <symbol id="wand" viewBox="0 0 24 24"><path d="M4 20.5L14.5 10" stroke="#7a4a22" stroke-width="3.2" stroke-linecap="round"/><path d="M4 20.5L14.5 10" stroke="#c78a52" stroke-width="1.2" stroke-linecap="round"/><path d="M16 3.5l1.5 3.5 3.5 1.5-3.5 1.5L16 13.5 14.5 10 11 8.5 14.5 7z" fill="#ffd84a" stroke="#e09a00" stroke-width="1" stroke-linejoin="round"/><circle cx="6.5" cy="6" r="1.2" fill="#fff"/><circle cx="20.5" cy="16.5" r="1" fill="#fff"/></symbol>
     <symbol id="bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="gear" viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zM19.4 13.5a7.5 7.5 0 0 0 0-3l2-1.6-2-3.4-2.4 1a7.5 7.5 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.5a7.5 7.5 0 0 0-2.6 1.5l-2.4-1-2 3.4 2 1.6a7.5 7.5 0 0 0 0 3l-2 1.6 2 3.4 2.4-1a7.5 7.5 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.5 7.5 0 0 0 2.6-1.5l2.4 1 2-3.4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
     <symbol id="heart" viewBox="0 0 24 24"><path d="M12 21s-8-5.2-8-11a4.6 4.6 0 0 1 8-3 4.6 4.6 0 0 1 8 3c0 5.8-8 11-8 11z"/></symbol>
@@ -93,6 +95,11 @@
     <button class="icon" id="howBtn" type="button" aria-label="How to play"><svg><use href="#gear"/></svg></button>
   </header>
 
+  <div class="wallet">
+    <button class="chip" id="walletCoins" type="button" aria-label="Shop"><svg><use href="#coin"/></svg><b id="coinN">0</b><i>+</i></button>
+    <span class="chip"><svg class="stroke"><use href="#bulb"/></svg><b id="hintN">3</b></span>
+    <span class="chip"><svg><use href="#wand"/></svg><b id="wandN">0</b></span>
+  </div>
   <button class="daily" id="daily" type="button">
     <span class="daily-ico"><svg><use href="#c3"/></svg></span>
     <span class="daily-txt"><b>Daily Candy</b><small id="dailyInfo">New board every day</small></span>
@@ -124,10 +131,11 @@
   <div class="tools">
     <button class="btn" id="undoBtn" type="button"><svg><use href="#redo"/></svg>Undo</button>
     <button class="btn main" id="hintBtn" type="button"><svg><use href="#bulb"/></svg>Hint<i class="badge" id="hintBadge">3</i></button>
+    <button class="btn" id="wandBtn" type="button"><svg><use href="#wand"/></svg>Wand<i class="badge" id="wandBadge">0</i></button>
     <button class="btn" id="maybeBtn" type="button" aria-pressed="false"><b class="q">?</b>Maybe</button>
     <button class="btn" id="clearBtn" type="button">Restart</button>
   </div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v22</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v24</span></p>
 </main>
 
 <!-- WIN -->
@@ -139,6 +147,7 @@
     <p id="winInfo"></p>
     <div class="gain" id="winGain"></div>
     <p class="reward" id="winReward" hidden></p>
+    <p class="reward coins" id="winCoins" hidden></p>
     <div class="row">
       <button class="btn" id="shareBtn" type="button">Share</button>
       <button class="btn main" id="nextBtn" type="button">Next level</button>
@@ -170,15 +179,37 @@
   </div>
 </div>
 
-<!-- HINT INFO -->
+<!-- ITEM INFO (hint / wand) -->
 <div id="hintInfo" class="overlay" hidden>
   <div class="card">
-    <div class="hint-big"><svg><use href="#bulb"/></svg><b id="hintLeft">3</b></div>
-    <h2>Hint</h2>
-    <p>A hint finds a square where an <b>X</b> surely belongs and marks it for you, and tells you why. It places a candy only when that is the last choice left.</p>
+    <div class="hint-big"><svg id="itemIcon"><use href="#bulb"/></svg><b id="hintLeft">3</b></div>
+    <h2 id="itemTitle">Hint</h2>
+    <p id="itemDesc"></p>
     <p class="small" id="hintEarn"></p>
     <button class="btn main wide" id="hintUse" type="button">Use 1 hint</button>
     <button class="link" id="hintCancel" type="button">Not now</button>
+  </div>
+</div>
+
+<!-- DAILY BONUS -->
+<div id="bonus" class="overlay" hidden>
+  <div class="card">
+    <h2>Daily Bonus</h2>
+    <p class="small" id="bonusMsg">Pick a card to get your reward!</p>
+    <div class="bgrid" id="bonusGrid"></div>
+    <p class="reward" id="bonusStreak"></p>
+    <button class="btn main wide" id="bonusClaim" type="button" hidden>Claim</button>
+  </div>
+</div>
+
+<!-- SHOP -->
+<div id="shop" class="overlay" hidden>
+  <div class="card">
+    <h2>Shop</h2>
+    <p class="shopbal"><svg><use href="#coin"/></svg><b id="shopCoins">0</b></p>
+    <div class="shoplist" id="shopList"></div>
+    <p class="small">Earn coins by solving levels and from the Daily Bonus.</p>
+    <button class="btn main wide" id="shopClose" type="button">Close</button>
   </div>
 </div>
 
@@ -222,13 +253,13 @@
 <div id="wipe" hidden><svg><use href="#c0"/></svg></div>
 <div id="confetti" aria-hidden="true"></div>
 
-<script src="engine.js?v=22"></script>
-<script src="hints.js?v=22"></script>
-<script src="seeds.js?v=22"></script>
-<script src="scenes.js?v=22"></script>
-<script src="sound.js?v=22"></script>
-<script src="music.js?v=22"></script>
-<script src="voice.js?v=22"></script>
-<script src="app.js?v=22"></script>
+<script src="engine.js?v=24"></script>
+<script src="hints.js?v=24"></script>
+<script src="seeds.js?v=24"></script>
+<script src="scenes.js?v=24"></script>
+<script src="sound.js?v=24"></script>
+<script src="music.js?v=24"></script>
+<script src="voice.js?v=24"></script>
+<script src="app.js?v=24"></script>
 </body>
 </html>
