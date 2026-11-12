@@ -29,7 +29,7 @@
     pending[name] = fetch('audio/sfx/' + name + '.mp3').then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error('missing'))))
       .then((ab) => new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej))).then((b) => { bufs[name] = b; }).catch(() => { bufs[name] = null; });
   }
-  function preloadSamples() { ['tap', 'x', 'candy', 'place', 'wrong', 'hint', 'praise', 'open', 'close', 'back', 'toggle', 'flip', 'win', 'buy', 'coin', 'hop', 'lose', 'switch'].forEach(loadSample); }
+  function preloadSamples() { ['n0', 'n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8', 'fanfare', 'stars'].forEach(loadSample); }
   // plays a recorded sample; returns false (so the caller can use the synth) when it is not loaded yet
   function sample(name, rate, gain, when) {
     const b = bufs[name]; if (!b || !ctx) return false;
@@ -85,17 +85,16 @@
       const t = ctx.currentTime, semi = SCALE[(Math.max(1, step) - 1) % SCALE.length];
       voices[id % voices.length](hz(semi), t);
       osc('sine', hz(semi + 12) * 2, t + 0.02, 0.35, 0.06); // sparkle on top
-      sample('candy', rt(semi - 5), 0.9, t + 0.01);
+      const run = [[1, 1], [0, 1], [6, 1], [3, 1], [8, 1], [1, 2], [0, 2], [6, 2], [3, 2]][(Math.max(1, step) - 1) % 9]; sample('n' + run[0], run[1], 0.95, t + 0.005);
     },
-    x() { if (!ready()) return; if (sample('x', 0.95 + Math.random() * 0.1, 1)) return; const t = ctx.currentTime; noise(t, 0.05, 0.3, 2600, 2); osc('sine', 520, t, 0.07, 0.12); },
-    tap() { if (!ready()) return; if (sample('tap', 1, 0.9)) return; const t = ctx.currentTime; osc('sine', 660, t, 0.09, 0.25, 880); },
-    wrong() { if (!ready()) return; sample('wrong', 1, 0.85); const t = ctx.currentTime; osc('sawtooth', 180, t, 0.28, 0.25, 90); osc('square', 140, t + 0.08, 0.25, 0.15, 70); },
-    hint() { if (!ready()) return; if (sample('hint', 1, 0.9)) return; const t = ctx.currentTime; [0, 4, 7, 12].forEach((s, i) => osc('sine', hz(s + 12), t + i * 0.07, 0.3, 0.22)); },
-    win() { if (!ready()) return; sample('win', 1, 0.9); const t = ctx.currentTime; [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => { osc('triangle', hz(s + 12), t + i * 0.09, 0.45, 0.28); osc('sine', hz(s + 24), t + i * 0.09, 0.3, 0.1); }); },
+    x() { if (!ready()) return; const t = ctx.currentTime; noise(t, 0.05, 0.3, 2600, 2); osc('sine', 520, t, 0.07, 0.12); },
+    tap() { if (!ready()) return; const t = ctx.currentTime; osc('sine', 660, t, 0.09, 0.25, 880); },
+    wrong() { if (!ready()) return; const t = ctx.currentTime; osc('sawtooth', 180, t, 0.28, 0.25, 90); osc('square', 140, t + 0.08, 0.25, 0.15, 70); },
+    hint() { if (!ready()) return; const t = ctx.currentTime; [0, 4, 7, 12].forEach((s, i) => osc('sine', hz(s + 12), t + i * 0.07, 0.3, 0.22)); },
+    win() { if (!ready()) return; if (sample('stars', 1, 0.95)) return; const t = ctx.currentTime; [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => { osc('triangle', hz(s + 12), t + i * 0.09, 0.45, 0.28); osc('sine', hz(s + 24), t + i * 0.09, 0.3, 0.1); }); },
     // a candy lands: soft thump + glassy sparkle run, the run climbs with progress
     place(step) {
       if (!ready()) return;
-      sample('place', 1, 0.8);
       const t = ctx.currentTime, base = SCALE[(Math.max(1, step) - 1) % SCALE.length] + 12;
       osc('sine', 150, t, 0.16, 0.34, 55);
       [0, 4, 7, 12].forEach((x, k) => osc('triangle', hz(base + 12 + x), t + 0.03 + k * 0.045, 0.32, 0.12));
@@ -104,12 +103,11 @@
     // a word of praise pops up
     praise(level) {
       if (!ready()) return;
-      sample('praise', rt(2 * (level || 0)), 0.9);
       const t = ctx.currentTime, up = [0, 4, 7, 12, 16].slice(0, 3 + Math.min(2, level || 0));
       up.forEach((x, k) => { osc('square', hz(x + 24), t + k * 0.055, 0.2, 0.05); osc('triangle', hz(x + 24), t + k * 0.055, 0.34, 0.15); });
       noise(t, 0.35, 0.09, 6500, 0.9);
     },
-    ui(name, rate, gain) { if (!ready()) return; sample(name, rate, gain); },
+    ui(name) { if (!ready()) return; const m = { open: 'tap', close: 'tap', back: 'tap', flip: 'tap', buy: 'hint', coin: 'hint' }[name]; if (m && S[m]) S[m](); },
     starIn() { if (!ready()) return; const t = ctx.currentTime; noise(t, 0.4, 0.18, 2400, 0.8); osc('sine', 280, t, 0.42, 0.1, 1600); },
     star(i, earned) {
       if (!ready()) return;
@@ -124,12 +122,13 @@
     fanfare() {
       if (!ready()) return;
       const t = ctx.currentTime;
+      if (sample('fanfare', 1, 1)) return;
       [0, 4, 7, 12].forEach((x) => { osc('triangle', hz(x + 12), t, 0.9, 0.22); osc('sawtooth', hz(x), t, 0.7, 0.05); });
       [12, 16, 19, 24, 28, 31, 36].forEach((x, k) => osc('sine', hz(x + 12), t + 0.12 + k * 0.07, 0.4, 0.14));
       noise(t + 0.1, 0.6, 0.12, 6000, 0.8);
     },
-    lose() { if (!ready()) return; sample('lose', 1, 0.9); const t = ctx.currentTime; [7, 4, 0, -5].forEach((s, i) => osc('triangle', hz(s), t + i * 0.18, 0.4, 0.3)); },
-    hop() { if (!ready()) return; if (sample('hop', 1, 0.9)) return; const t = ctx.currentTime; osc('sine', 500, t, 0.14, 0.25, 900); },
+    lose() { if (!ready()) return; const t = ctx.currentTime; [7, 4, 0, -5].forEach((s, i) => osc('triangle', hz(s), t + i * 0.18, 0.4, 0.3)); },
+    hop() { if (!ready()) return; const t = ctx.currentTime; osc('sine', 500, t, 0.14, 0.25, 900); },
     whoosh() { if (!ready()) return; const t = ctx.currentTime; noise(t, 0.5, 0.22, 900, 0.6); osc('sine', 300, t, 0.45, 0.1, 1200); }
   };
   root.CandokuSound = S;

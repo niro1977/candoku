@@ -620,3 +620,18 @@ body.in-game .nav{display:none}
 /* the bear stands right on top of its level circle (never over the number) */
 .mascot{margin:-58px 0 0 -29px}
 .hopper.gumi{margin:-58px 0 0 -29px}
+
+/* the bear is dressed and glowing */
+.mascot,.hopper.gumi{filter:drop-shadow(0 0 10px rgba(110,255,230,.95)) drop-shadow(0 3px 2px rgba(0,0,0,.35));animation:mglow 1.8s ease-in-out infinite,bob 1.6s ease-in-out infinite}
+.hopper.gumi{animation:mglow 1.8s ease-in-out infinite}
+@keyframes mglow{50%{filter:drop-shadow(0 0 18px rgba(150,255,240,1)) drop-shadow(0 3px 2px rgba(0,0,0,.35))}}
+.mascot{width:68px;height:68px;margin:-60px 0 0 -34px}
+.hopper.gumi{width:68px;height:68px;margin:-60px 0 0 -34px}
+/* victory dance in the win popup */
+.win-gumi{position:relative;width:112px;height:112px;margin:-4px auto -6px;display:grid;place-items:center}
+.win-gumi svg{position:relative;z-index:2;width:104px;height:104px;transform-origin:50% 90%;animation:gumientry .9s cubic-bezier(.2,1.4,.4,1) both,gumidance 1.25s ease-in-out .9s infinite;filter:drop-shadow(0 0 12px rgba(120,255,235,.95))}
+.win-gumi .halo{position:absolute;inset:-6px;border-radius:50%;background:radial-gradient(circle,rgba(150,255,240,.85),rgba(255,235,120,.4) 55%,transparent 72%);animation:halo 1.6s ease-in-out infinite}
+.win-gumi .halo.h2{inset:-22px;opacity:.55;animation-delay:-.8s}
+@keyframes halo{0%,100%{transform:scale(.85);opacity:.55}50%{transform:scale(1.12);opacity:1}}
+@keyframes gumientry{0%{opacity:0;transform:translateY(-130px) scale(2.6) rotate(-300deg)}60%{opacity:1;transform:translateY(8px) scale(.85) rotate(14deg)}80%{transform:translateY(-4px) scale(1.12) rotate(-6deg)}100%{opacity:1;transform:none}}
+@keyframes gumidance{0%,100%{transform:translateY(0) scale(1.05,.95) rotate(0)}25%{transform:translateY(-16px) scale(.96,1.06) rotate(-9deg)}50%{transform:translateY(0) scale(1.06,.94) rotate(0)}75%{transform:translateY(-16px) scale(.96,1.06) rotate(9deg)}}
