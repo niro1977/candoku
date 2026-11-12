@@ -616,3 +616,7 @@ body.in-game .nav{display:none}
 @keyframes rhappy{0%{transform:scale(1)}35%{transform:scale(1.14) rotate(-2deg)}70%{transform:scale(.97) rotate(1deg)}100%{transform:none}}
 .react-sad{animation:rsad .5s ease-in-out}
 @keyframes rsad{0%,100%{transform:none}20%{transform:translateX(-6px) rotate(-2deg)}50%{transform:translateX(6px) rotate(2deg)}80%{transform:translateX(-3px)}}
+
+/* the bear stands right on top of its level circle (never over the number) */
+.mascot{margin:-58px 0 0 -29px}
+.hopper.gumi{margin:-58px 0 0 -29px}
