@@ -71,6 +71,22 @@
     wrong() { if (!ready()) return; const t = ctx.currentTime; osc('sawtooth', 180, t, 0.28, 0.25, 90); osc('square', 140, t + 0.08, 0.25, 0.15, 70); },
     hint() { if (!ready()) return; const t = ctx.currentTime; [0, 4, 7, 12].forEach((s, i) => osc('sine', hz(s + 12), t + i * 0.07, 0.3, 0.22)); },
     win() { if (!ready()) return; const t = ctx.currentTime; [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => { osc('triangle', hz(s + 12), t + i * 0.09, 0.45, 0.28); osc('sine', hz(s + 24), t + i * 0.09, 0.3, 0.1); }); },
+    star(i, earned) {
+      if (!ready()) return;
+      const t = ctx.currentTime;
+      if (!earned) { osc('sine', 330, t, 0.2, 0.12, 200); return; }
+      const base = [0, 4, 7][Math.min(i, 3) - 1] + 12;
+      osc('triangle', hz(base + 12), t, 0.6, 0.3); osc('sine', hz(base + 24), t, 0.5, 0.18); osc('sine', hz(base + 31), t + 0.03, 0.4, 0.1);
+      noise(t, 0.3, 0.14, 7200, 1.2);
+      [0, 7, 12, 16].forEach((x, k) => osc('sine', hz(base + 24 + x), t + 0.05 + k * 0.05, 0.28, 0.07));
+    },
+    fanfare() {
+      if (!ready()) return;
+      const t = ctx.currentTime;
+      [0, 4, 7, 12].forEach((x) => { osc('triangle', hz(x + 12), t, 0.9, 0.22); osc('sawtooth', hz(x), t, 0.7, 0.05); });
+      [12, 16, 19, 24, 28, 31, 36].forEach((x, k) => osc('sine', hz(x + 12), t + 0.12 + k * 0.07, 0.4, 0.14));
+      noise(t + 0.1, 0.6, 0.12, 6000, 0.8);
+    },
     lose() { if (!ready()) return; const t = ctx.currentTime; [7, 4, 0, -5].forEach((s, i) => osc('triangle', hz(s), t + i * 0.18, 0.4, 0.3)); },
     hop() { if (!ready()) return; const t = ctx.currentTime; osc('sine', 500, t, 0.14, 0.25, 900); },
     whoosh() { if (!ready()) return; const t = ctx.currentTime; noise(t, 0.5, 0.22, 900, 0.6); osc('sine', 300, t, 0.45, 0.1, 1200); }

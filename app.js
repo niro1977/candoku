@@ -628,7 +628,7 @@
   /* ---------- win ---------- */
   function win() {
     cur.done = true; buzz([30, 40, 60]); S.win();
-    if (V) setTimeout(() => V.win(cur.hearts), 700);
+    if (V) setTimeout(() => V.win(cur.hearts), 2400);   // after the three stars have landed
     const m = cur.meta, earned = Math.max(1, cur.hearts);
     let reward = false;
     freshScore();
@@ -653,7 +653,7 @@
       const yd = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0');
       daily = { last: m.date, streak: daily.last === yd ? daily.streak + 1 : 1 }; store.set('daily', daily);
     }
-    let st = ''; for (let i = 1; i <= 3; i++) st += STAR.replace('<svg', '<svg style="animation-delay:' + (0.2 + i * 0.18) + 's" class="' + (i <= earned ? '' : 'off') + '"');
+    let st = ''; for (let i = 1; i <= 3; i++) st += STAR.replace('<svg', '<svg class="' + (i <= earned ? '' : 'off') + '"');
     $('winStars').innerHTML = st;
     $('winInfo').textContent = cur.n + '×' + cur.n + (cur.tier !== 'normal' ? ' ' + tierLabel[cur.tier] : '') + ' solved' + (cur.hints ? ' · ' + cur.hints + ' hint' + (cur.hints > 1 ? 's' : '') : ' · no hints');
     const wr = $('winReward');
@@ -667,7 +667,11 @@
     }
     updateHintUi();
     $('nextBtn').textContent = m.kind === 'level' ? 'Next level' : 'Back to map';
-    setTimeout(() => { $('win').hidden = false; confetti(); }, 450);
+    setTimeout(() => {
+      $('win').hidden = false; confetti();
+      const els = $('winStars').querySelectorAll('svg');
+      els.forEach((el, k) => setTimeout(() => { el.classList.add('show'); S.star(k + 1, k + 1 <= earned); buzz(12); if (k === 2 && earned === 3) setTimeout(() => S.fanfare(), 150); }, 500 + k * 520));
+    }, 450);
   }
   function confetti() {
     const box = $('confetti'); box.innerHTML = '';

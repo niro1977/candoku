@@ -534,3 +534,24 @@ body.in-game .nav{display:none}
 .btn.main:disabled{filter:saturate(.5);opacity:.6}
 .bcard .front{background:linear-gradient(180deg,#8cf060,#2fb82f);box-shadow:0 4px 0 #146b17,0 0 0 2px #ffc247;text-shadow:0 2px 0 #146b17}
 .mcard .front{background:linear-gradient(180deg,#8cf060,#2fb82f);box-shadow:0 3px 0 #146b17}
+
+/* stars land one by one */
+.stars svg{animation:none;opacity:0;transform:scale(.2)}
+.stars svg.show{animation:starpop .6s cubic-bezier(.3,1.8,.5,1) both}
+.stars svg.show:not(.off){filter:drop-shadow(0 0 8px #ffe14d) drop-shadow(0 2px 0 rgba(120,70,0,.4))}
+@keyframes starpop{0%{opacity:0;transform:scale(.2) rotate(-45deg)}60%{opacity:1;transform:scale(1.4) rotate(8deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+/* the win popup takes about half the screen */
+#win .card{--cw:min(318px,calc(100vw - 48px));gap:5px}
+#win .win-candy{width:54px;height:54px}
+#win .stars svg{width:42px;height:42px}
+#win .card p{font-size:13px}
+#win .gain{font-size:24px;line-height:1}
+#win .gain small{font-size:11px}
+#win .row{gap:8px}
+/* no underlined links: every small action is a proper 3D button */
+.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link{display:inline-block;align-self:center;text-decoration:none;background:linear-gradient(180deg,#7fd8ff,#2e9be8);color:#fff;border:2px solid #1b6fb5;border-radius:14px;padding:8px 22px;font:800 15px var(--display);box-shadow:0 4px 0 #14538a;text-shadow:0 2px 0 rgba(10,60,110,.6);cursor:pointer}
+.card .link:active,.rank-btn:active,.coach-actions .link:active,.intro-ctl .link:active{transform:translateY(3px);box-shadow:0 1px 0 #14538a}
+.coach-actions .link{padding:6px 16px;font-size:14px}
+.rank-btn{margin-top:8px}
+
+.card .btn:not(.main){background:linear-gradient(180deg,#7fd8ff,#2e9be8);color:#fff;border:2px solid #1b6fb5;box-shadow:0 5px 0 #14538a;text-shadow:0 2px 0 rgba(10,60,110,.6)}
