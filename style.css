@@ -635,3 +635,31 @@ body.in-game .nav{display:none}
 @keyframes halo{0%,100%{transform:scale(.85);opacity:.55}50%{transform:scale(1.12);opacity:1}}
 @keyframes gumientry{0%{opacity:0;transform:translateY(-130px) scale(2.6) rotate(-300deg)}60%{opacity:1;transform:translateY(8px) scale(.85) rotate(14deg)}80%{transform:translateY(-4px) scale(1.12) rotate(-6deg)}100%{opacity:1;transform:none}}
 @keyframes gumidance{0%,100%{transform:translateY(0) scale(1.05,.95) rotate(0)}25%{transform:translateY(-16px) scale(.96,1.06) rotate(-9deg)}50%{transform:translateY(0) scale(1.06,.94) rotate(0)}75%{transform:translateY(-16px) scale(.96,1.06) rotate(9deg)}}
+
+/* loading screen: the bear bounces on a glowing sky */
+#wipe{background:radial-gradient(circle at 50% 38%,#8affea 0,#3ec6d8 30%,#2a63d8 62%,#3a1c9c 100%)}
+.ld{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
+.ldglow{position:absolute;top:-10px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.75),rgba(255,255,255,0) 68%);animation:halo 1.4s ease-in-out infinite}
+#wipe .ldbear{position:relative;width:min(46vw,190px);height:min(46vw,190px);animation:ldjump .9s ease-in-out infinite;filter:drop-shadow(0 0 16px rgba(160,255,240,.95)) drop-shadow(0 8px 6px rgba(0,0,40,.4))}
+@keyframes ldjump{0%,100%{transform:translateY(0) scale(1.08,.92)}45%{transform:translateY(-34px) scale(.95,1.06) rotate(-4deg)}70%{transform:translateY(-8px) rotate(3deg)}}
+.ld b{font:800 30px var(--display);color:#fff;text-shadow:0 3px 0 #1a3a9c,0 0 14px rgba(255,255,255,.6);letter-spacing:1px}
+.ldots{display:flex;gap:7px;margin-top:2px}
+.ldots u{width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.9);animation:ldot 1s ease-in-out infinite}
+.ldots u:nth-child(2){animation-delay:.18s;background:#ffe14d}.ldots u:nth-child(3){animation-delay:.36s;background:#ff8fd0}
+@keyframes ldot{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-10px);opacity:1}}
+/* before a level */
+#prelevel .card{gap:8px}
+.pl-tier{align-self:center;padding:3px 14px;border-radius:999px;font:800 13px var(--display);letter-spacing:1.4px;text-transform:uppercase;color:#fff}
+.pl-tier.hard{background:#ff4421;box-shadow:0 3px 0 #a31d00}
+.pl-tier.veryhard{background:#7a2fd0;box-shadow:0 3px 0 #3a1180}
+.pl-tier.extreme{background:#111;box-shadow:0 3px 0 #000}
+.pl-stars{display:flex;justify-content:center;gap:6px;margin:2px 0}
+.pl-stars .slot{display:grid;place-items:center;width:78px;height:78px;border-radius:50%;background:radial-gradient(circle,rgba(30,90,150,.28),rgba(30,90,150,.1) 70%);box-shadow:inset 0 3px 6px rgba(20,60,110,.35)}
+.pl-stars .slot:nth-child(2){transform:translateY(-10px)}
+.pl-stars img.star{width:62px;height:62px;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(90,40,0,.4))}
+.pl-stars img.star.off{opacity:.45}
+.pl-info{font-size:14px;margin:0;color:#35557a}
+.pl-row{display:flex;justify-content:center;gap:8px}
+.pl-row .chip{height:32px;padding:0 10px 0 6px;font-size:14px}
+.pl-row .chip img{width:22px;height:22px;object-fit:contain}
+#prelevel .pl-play{background:linear-gradient(180deg,#8cf060,#2fb82f);border:2px solid #1c8a1c;box-shadow:0 6px 0 #146b17;font-size:26px;padding:10px;letter-spacing:1px;color:#fff;text-shadow:0 2px 0 rgba(8,70,20,.7)}

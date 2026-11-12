@@ -206,7 +206,7 @@
       if (tier !== 'normal') html += '<span class="badge">' + (tier === 'hard' ? 'HARD' : tier === 'extreme' ? 'EXTREME' : 'VERY HARD') + '</span>';
       if (lv < level && stars[lv]) { html += '<span class="st">'; for (let i = 1; i <= 3; i++) html += starSvg(i <= stars[lv]); html += '</span>'; }
       b.innerHTML = html;
-      b.onclick = () => { S.unlock(); S.tap(); transition(() => startLevel(lv)); };
+      b.onclick = () => { S.unlock(); S.tap(); openPrelevel(lv); };
       map.appendChild(b);
       if (lv === level) map.insertAdjacentHTML('beforeend', '<div class="mascot" style="left:' + p.x + 'px;top:' + (p.y - 30) + 'px"><svg><use href="#gumi"/></svg></div>');
     }
@@ -296,6 +296,19 @@
     return true;
   }
   const savedFor = (meta) => { const g = store.get('game', null); if (!g || !g.meta || g.meta.kind !== meta.kind) return null; return (meta.kind === 'level' ? g.meta.level === meta.level : g.meta.date === meta.date) ? g : null; };
+  /* ---------- the card shown before a level ---------- */
+  function openPrelevel(lv, after) {
+    const n = sizeFor(lv), tier = tierOf(lv), best = stars[lv] || 0, resume = !!savedFor({ kind: 'level', level: lv });
+    $('plTitle').textContent = 'Level ' + lv;
+    const t = $('plTier'); t.hidden = tier === 'normal'; t.className = 'pl-tier ' + tier; t.textContent = tierLabel[tier] || '';
+    $('plStars').innerHTML = [1, 2, 3].map((i) => '<span class="slot"><img class="star ' + (i <= best ? '' : 'off') + '" src="art/star_' + (i <= best ? 'gold' : 'grey') + '.webp" alt="" draggable="false"></span>').join('');
+    $('plInfo').textContent = n + '×' + n + ' board · ' + n + ' candies to find' + (best ? '' : ' · first time!');
+    $('plRow').innerHTML = '<span class="chip"><img src="art/ic_heart.webp" alt="" draggable="false"><b>' + MAX_HEARTS + '</b></span><span class="chip"><img src="art/ic_hint.webp" alt="" draggable="false"><b>' + hintsLeft + '</b></span><span class="chip"><img src="art/ic_wand.webp" alt="" draggable="false"><b>' + wands + '</b></span>';
+    $('plPlay').textContent = resume ? 'Continue' : 'Play';
+    $('plPlay').onclick = () => { S.unlock(); S.tap(); $('prelevel').hidden = true; if (after) after(); else transition(() => startLevel(lv)); };
+    $('prelevel').hidden = false;
+    if (V) setTimeout(() => V.say(tier === 'normal' ? 'ready' : tier === 'extreme' ? 'veryhard' : tier, true), 350);
+  }
   function startLevel(lv) {
     setScene(worldIdx(lv));
     const b = boardFor(lv);
@@ -847,7 +860,7 @@
       await Promise.race([hopTo(from, to), sleep(3500)]);
       if (V && to > 1 && (to - 1) % 10 === 0) V.say('Welcome to ' + zoneOf(to).name + '!', true);
       await sleep(250);
-      await transition(() => startLevel(to));
+      await new Promise((res) => openPrelevel(to, () => transition(() => startLevel(to)).then(res)));
     } catch (e) {
       console.error(e);
       try { $('wipe').hidden = true; startLevel(to); } catch (e2) { renderHome(); show('home'); }
