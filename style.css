@@ -557,3 +557,12 @@ body.in-game .nav{display:none}
 .card .btn:not(.main){background:linear-gradient(180deg,#7fd8ff,#2e9be8);color:#fff;border:2px solid #1b6fb5;box-shadow:0 5px 0 #14538a;text-shadow:0 2px 0 rgba(10,60,110,.6)}
 
 .hopper.gumi{width:58px;height:62px;margin:-74px 0 0 -29px;z-index:6;filter:drop-shadow(0 4px 3px rgba(0,0,0,.4))}
+
+/* neutral, light board frame so it never mixes with the colors of the squares; difficulty shows on the edge only */
+.board,.board.hard,.board.veryhard,.board.extreme{background:#f7f1e5}
+/* green is the button color, everywhere */
+.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.card .btn:not(.main){background:linear-gradient(180deg,#8cf060,#2fb82f);border-color:#1c8a1c;box-shadow:0 4px 0 #146b17;text-shadow:0 2px 0 rgba(8,70,20,.65)}
+.card .btn:not(.main){box-shadow:0 5px 0 #146b17}
+.card .link:active,.rank-btn:active,.coach-actions .link:active,.intro-ctl .link:active{box-shadow:0 1px 0 #146b17}
+.daily-go{background:linear-gradient(180deg,#8cf060,#2fb82f);border:2px solid #1c8a1c;box-shadow:0 4px 0 #146b17;color:#fff;text-shadow:0 2px 0 rgba(8,70,20,.65)}
+.play{background:linear-gradient(180deg,#8cf060,#2fb82f);border-color:#1c8a1c;box-shadow:0 6px 0 #146b17;color:#fff;text-shadow:0 2px 0 rgba(8,70,20,.65)}
