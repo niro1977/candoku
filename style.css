@@ -595,3 +595,9 @@ body.in-game .nav{display:none}
 .btn.main,.card .btn.main,.daily-go,.play{background:linear-gradient(180deg,#ffd45a,#ff9a1f);border:2px solid #c96b00;box-shadow:0 5px 0 #a85500;color:#fff;text-shadow:0 2px 0 rgba(120,60,0,.6)}
 #nextBtn,#nextBtn.btn{background:linear-gradient(180deg,#8cf060,#2fb82f);border:2px solid #1c8a1c;box-shadow:0 5px 0 #146b17;color:#fff;text-shadow:0 2px 0 rgba(8,70,20,.65)}
 .bcard .front,.mcard .front{background:linear-gradient(180deg,#5fd8ff,#1fa3e8);box-shadow:0 4px 0 #0f74b3,0 0 0 2px #ffc247;text-shadow:0 2px 0 #0f74b3}
+
+/* smaller buttons in the win popup */
+#win .card .btn{padding:7px 10px;font-size:14px;min-height:0;border-radius:12px;box-shadow:0 4px 0 #14538a}
+#win .card #nextBtn{box-shadow:0 4px 0 #146b17}
+#win .card .row .btn{flex:1}
+#win .card .link{padding:5px 16px;font-size:13px;box-shadow:0 3px 0 #14538a}
