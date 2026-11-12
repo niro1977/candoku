@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=38">
+<link rel="stylesheet" href="style.css?v=39">
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
@@ -85,6 +85,32 @@
     <symbol id="m-chest" viewBox="0 0 24 24"><path d="M3 11a9 7 0 0 1 18 0v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" fill="#b8692c" stroke="#6b3418" stroke-width="1.2"/><path d="M3 11a9 7 0 0 1 18 0z" fill="#d08540"/><rect x="10" y="9.5" width="4" height="6" rx="1" fill="#ffd84a" stroke="#c78a00" stroke-width=".9"/><path d="M3 13h18" stroke="#ffd84a" stroke-width="1.6"/></symbol>
     <symbol id="m-game" viewBox="0 0 24 24"><path d="M5 8h14a3 3 0 0 1 3 3.2l-.6 5a2.4 2.4 0 0 1-4.2 1.3L16 16H8l-1.2 1.5a2.4 2.4 0 0 1-4.2-1.3l-.6-5A3 3 0 0 1 5 8z" fill="#7a2fd0" stroke="#4a1a8f" stroke-width="1"/><path d="M7 10.8v3.4M5.3 12.5h3.4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="16" cy="11.6" r="1.1" fill="#ffd84a"/><circle cx="18.2" cy="13.4" r="1.1" fill="#7be37a"/></symbol>
     <symbol id="m-toss" viewBox="0 0 24 24"><path d="M6 8h12l-1 11a2 2 0 0 1-2 1.8H9A2 2 0 0 1 7 19z" fill="#bfeaff" stroke="#4a9bd0" stroke-width="1.2"/><rect x="5" y="5.5" width="14" height="3" rx="1.2" fill="#ff5fa8"/><circle cx="10" cy="16" r="2" fill="#ffb347"/><circle cx="14" cy="14.5" r="2" fill="#7be37a"/></symbol>
+    <symbol id="star3d" viewBox="0 0 64 64">
+      <defs>
+        <linearGradient id="star3d-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff59a"/><stop offset=".45" stop-color="#ffcf2e"/><stop offset="1" stop-color="#f08a00"/></linearGradient>
+        <linearGradient id="star3d-i" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3a8"/><stop offset="1" stop-color="#ffc21f"/></linearGradient>
+      </defs>
+      <polygon points="32.00,11.00 39.94,27.08 57.68,29.66 44.84,42.17 47.87,59.84 32.00,51.50 16.13,59.84 19.16,42.17 6.32,29.66 24.06,27.08" fill="#7a3d00" stroke="#7a3d00" stroke-width="6" stroke-linejoin="round" opacity=".55"/>
+      <polygon points="32.00,7.00 39.94,23.08 57.68,25.66 44.84,38.17 47.87,55.84 32.00,47.50 16.13,55.84 19.16,38.17 6.32,25.66 24.06,23.08" fill="url(#star3d-g)" stroke="#c96b00" stroke-width="5" stroke-linejoin="round"/>
+      <polygon points="32.00,13.50 38.00,25.75 51.50,27.67 41.70,37.15 44.05,50.58 32.00,44.20 19.95,50.58 22.30,37.15 12.50,27.67 26.00,25.75" fill="url(#star3d-i)" stroke="url(#star3d-i)" stroke-width="4" stroke-linejoin="round" opacity=".92"/>
+      <polygon points="32.00,21.00 35.82,28.74 44.36,29.98 38.18,36.01 39.64,44.52 32.00,40.50 24.36,44.52 25.82,36.01 19.64,29.98 28.18,28.74" fill="#fff3a8" stroke="#fff3a8" stroke-width="3" stroke-linejoin="round" opacity=".55"/>
+      <path d="M13 22 Q16 12 25 9" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" opacity=".85"/>
+      <ellipse cx="20" cy="26" rx="3" ry="1.6" fill="#fff" opacity=".7" transform="rotate(-35 20 26)"/>
+      <path d="M50 14 l1.6 3.6 3.6 1.6 -3.6 1.6 -1.6 3.6 -1.6 -3.6 -3.6 -1.6 3.6 -1.6z" fill="#fff"/>
+    </symbol>
+    <symbol id="star3d-off" viewBox="0 0 64 64">
+      <defs>
+        <linearGradient id="star3d-off-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2f5fb"/><stop offset=".45" stop-color="#bcc4d6"/><stop offset="1" stop-color="#8a95ad"/></linearGradient>
+        <linearGradient id="star3d-off-i" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef1f8"/><stop offset="1" stop-color="#aeb6c9"/></linearGradient>
+      </defs>
+      <polygon points="32.00,11.00 39.94,27.08 57.68,29.66 44.84,42.17 47.87,59.84 32.00,51.50 16.13,59.84 19.16,42.17 6.32,29.66 24.06,27.08" fill="#3a4156" stroke="#3a4156" stroke-width="6" stroke-linejoin="round" opacity=".55"/>
+      <polygon points="32.00,7.00 39.94,23.08 57.68,25.66 44.84,38.17 47.87,55.84 32.00,47.50 16.13,55.84 19.16,38.17 6.32,25.66 24.06,23.08" fill="url(#star3d-off-g)" stroke="#6f7a93" stroke-width="5" stroke-linejoin="round"/>
+      <polygon points="32.00,13.50 38.00,25.75 51.50,27.67 41.70,37.15 44.05,50.58 32.00,44.20 19.95,50.58 22.30,37.15 12.50,27.67 26.00,25.75" fill="url(#star3d-off-i)" stroke="url(#star3d-off-i)" stroke-width="4" stroke-linejoin="round" opacity=".92"/>
+      <polygon points="32.00,21.00 35.82,28.74 44.36,29.98 38.18,36.01 39.64,44.52 32.00,40.50 24.36,44.52 25.82,36.01 19.64,29.98 28.18,28.74" fill="#eef1f8" stroke="#eef1f8" stroke-width="3" stroke-linejoin="round" opacity=".55"/>
+      <path d="M13 22 Q16 12 25 9" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" opacity=".85"/>
+      <ellipse cx="20" cy="26" rx="3" ry="1.6" fill="#fff" opacity=".7" transform="rotate(-35 20 26)"/>
+      
+    </symbol>
     <symbol id="coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="#ffc53d" stroke="#c78a00" stroke-width="2"/><circle cx="12" cy="12" r="6.6" fill="none" stroke="#e5a41a" stroke-width="1.6"/><path d="M12 7.8l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#fff3b0"/></symbol>
     <symbol id="wand" viewBox="0 0 24 24"><path d="M4 20.5L14.5 10" stroke="#7a4a22" stroke-width="3.2" stroke-linecap="round"/><path d="M4 20.5L14.5 10" stroke="#c78a52" stroke-width="1.2" stroke-linecap="round"/><path d="M16 3.5l1.5 3.5 3.5 1.5-3.5 1.5L16 13.5 14.5 10 11 8.5 14.5 7z" fill="#ffd84a" stroke="#e09a00" stroke-width="1" stroke-linejoin="round"/><circle cx="6.5" cy="6" r="1.2" fill="#fff"/><circle cx="20.5" cy="16.5" r="1" fill="#fff"/></symbol>
     <symbol id="bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -157,7 +183,7 @@
     <button class="btn" id="maybeBtn" type="button" aria-pressed="false" aria-label="Maybe (mark a question)" title="Maybe"><img class="tico" src="art/tool_maybe_green.webp" alt="" draggable="false"></button>
     <button class="btn" id="clearBtn" type="button" aria-label="Restart" title="Restart"><img class="tico" src="art/tool_restart.webp" alt="" draggable="false"></button>
   </div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v38</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v39</span></p>
 </main>
 
 <!-- WIN -->
@@ -373,12 +399,12 @@
   <button type="button" id="navShop"><img class="navico" src="art/nav_shop.webp" alt="" draggable="false"><span>Shop</span></button>
   <button type="button" id="navRank"><img class="navico" src="art/nav_rank.webp" alt="" draggable="false"><span>Ranking</span></button>
 </nav>
-<script src="engine.js?v=38"></script>
-<script src="hints.js?v=38"></script>
-<script src="seeds.js?v=38"></script>
-<script src="sound.js?v=38"></script>
-<script src="music.js?v=38"></script>
-<script src="voice.js?v=38"></script>
-<script src="app.js?v=38"></script>
+<script src="engine.js?v=39"></script>
+<script src="hints.js?v=39"></script>
+<script src="seeds.js?v=39"></script>
+<script src="sound.js?v=39"></script>
+<script src="music.js?v=39"></script>
+<script src="voice.js?v=39"></script>
+<script src="app.js?v=39"></script>
 </body>
 </html>

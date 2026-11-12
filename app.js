@@ -5,7 +5,7 @@
   // vivid tiles, one per color region
   const COLORS = ['#22b8ff', '#7ee21f', '#ffd400', '#ff52c8', '#a45cff', '#00dcb0', '#ff8a00', '#ff3d3d', '#3a5cff', '#c98240'];
   const NAMES = ['Lollipop', 'Wrapped Candy', 'Chocolate Bar', 'Glazed Donut', 'Cupcake', 'Choc Chip Cookie', 'Cherries', 'Soft Serve', 'Shortcake', 'Candy Dango'];
-  const STAR = '<svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .8-5.2 4.8 1.4 7L12 17.8 5.8 21l1.4-7L2 9.3l7-.8z"/></svg>';
+  const starSvg = (on) => '<svg class="' + (on ? '' : 'off') + '" viewBox="0 0 64 64"><use href="#' + (on ? 'star3d' : 'star3d-off') + '"/></svg>';
   const MAX_HEARTS = 3;
   const $ = (id) => document.getElementById(id);
   const M = window.CandokuMusic, V = window.CandokuVoice;
@@ -204,7 +204,7 @@
       if (tier === 'normal') b.style.setProperty('--c', COLORS[(n - 5) % COLORS.length]);
       let html = lv + '<small>' + n + '×' + n + '</small>';
       if (tier !== 'normal') html += '<span class="badge">' + (tier === 'hard' ? 'HARD' : tier === 'extreme' ? 'EXTREME' : 'VERY HARD') + '</span>';
-      if (lv < level && stars[lv]) { html += '<span class="st">'; for (let i = 1; i <= 3; i++) html += STAR.replace('<svg', '<svg class="' + (i <= stars[lv] ? '' : 'off') + '"'); html += '</span>'; }
+      if (lv < level && stars[lv]) { html += '<span class="st">'; for (let i = 1; i <= 3; i++) html += starSvg(i <= stars[lv]); html += '</span>'; }
       b.innerHTML = html;
       b.onclick = () => { S.unlock(); S.tap(); transition(() => startLevel(lv)); };
       map.appendChild(b);
@@ -658,7 +658,7 @@
       const yd = y.getFullYear() + '-' + String(y.getMonth() + 1).padStart(2, '0') + '-' + String(y.getDate()).padStart(2, '0');
       daily = { last: m.date, streak: daily.last === yd ? daily.streak + 1 : 1 }; store.set('daily', daily);
     }
-    let st = ''; for (let i = 1; i <= 3; i++) st += STAR.replace('<svg', '<svg class="' + (i <= earned ? '' : 'off') + '"');
+    let st = ''; for (let i = 1; i <= 3; i++) st += starSvg(i <= earned);
     $('winStars').innerHTML = st;
     $('winInfo').textContent = cur.n + '×' + cur.n + (cur.tier !== 'normal' ? ' ' + tierLabel[cur.tier] : '') + ' solved' + (cur.hints ? ' · ' + cur.hints + ' hint' + (cur.hints > 1 ? 's' : '') : ' · no hints');
     const wr = $('winReward');
