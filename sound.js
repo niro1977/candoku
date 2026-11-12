@@ -71,6 +71,21 @@
     wrong() { if (!ready()) return; const t = ctx.currentTime; osc('sawtooth', 180, t, 0.28, 0.25, 90); osc('square', 140, t + 0.08, 0.25, 0.15, 70); },
     hint() { if (!ready()) return; const t = ctx.currentTime; [0, 4, 7, 12].forEach((s, i) => osc('sine', hz(s + 12), t + i * 0.07, 0.3, 0.22)); },
     win() { if (!ready()) return; const t = ctx.currentTime; [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => { osc('triangle', hz(s + 12), t + i * 0.09, 0.45, 0.28); osc('sine', hz(s + 24), t + i * 0.09, 0.3, 0.1); }); },
+    // a candy lands: soft thump + glassy sparkle run, the run climbs with progress
+    place(step) {
+      if (!ready()) return;
+      const t = ctx.currentTime, base = SCALE[(Math.max(1, step) - 1) % SCALE.length] + 12;
+      osc('sine', 150, t, 0.16, 0.34, 55);
+      [0, 4, 7, 12].forEach((x, k) => osc('triangle', hz(base + 12 + x), t + 0.03 + k * 0.045, 0.32, 0.12));
+      noise(t, 0.18, 0.1, 8000, 1.2);
+    },
+    // a word of praise pops up
+    praise(level) {
+      if (!ready()) return;
+      const t = ctx.currentTime, up = [0, 4, 7, 12, 16].slice(0, 3 + Math.min(2, level || 0));
+      up.forEach((x, k) => { osc('square', hz(x + 24), t + k * 0.055, 0.2, 0.05); osc('triangle', hz(x + 24), t + k * 0.055, 0.34, 0.15); });
+      noise(t, 0.35, 0.09, 6500, 0.9);
+    },
     starIn() { if (!ready()) return; const t = ctx.currentTime; noise(t, 0.4, 0.18, 2400, 0.8); osc('sine', 280, t, 0.42, 0.1, 1600); },
     star(i, earned) {
       if (!ready()) return;

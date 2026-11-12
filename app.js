@@ -427,6 +427,38 @@
   }
   function snapshot() { cur.history.push(cur.state.map((r) => r.slice())); if (cur.history.length > 200) cur.history.shift(); }
 
+  /* ---------- effects ---------- */
+  const PRAISE = ['Sweet!', 'Yummy!', 'Tasty!', 'Nice!', 'Delicious!', 'Super!', 'Great!'];
+  let praiseN = 0;
+  function fxLayer() { let l = $('fx'); if (!l) { l = document.createElement('div'); l.id = 'fx'; document.body.appendChild(l); } return l; }
+  function burstAt(el, strong) {
+    if (!el) return;
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, L = fxLayer();
+    const col = getComputedStyle(el).backgroundColor || '#fff';
+    const ring = document.createElement('i'); ring.className = 'fx-ring'; ring.style.cssText = 'left:' + cx + 'px;top:' + cy + 'px;border-color:' + col; L.appendChild(ring); setTimeout(() => ring.remove(), 700);
+    const cols = ['#ffffff', '#ffe14d', col, '#ff8fd0', '#7fe3ff'], n = strong ? 22 : 12;
+    for (let k = 0; k < n; k++) {
+      const p = document.createElement('i'), ang = (k / n) * 6.283 + Math.random() * 0.5, dist = (strong ? 70 : 46) + Math.random() * 40, sz = 5 + Math.random() * 6;
+      p.className = 'fx-p'; p.style.cssText = 'left:' + cx + 'px;top:' + cy + 'px;width:' + sz + 'px;height:' + sz + 'px;background:' + cols[k % cols.length] + ';--dx:' + Math.cos(ang) * dist + 'px;--dy:' + (Math.sin(ang) * dist - 10) + 'px';
+      L.appendChild(p); setTimeout(() => p.remove(), 850);
+    }
+  }
+  function praiseWord(text, big) {
+    const bd = $('board'); if (!bd) return;
+    const r = bd.getBoundingClientRect(), L = fxLayer(), w = document.createElement('div');
+    w.className = 'fx-word' + (big ? ' big' : ''); w.textContent = text; w.style.left = (r.left + r.width / 2) + 'px'; w.style.top = (r.top + r.height * 0.42) + 'px';
+    L.appendChild(w); setTimeout(() => w.remove(), 1200);
+  }
+  function bearReact(kind) {
+    const g = $('hearts'), t = g && g.parentElement; if (!t) return;
+    t.classList.remove('react-happy', 'react-sad'); void t.offsetWidth; t.classList.add(kind === 'sad' ? 'react-sad' : 'react-happy');
+  }
+  function placedFx(y, x, pc) {
+    const el = cellEl(y, x), last = pc === cur.n;
+    burstAt(el, last); S.place(pc); bearReact('happy');
+    if (last) { praiseWord('Perfect!', true); S.praise(2); }
+    else if (pc === 1 || pc % 2 === 0) { praiseWord(PRAISE[praiseN++ % PRAISE.length]); S.praise(Math.floor(pc / 3)); }
+  }
   function tap(y, x, maybe, candy) {
     if (cur.done) return;
     S.unlock();
@@ -445,6 +477,7 @@
       snapshot();
       cur.state[y][x] = 1; cur.wrongMarks.add(k);
       paint();
+      bearReact('sad');
       if (cur.penalized.has(k)) { S.wrong(); buzz([20, 20]); const el = cellEl(y, x); el.classList.remove('wrong'); void el.offsetWidth; el.classList.add('wrong'); }
       else { cur.penalized.add(k); mistake(y, x); }
       return;
@@ -453,7 +486,7 @@
     snapshot();
     cur.state[y][x] = ns;
     if (ns === 2) {
-      buzz(14); const pc = placedCount(); S.candy(cur.regions[y][x], pc);
+      buzz(14); const pc = placedCount(); S.candy(cur.regions[y][x], pc); placedFx(y, x, pc);
       if (V) { if (pc === 1) V.first(); else if (Math.random() < 0.22) V.praise(); }
     }
     else if (ns === 1) { buzz(5); S.x(); }
@@ -530,7 +563,7 @@
     paint();
     for (const [y, x] of h.cells) { const el = cellEl(y, x); el.classList.remove('hinted'); void el.offsetWidth; el.classList.add('hinted'); }
     toast(h.text); buzz(15);
-    if (h.type === 'candy') { const [y, x] = h.cells[0]; S.candy(cur.regions[y][x], placedCount()); } else S.hint();
+    if (h.type === 'candy') { const [y, x] = h.cells[0]; S.candy(cur.regions[y][x], placedCount()); placedFx(y, x, placedCount()); } else S.hint();
     if (solved()) win();
   }
   function useWand() {
@@ -543,7 +576,7 @@
     cur.state[y][x] = 2; cur.wrongMarks.delete(y + ',' + x);
     paint();
     const el = cellEl(y, x); el.classList.remove('hinted'); void el.offsetWidth; el.classList.add('hinted');
-    toast('✨ The wand placed a candy for you!'); buzz(20); S.candy(cur.regions[y][x], placedCount());
+    toast('✨ The wand placed a candy for you!'); buzz(20); S.candy(cur.regions[y][x], placedCount()); placedFx(y, x, placedCount());
     if (solved()) win();
   }
   /* ---------- daily bonus: pick one of nine cards ---------- */
