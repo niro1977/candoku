@@ -541,6 +541,29 @@
     S.tap(); $('bonus').hidden = false;
   }
   function maybeBonus() { if (bonus.last !== today() && $('intro').hidden && $('bonus').hidden) setTimeout(openBonus, 600); }
+  /* ---------- profile ---------- */
+  function openProfile() {
+    S.unlock(); S.tap(); freshScore();
+    const best = Math.max(score.best || 0, score.points);
+    let i = 0; for (let k = 0; k < RANKS.length; k++) if (best >= RANKS[k][0]) i = k;
+    const next = RANKS[i + 1];
+    $('pfName').value = pname; $('pfRank').textContent = RANKS[i][1];
+    $('pfBar').style.width = (next ? Math.min(100, ((best - RANKS[i][0]) / (next[0] - RANKS[i][0])) * 100) : 100) + '%';
+    $('pfNext').textContent = next ? (next[0] - best) + ' pts to ' + next[1] : 'Top rank reached!';
+    const totalStars = Object.values(stars).reduce((x, y) => x + (y || 0), 0);
+    const rows = [
+      ['Levels passed', Math.max(0, level - 1)], ['Stars', totalStars], ['Best day', best + ' pts'],
+      ['Today', score.points + ' pts'], ['Daily bonus streak', bonus.streak ? bonus.streak + ' days' : '-'], ['Daily Candy streak', daily.streak ? daily.streak + ' days' : '-']
+    ];
+    $('pfGrid').innerHTML = rows.map((r) => '<div><b>' + r[1] + '</b><small>' + r[0] + '</small></div>').join('')
+      + '<div><b><svg class="ico"><use href="#coin"/></svg> ' + coins + '</b><small>Coins</small></div>'
+      + '<div><b>' + hintsLeft + ' · ' + wands + '</b><small>Hints · Wands</small></div>';
+    $('profile').hidden = false;
+  }
+  function saveProfileName() {
+    const v = $('pfName').value.replace(/[<>&"'`]/g, '').trim().slice(0, 16);
+    if (v && v !== pname) { pname = v; store.set('pname', pname); postScore(); }
+  }
   /* ---------- shop ---------- */
   function openShop() {
     S.unlock(); S.tap();
@@ -697,10 +720,16 @@
   $('undoBtn').onclick = undo;
   document.querySelectorAll('.card').forEach((card) => {
     const x = document.createElement('button'); x.type = 'button'; x.className = 'xclose'; x.setAttribute('aria-label', 'Close');
-    x.onclick = () => { for (const id of ['#howClose', '#rankClose', '#hintCancel', '#shopClose', '#bonusClaim', '#homeBtn', '#loseHome']) { const b = card.querySelector(id); if (b) { b.click(); return; } } };
+    x.onclick = () => { for (const id of ['#howClose', '#rankClose', '#hintCancel', '#shopClose', '#pfClose', '#bonusClaim', '#homeBtn', '#loseHome']) { const b = card.querySelector(id); if (b) { b.click(); return; } } };
     card.appendChild(x);
   });
   $('rankBtn').onclick = openRanking;
+  $('navHome').onclick = () => { S.tap(); scrollToLevel(level); };
+  $('navShop').onclick = openShop;
+  $('navRank').onclick = openRanking;
+  $('navMe').onclick = openProfile;
+  $('pfClose').onclick = () => { saveProfileName(); S.tap(); $('profile').hidden = true; };
+  $('pfName').onchange = saveProfileName;
   $('rankClose').onclick = () => { saveName(); S.tap(); $('ranking').hidden = true; };
   $('rankName2').onchange = saveName;
   $('hintBtn').onclick = () => openItemInfo('hint');

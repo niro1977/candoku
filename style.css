@@ -376,3 +376,23 @@ body.in-game .help .ver{font-size:10px;opacity:.7}
 .shoprow .buy{width:auto;padding:8px 14px;display:flex;align-items:center;gap:4px}
 .shoprow .buy svg{width:20px;height:20px}
 .shoprow .buy:disabled{opacity:.5}
+
+/* bottom navigation on the map screens */
+.nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(460px,100%);z-index:10;display:grid;grid-template-columns:repeat(4,1fr);
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#8a4a22,#5b2a14);border-top:3px solid #ffc247;box-shadow:0 -6px 18px rgba(40,0,80,.4)}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0 4px;border-radius:14px;background:none;color:#ffe9c4;font:800 12px var(--display)}
+.nav button svg{width:26px;height:26px}
+.nav button.on{background:rgba(255,194,71,.25);color:#fff}
+body.in-game .nav{display:none}
+#home.screen{padding-bottom:84px}
+/* profile */
+.pf-top{display:flex;align-items:center;gap:10px;text-align:left}
+.pf-gumi{width:74px;height:82px;flex:none}
+.pf-id{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
+.pf-id input{width:100%;padding:6px 8px;border-radius:10px;border:2px solid #c78a52;background:#fff8ea;color:#5b2a14;font:800 17px var(--display)}
+.pf-id b{font:800 15px var(--display);color:#7a2fd0}
+.pf-id small{font-size:12px;color:#7a4a22}
+.pf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.pf-grid div{display:flex;flex-direction:column;align-items:center;padding:7px 4px;border-radius:12px;background:rgba(255,255,255,.55)}
+.pf-grid b{font:800 18px var(--display);color:#5b2a14}
+.pf-grid small{font-size:11px;opacity:.8}

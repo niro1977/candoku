@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=24">
+<link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
@@ -75,6 +75,10 @@
 
     <symbol id="back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="redo" viewBox="0 0 24 24"><path d="M4 4v6h6M4.5 15a8 8 0 1 0 2-8.5L4 10" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 11.2 12 4l8.5 7.2V20a1 1 0 0 1-1 1H15v-6h-6v6H4.5a1 1 0 0 1-1-1z" fill="currentColor"/></symbol>
+    <symbol id="i-shop" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z" fill="currentColor"/><path d="M9 10V7a3 3 0 0 1 6 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z" fill="currentColor"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 14v4M8 21h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-me" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2" fill="currentColor"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z" fill="currentColor"/></symbol>
     <symbol id="coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.5" fill="#ffc53d" stroke="#c78a00" stroke-width="2"/><circle cx="12" cy="12" r="6.6" fill="none" stroke="#e5a41a" stroke-width="1.6"/><path d="M12 7.8l1.3 2.6 2.9.4-2.1 2 .5 2.9-2.6-1.4-2.6 1.4.5-2.9-2.1-2 2.9-.4z" fill="#fff3b0"/></symbol>
     <symbol id="wand" viewBox="0 0 24 24"><path d="M4 20.5L14.5 10" stroke="#7a4a22" stroke-width="3.2" stroke-linecap="round"/><path d="M4 20.5L14.5 10" stroke="#c78a52" stroke-width="1.2" stroke-linecap="round"/><path d="M16 3.5l1.5 3.5 3.5 1.5-3.5 1.5L16 13.5 14.5 10 11 8.5 14.5 7z" fill="#ffd84a" stroke="#e09a00" stroke-width="1" stroke-linejoin="round"/><circle cx="6.5" cy="6" r="1.2" fill="#fff"/><circle cx="20.5" cy="16.5" r="1" fill="#fff"/></symbol>
     <symbol id="bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -135,7 +139,7 @@
     <button class="btn" id="maybeBtn" type="button" aria-pressed="false"><b class="q">?</b>Maybe</button>
     <button class="btn" id="clearBtn" type="button">Restart</button>
   </div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v24</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v25</span></p>
 </main>
 
 <!-- WIN -->
@@ -176,6 +180,24 @@
     <div class="rlist" id="rankList"></div>
     <p class="rmine" id="rankMine"></p>
     <button class="btn main wide" id="rankClose" type="button">Close</button>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="profile" class="overlay" hidden>
+  <div class="card">
+    <h2>My Profile</h2>
+    <div class="pf-top">
+      <svg class="pf-gumi"><use href="#gumi"/></svg>
+      <div class="pf-id">
+        <input id="pfName" maxlength="16" autocomplete="off" spellcheck="false" aria-label="Your name">
+        <b id="pfRank">Rookie</b>
+        <div class="score-bar"><i id="pfBar"></i></div>
+        <small id="pfNext"></small>
+      </div>
+    </div>
+    <div class="pf-grid" id="pfGrid"></div>
+    <button class="btn main wide" id="pfClose" type="button">Close</button>
   </div>
 </div>
 
@@ -253,13 +275,19 @@
 <div id="wipe" hidden><svg><use href="#c0"/></svg></div>
 <div id="confetti" aria-hidden="true"></div>
 
-<script src="engine.js?v=24"></script>
-<script src="hints.js?v=24"></script>
-<script src="seeds.js?v=24"></script>
-<script src="scenes.js?v=24"></script>
-<script src="sound.js?v=24"></script>
-<script src="music.js?v=24"></script>
-<script src="voice.js?v=24"></script>
-<script src="app.js?v=24"></script>
+<nav class="nav" id="nav" aria-label="Main">
+  <button type="button" id="navHome" class="on"><svg><use href="#i-home"/></svg><span>Home</span></button>
+  <button type="button" id="navShop"><svg><use href="#i-shop"/></svg><span>Shop</span></button>
+  <button type="button" id="navRank"><svg><use href="#i-trophy"/></svg><span>Ranking</span></button>
+  <button type="button" id="navMe"><svg><use href="#i-me"/></svg><span>Profile</span></button>
+</nav>
+<script src="engine.js?v=25"></script>
+<script src="hints.js?v=25"></script>
+<script src="seeds.js?v=25"></script>
+<script src="scenes.js?v=25"></script>
+<script src="sound.js?v=25"></script>
+<script src="music.js?v=25"></script>
+<script src="voice.js?v=25"></script>
+<script src="app.js?v=25"></script>
 </body>
 </html>
