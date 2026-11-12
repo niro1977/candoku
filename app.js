@@ -571,7 +571,7 @@
   function onItemButton() {
     const it = ITEMS[itemKind];
     if (it.count() > 0) { $('hintInfo').hidden = true; it.run(); }
-    else if (coins >= it.price) { coins -= it.price; it.add(1); saveWallet(); updateHintUi(); S.hint(); openItemInfo(itemKind); }
+    else if (coins >= it.price) { coins -= it.price; it.add(1); saveWallet(); updateHintUi(); S.ui('buy', 1, 1); S.ui('coin', 1, 0.9); openItemInfo(itemKind); }
   }
   function hint() {
     if (!cur || cur.done || hintsLeft <= 0) return;
@@ -633,11 +633,11 @@
         const prize = rollPrize(streak, streak % 7 === 0);
         bonus = { last: t, streak }; store.set('bonus', bonus);
         coins += prize.coins || 0; hintsLeft += prize.hints || 0; wands += prize.wands || 0; saveWallet(); updateHintUi();
-        b.querySelector('.back').innerHTML = prizeHtml(prize); b.classList.add('open', 'mine'); S.win(); buzz([20, 30, 40]);
+        b.querySelector('.back').innerHTML = prizeHtml(prize); b.classList.add('open', 'mine'); S.ui('flip', 1, 1); S.win(); buzz([20, 30, 40]);
         $('bonusMsg').textContent = 'You won ' + prizeText(prize) + '!';
         $('bonusStreak').textContent = '🔥 Day ' + streak + (streak % 7 === 0 ? ' · big prize day!' : ' · come back tomorrow for more');
         // the other cards show what they hid
-        [...grid.children].forEach((c, k) => { if (c === b) return; setTimeout(() => { c.querySelector('.back').innerHTML = prizeHtml(rollPrize(streak, false)); c.classList.add('open', 'dim'); S.tap(); }, 450 + k * 90); });
+        [...grid.children].forEach((c, k) => { if (c === b) return; setTimeout(() => { c.querySelector('.back').innerHTML = prizeHtml(rollPrize(streak, false)); c.classList.add('open', 'dim'); S.ui('flip', 0.9 + (k % 4) * 0.08, 0.7); }, 450 + k * 90); });
         setTimeout(() => { $('bonusClaim').hidden = false; }, 1400);
       };
       grid.appendChild(b);
@@ -677,7 +677,7 @@
       const it = ITEMS[k], row = document.createElement('div'); row.className = 'shoprow';
       row.innerHTML = '<img class="pico" src="art/ic_' + it.icon + '.webp" alt="" draggable="false"><span><b>' + it.name + '</b><small>you have ' + it.count() + '</small></span>';
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy'; b.innerHTML = it.price + ' ' + coinSvg; b.disabled = coins < it.price;
-      b.onclick = () => { if (coins < it.price) return; coins -= it.price; it.add(1); saveWallet(); updateHintUi(); S.hint(); openShop(); };
+      b.onclick = () => { if (coins < it.price) return; coins -= it.price; it.add(1); saveWallet(); updateHintUi(); S.ui('buy', 1, 1); S.ui('coin', 1, 0.9); openShop(); };
       row.appendChild(b); list.appendChild(row);
     }
     $('shop').hidden = false;
@@ -856,7 +856,7 @@
 
   /* ---------- wiring ---------- */
   $('daily').onclick = () => { S.unlock(); S.tap(); transition(() => startDaily()); };
-  $('backBtn').onclick = () => { S.tap(); toMap(); };
+  $('backBtn').onclick = () => { S.ui('back', 1, 1); toMap(); };
   $('undoBtn').onclick = undo;
   document.querySelectorAll('.card').forEach((card) => {
     const x = document.createElement('button'); x.type = 'button'; x.className = 'xclose'; x.setAttribute('aria-label', 'Close');
@@ -1167,6 +1167,15 @@
     $('tossClose').onclick = () => { S.tap(); stopToss(); $('toss').hidden = true; updateSides(); };
   }
   wireExtras();
+  // every popup opens and closes with a sound, found automatically
+  (function popupSounds() {
+    const seen = new Set(); let t0 = 0;
+    new MutationObserver((ms) => ms.forEach((m) => {
+      const el = m.target; if (!el.classList || !el.classList.contains('overlay') || m.attributeName !== 'hidden') return;
+      const now = performance.now(); if (now - t0 < 120) return; t0 = now;
+      if (el.hidden) S.ui('close', 1, 0.8); else if (el.id !== 'intro') S.ui('open', 1, 0.9);
+    })).observe(document.body, { attributes: true, subtree: true, attributeFilter: ['hidden'] });
+  })();
   document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
   window.addEventListener('pagehide', saveGame);
   syncSound();
