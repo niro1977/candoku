@@ -435,7 +435,7 @@
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 4200);
   }
   /* ---------- wallet: coins, hints, wands ---------- */
-  const coinSvg = '<svg class="ico"><use href="#coin"/></svg>';
+  const coinSvg = '<img class="ico" src="art/ic_coin.webp" alt="" draggable="false">';
   function saveWallet() { store.set('coins', coins); store.set('wands', wands); store.set('hints', hintsLeft); }
   function updateHintUi() {
     const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };
@@ -443,7 +443,7 @@
     $('hintBtn').classList.toggle('empty', hintsLeft <= 0); $('wandBtn').classList.toggle('empty', wands <= 0);
   }
   const ITEMS = {
-    hint: { name: 'Hint', icon: 'bulb', price: 30,
+    hint: { name: 'Hint', icon: 'hint', price: 30,
       desc: 'A hint finds a square where an X surely belongs and marks it for you, and tells you why. It places a candy only when that is the last choice left.',
       count: () => hintsLeft, add: (n) => { hintsLeft += n; }, run: () => hint(),
       earn: () => { const t = HINT_EVERY - (cleared % HINT_EVERY); return 'You win 1 free hint for every ' + HINT_EVERY + ' levels you pass (' + t + ' more to go), and in the Daily Bonus.'; } },
@@ -457,7 +457,7 @@
     if (!cur || cur.done) return;
     S.unlock(); S.tap(); itemKind = kind;
     const it = ITEMS[kind], n = it.count();
-    $('itemIcon').innerHTML = '<use href="#' + it.icon + '"/>'; $('itemIcon').setAttribute('class', it.icon === 'bulb' ? 'stroke' : '');
+    $('itemIcon').src = 'art/ic_' + it.icon + '.webp';
     $('hintLeft').textContent = n; $('itemTitle').textContent = it.name; $('itemDesc').textContent = it.desc; $('hintEarn').textContent = it.earn();
     const b = $('hintUse');
     if (n > 0) { b.textContent = 'Use 1 ' + it.name.toLowerCase(); b.disabled = false; }
@@ -510,9 +510,10 @@
     return list[0];
   }
   function prizeHtml(p) {
-    if (p.coins) return '<svg class="pico"><use href="#coin"/></svg><b>+' + p.coins + '</b>';
-    if (p.hints) return '<svg class="pico stroke"><use href="#bulb"/></svg><b>+' + p.hints + '</b>';
-    return '<svg class="pico"><use href="#wand"/></svg><b>+' + p.wands + '</b>';
+    const im = (n) => '<img class="pico" src="art/ic_' + n + '.webp" alt="" draggable="false">';
+    if (p.coins) return im('coin') + '<b>+' + p.coins + '</b>';
+    if (p.hints) return im('hint') + '<b>+' + p.hints + '</b>';
+    return im('wand') + '<b>+' + p.wands + '</b>';
   }
   function prizeText(p) { return p.coins ? p.coins + ' coins' : p.hints ? p.hints + ' hint' + (p.hints > 1 ? 's' : '') : '1 magic wand'; }
   function openBonus() {
@@ -556,7 +557,7 @@
       ['Today', score.points + ' pts'], ['Daily bonus streak', bonus.streak ? bonus.streak + ' days' : '-'], ['Daily Candy streak', daily.streak ? daily.streak + ' days' : '-']
     ];
     $('pfGrid').innerHTML = rows.map((r) => '<div><b>' + r[1] + '</b><small>' + r[0] + '</small></div>').join('')
-      + '<div><b><svg class="ico"><use href="#coin"/></svg> ' + coins + '</b><small>Coins</small></div>'
+      + '<div><b>' + coinSvg + ' ' + coins + '</b><small>Coins</small></div>'
       + '<div><b>' + hintsLeft + ' · ' + wands + '</b><small>Hints · Wands</small></div>';
     $('profile').hidden = false;
   }
@@ -571,7 +572,7 @@
     const list = $('shopList'); list.innerHTML = '';
     for (const k of ['hint', 'wand']) {
       const it = ITEMS[k], row = document.createElement('div'); row.className = 'shoprow';
-      row.innerHTML = '<svg class="pico' + (k === 'hint' ? ' stroke' : '') + '"><use href="#' + it.icon + '"/></svg><span><b>' + it.name + '</b><small>you have ' + it.count() + '</small></span>';
+      row.innerHTML = '<img class="pico" src="art/ic_' + it.icon + '.webp" alt="" draggable="false"><span><b>' + it.name + '</b><small>you have ' + it.count() + '</small></span>';
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy'; b.innerHTML = it.price + ' ' + coinSvg; b.disabled = coins < it.price;
       b.onclick = () => { if (coins < it.price) return; coins -= it.price; it.add(1); saveWallet(); updateHintUi(); S.hint(); openShop(); };
       row.appendChild(b); list.appendChild(row);
@@ -906,9 +907,9 @@
   function openGames() {
     S.unlock(); S.tap(); closeAll(); freshDay();
     const list = $('gameList'); list.innerHTML = '';
-    [['memory', 'Memory Match', 'Find all the pairs in 14 moves', 'm-game'], ['toss', 'Candy Toss', 'Toss 5 candies into the jar', 'm-toss']].forEach((g) => {
+    [['memory', 'Memory Match', 'Find all the pairs in 14 moves', 'games'], ['toss', 'Candy Toss', 'Toss 5 candies into the jar', 'games']].forEach((g) => {
       const left = MAX_PLAYS - plays[g[0]], d = document.createElement('div'); d.className = 'shoprow';
-      d.innerHTML = '<svg class="pico"><use href="#' + g[3] + '"/></svg><span><b>' + g[1] + '</b><small>' + g[2] + ' · ' + left + '/' + MAX_PLAYS + ' today</small></span>';
+      d.innerHTML = '<img class="pico" src="art/ic_' + g[3] + '.webp" alt="" draggable="false"><span><b>' + g[1] + '</b><small>' + g[2] + ' · ' + left + '/' + MAX_PLAYS + ' today</small></span>';
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy'; b.textContent = 'Play'; b.disabled = left <= 0;
       b.onclick = () => { if (g[0] === 'memory') startMemory(); else startToss(); };
       d.appendChild(b); list.appendChild(d);

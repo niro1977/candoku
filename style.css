@@ -430,3 +430,16 @@ body.in-game .nav{display:none}
 .mcard.open .front{transform:rotateY(180deg)}.mcard.open .back{transform:rotateY(0)}
 .mcard.done{opacity:.55}
 .tosscv{display:block;width:100%;max-width:270px;margin:0 auto;border-radius:14px;border:3px solid #fff;touch-action:none;box-shadow:0 3px 0 rgba(0,0,0,.2)}
+
+/* painted icons replace the words */
+.tools .btn{padding:6px 2px;min-height:54px;display:grid;place-items:center}
+.tools .btn .tico{width:38px;height:38px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(60,0,110,.3));pointer-events:none}
+.tools .btn.main{padding:6px 2px}
+#maybeBtn[aria-pressed="true"]{background:#ffe9a8;box-shadow:inset 0 0 0 3px #ff9a1f,0 4px 0 rgba(60,0,110,.45)}
+.chip img{width:26px;height:26px;object-fit:contain}
+.med .disc img{width:44px;height:44px;object-fit:contain}
+.hint-big img{width:54px;height:54px;object-fit:contain}
+.chest-art{width:110px;height:110px;object-fit:contain}
+.shopbal img{width:32px;height:32px}
+.pico{object-fit:contain}
+.ico{object-fit:contain}

@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style.css?v=27">
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
@@ -107,9 +107,9 @@
 
   <div class="wallet">
     <button class="chip me" id="walletMe" type="button" aria-label="Profile"><svg class="gum"><use href="#gumi"/></svg><b>Me</b></button>
-    <button class="chip" id="walletCoins" type="button" aria-label="Shop"><svg><use href="#coin"/></svg><b id="coinN">0</b><i>+</i></button>
-    <span class="chip"><svg class="stroke"><use href="#bulb"/></svg><b id="hintN">3</b></span>
-    <span class="chip"><svg><use href="#wand"/></svg><b id="wandN">0</b></span>
+    <button class="chip" id="walletCoins" type="button" aria-label="Shop"><img class="" src="art/ic_coin.webp" alt="" draggable="false"><b id="coinN">0</b><i>+</i></button>
+    <span class="chip"><img class="" src="art/ic_hint.webp" alt="" draggable="false"><b id="hintN">3</b></span>
+    <span class="chip"><img class="" src="art/ic_wand.webp" alt="" draggable="false"><b id="wandN">0</b></span>
   </div>
   <button class="daily" id="daily" type="button">
     <span class="daily-ico"><svg><use href="#c3"/></svg></span>
@@ -127,11 +127,11 @@
   <div class="sides">
     <div class="col l">
       <button class="med" id="medDaily" type="button"><span class="disc"><svg><use href="#c3"/></svg></span><span class="tag" id="medDailyTag">Play</span></button>
-      <button class="med" id="medWheel" type="button"><span class="disc"><svg><use href="#m-wheel"/></svg></span><span class="tag" id="medWheelTag">FREE</span></button>
+      <button class="med" id="medWheel" type="button"><span class="disc"><img class="" src="art/ic_wheel.webp" alt="" draggable="false"></span><span class="tag" id="medWheelTag">FREE</span></button>
     </div>
     <div class="col r">
-      <button class="med" id="medChest" type="button"><span class="disc"><svg><use href="#m-chest"/></svg></span><span class="tag" id="medChestTag">0/10</span></button>
-      <button class="med" id="medGames" type="button"><span class="disc"><svg><use href="#m-game"/></svg></span><span class="tag" id="medGamesTag">4/4</span></button>
+      <button class="med" id="medChest" type="button"><span class="disc"><img class="" src="art/ic_chest.webp" alt="" draggable="false"></span><span class="tag" id="medChestTag">0/10</span></button>
+      <button class="med" id="medGames" type="button"><span class="disc"><img class="" src="art/ic_games.webp" alt="" draggable="false"></span><span class="tag" id="medGamesTag">4/4</span></button>
     </div>
   </div>
   <div class="map" id="map"></div>
@@ -150,13 +150,13 @@
   <div class="boardwrap"><div class="board" id="board"></div></div>
   <div class="toast" id="toast"></div>
   <div class="tools">
-    <button class="btn" id="undoBtn" type="button"><svg><use href="#redo"/></svg>Undo</button>
-    <button class="btn main" id="hintBtn" type="button"><svg><use href="#bulb"/></svg>Hint<i class="badge" id="hintBadge">3</i></button>
-    <button class="btn" id="wandBtn" type="button"><svg><use href="#wand"/></svg>Wand<i class="badge" id="wandBadge">0</i></button>
-    <button class="btn" id="maybeBtn" type="button" aria-pressed="false"><b class="q">?</b>Maybe</button>
-    <button class="btn" id="clearBtn" type="button">Restart</button>
+    <button class="btn" id="undoBtn" type="button" aria-label="Undo" title="Undo"><img class="tico" src="art/ic_undo.webp" alt="" draggable="false"></button>
+    <button class="btn main" id="hintBtn" type="button" aria-label="Hint" title="Hint"><img class="tico" src="art/ic_hint.webp" alt="" draggable="false"><i class="badge" id="hintBadge">3</i></button>
+    <button class="btn" id="wandBtn" type="button" aria-label="Magic wand" title="Magic wand"><img class="tico" src="art/ic_wand.webp" alt="" draggable="false"><i class="badge" id="wandBadge">0</i></button>
+    <button class="btn" id="maybeBtn" type="button" aria-pressed="false" aria-label="Maybe (mark a question)" title="Maybe"><img class="tico" src="art/ic_maybe.webp" alt="" draggable="false"></button>
+    <button class="btn" id="clearBtn" type="button" aria-label="Restart" title="Restart"><img class="tico" src="art/ic_restart.webp" alt="" draggable="false"></button>
   </div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v26</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v27</span></p>
 </main>
 
 <!-- WIN -->
@@ -219,7 +219,7 @@
 <!-- CHEST -->
 <div id="chest" class="overlay" hidden><div class="card">
   <h2>Candy Chest</h2>
-  <svg class="chest-art"><use href="#m-chest"/></svg>
+  <img class="chest-art" src="art/ic_chest.webp" alt="" draggable="false">
   <p id="chestMsg"></p>
   <div class="score-bar"><i id="chestBar"></i></div>
   <div id="chestPrize" class="chest-prize"></div>
@@ -282,7 +282,7 @@
 <!-- ITEM INFO (hint / wand) -->
 <div id="hintInfo" class="overlay" hidden>
   <div class="card">
-    <div class="hint-big"><svg id="itemIcon"><use href="#bulb"/></svg><b id="hintLeft">3</b></div>
+    <div class="hint-big"><img id="itemIcon" src="art/ic_hint.webp" alt="" draggable="false"><b id="hintLeft">3</b></div>
     <h2 id="itemTitle">Hint</h2>
     <p id="itemDesc"></p>
     <p class="small" id="hintEarn"></p>
@@ -306,7 +306,7 @@
 <div id="shop" class="overlay" hidden>
   <div class="card">
     <h2>Shop</h2>
-    <p class="shopbal"><svg><use href="#coin"/></svg><b id="shopCoins">0</b></p>
+    <p class="shopbal"><img class="" src="art/ic_coin.webp" alt="" draggable="false"><b id="shopCoins">0</b></p>
     <div class="shoplist" id="shopList"></div>
     <p class="small">Earn coins by solving levels and from the Daily Bonus.</p>
     <button class="btn main wide" id="shopClose" type="button">Close</button>
@@ -360,13 +360,13 @@
   <button type="button" id="navShop"><svg><use href="#i-shop"/></svg><span>Shop</span></button>
   <button type="button" id="navRank"><svg><use href="#i-trophy"/></svg><span>Ranking</span></button>
 </nav>
-<script src="engine.js?v=26"></script>
-<script src="hints.js?v=26"></script>
-<script src="seeds.js?v=26"></script>
-<script src="scenes.js?v=26"></script>
-<script src="sound.js?v=26"></script>
-<script src="music.js?v=26"></script>
-<script src="voice.js?v=26"></script>
-<script src="app.js?v=26"></script>
+<script src="engine.js?v=27"></script>
+<script src="hints.js?v=27"></script>
+<script src="seeds.js?v=27"></script>
+<script src="scenes.js?v=27"></script>
+<script src="sound.js?v=27"></script>
+<script src="music.js?v=27"></script>
+<script src="voice.js?v=27"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>
