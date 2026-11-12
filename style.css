@@ -501,3 +501,30 @@ body.in-game .nav{display:none}
 .tools .btn .tico{width:100%;max-width:66px;height:auto;filter:none}
 .tools .btn.empty{opacity:.6}
 #maybeBtn[aria-pressed="true"]{background:none;box-shadow:none;outline:4px solid #ffe14d;outline-offset:-3px}
+
+/* world title: a painted candy ribbon */
+.map .ribbon{white-space:normal;max-width:none;width:min(262px,calc(100% - 150px));aspect-ratio:700/213;display:grid;place-items:center;padding:0 15%;
+  background:url(art/ribbon.webp) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;letter-spacing:0;text-transform:none;font-size:inherit;
+  color:#6b3418;text-shadow:0 1px 0 rgba(255,255,255,.75);font-family:var(--display);text-align:center;line-height:1;filter:drop-shadow(0 4px 4px rgba(40,0,80,.35))}
+.map .ribbon span{display:block}
+.map .ribbon small{display:block;font-size:10px;letter-spacing:2.5px;font-weight:800;opacity:.75;margin-bottom:1px}
+.map .ribbon b{display:block;font-size:17px;font-weight:800;line-height:1.05}
+/* medallions: roomier, calmer pulse, tag always on top of the neighbour */
+.sides .col{gap:30px}
+.med{z-index:1}.med .tag{position:relative;z-index:3}
+@keyframes medpulse{50%{transform:scale(1.04)}}
+/* smaller in-game tool tiles */
+.tools{align-items:center;justify-items:center}
+.tools .btn .tico{max-width:50px}
+
+.map .ribbon{transform:translate(-50%,-50%)}
+
+/* no more beige: sky-blue popups, teal world ribbons, rich colored board frames */
+.card{border-image-source:url(art/panel_blue.webp)}
+.map .ribbon{background-image:url(art/ribbon_teal.webp);width:min(312px,calc(100% - 64px));padding:0 16%;color:#fff;text-shadow:0 2px 0 #0b5f6a,0 0 8px rgba(8,70,84,.7)}
+.map .ribbon small{font-size:11px;opacity:.95;color:#d9fbff}
+.map .ribbon b{font-size:17px;line-height:1.02}
+.board{background:linear-gradient(180deg,#5a3cf0,#2f1a9a)}
+.board.hard{background:linear-gradient(180deg,#ff6a4d,#b8281a)}
+.board.veryhard{background:linear-gradient(180deg,#a45cff,#5a1fb8)}
+.board.extreme{background:linear-gradient(180deg,#3a3a46,#0d0d12)}

@@ -16,7 +16,8 @@
     verytasty: 'Very tasty!', close: 'Sweet! That was close!', lose: 'Oh no! Try again!',
     go: "Let's go!", ready: 'Ready? Go!', hard: 'Hard level! You can do it!', veryhard: 'Very hard level! Good luck!',
     z0: 'Welcome to Lollipop Meadow!', z1: 'Welcome to Chocolate River!', z2: 'Welcome to Frosting Mountains!', z3: 'Welcome to Cotton Candy Sky!',
-    z4: 'Welcome to Ice Cream Beach!', z5: 'Welcome to Gingerbread Winter!', z6: 'Welcome to Donut Lake!', z7: 'Welcome to Cookie Canyon!', z8: 'Welcome to Crystal Caves!'
+    z4: 'Welcome to Ice Cream Beach!', z5: 'Welcome to Gingerbread Winter!', z6: 'Welcome to Donut Lake!', z7: 'Welcome to Cookie Canyon!', z8: 'Welcome to Crystal Caves!',
+    z9: 'Welcome to Jelly Jungle!', z10: 'Welcome to Cupcake Village!', z11: 'Welcome to Candy Cane Forest!', z12: 'Welcome to Caramel Falls!', z13: 'Welcome to Carnival Fairground!', z14: 'Welcome to Macaron Mesa!', z15: 'Welcome to Waffle Castle!', z16: 'Welcome to Soda Springs!', z17: 'Welcome to Honey Hive Hills!', z18: 'Welcome to Berry Bog!', z19: 'Welcome to Mint Mountain!', z20: 'Welcome to Licorice Night Market!', z21: 'Welcome to Sugar Dunes Oasis!', z22: 'Welcome to Pudding Pools!', z23: 'Welcome to Cinnamon Autumn Forest!', z24: 'Welcome to Starlight Sprinkle Galaxy!', z25: 'Welcome to Toffee Treehouse Village!', z26: 'Welcome to Gumdrop Garden!', z27: 'Welcome to Royal Cake Palace!', z28: 'Welcome to Rainbow Sherbet Glacier!', z29: 'Welcome to Sweet Kingdom Gate!'
   };
   const ID_OF = {}; Object.keys(CLIPS).forEach((k) => { ID_OF[CLIPS[k]] = k; });
   const buffers = {}, loading = {};

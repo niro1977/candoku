@@ -112,18 +112,45 @@
   }
 
   /* ---------- level map ---------- */
-  const MAP_STEP = 96;
+  const MAP_STEP = 96, WORLD_GAP = 96;
   function mapGeom() {
     const W = Math.min(window.innerWidth, 460) - 32;
-    const count = Math.min(300, Math.max(level + 25, 60));
-    const Ht = count * MAP_STEP + 70;
-    return { W, count, Ht, pos: (lv) => ({ x: W / 2 + Math.sin((lv - 1) * 0.9) * W * 0.2, y: Ht - 56 - (lv - 1) * MAP_STEP }) };
+    const count = ZONES.length * 10;   // every level of every world is on the map from the start
+    const Ht = count * MAP_STEP + (count / 10) * WORLD_GAP + 150;   // a clear band between worlds holds the title ribbon
+    return { W, count, Ht, pos: (lv) => ({ x: W / 2 + Math.sin((lv - 1) * 0.9) * W * 0.2, y: Ht - 140 - (lv - 1) * MAP_STEP - Math.floor((lv - 1) / 10) * WORLD_GAP }) };
   }
   /* ---------- illustrated worlds: a new landscape every 10 levels ---------- */
   const ZONES = [
-    { name: 'Lollipop Meadow' }, { name: 'Chocolate River' }, { name: 'Frosting Mountains' },
-    { name: 'Cotton Candy Sky' }, { name: 'Ice Cream Beach' }, { name: 'Gingerbread Winter' },
-    { name: 'Donut Lake' }, { name: 'Cookie Canyon' }, { name: 'Crystal Caves' }
+    { name: 'Lollipop Meadow' },
+    { name: 'Chocolate River' },
+    { name: 'Frosting Mountains' },
+    { name: 'Cotton Candy Sky' },
+    { name: 'Ice Cream Beach' },
+    { name: 'Gingerbread Winter' },
+    { name: 'Donut Lake' },
+    { name: 'Cookie Canyon' },
+    { name: 'Crystal Caves' },
+    { name: 'Jelly Jungle' },
+    { name: 'Cupcake Village' },
+    { name: 'Candy Cane Forest' },
+    { name: 'Caramel Falls' },
+    { name: 'Carnival Fairground' },
+    { name: 'Macaron Mesa' },
+    { name: 'Waffle Castle' },
+    { name: 'Soda Springs' },
+    { name: 'Honey Hive Hills' },
+    { name: 'Berry Bog' },
+    { name: 'Mint Mountain' },
+    { name: 'Licorice Night Market' },
+    { name: 'Sugar Dunes Oasis' },
+    { name: 'Pudding Pools' },
+    { name: 'Cinnamon Autumn Forest' },
+    { name: 'Starlight Sprinkle Galaxy' },
+    { name: 'Toffee Treehouse Village' },
+    { name: 'Gumdrop Garden' },
+    { name: 'Royal Cake Palace' },
+    { name: 'Rainbow Sherbet Glacier' },
+    { name: 'Sweet Kingdom Gate' }
   ];
   const ASPECT = { 'd-lolly': [0.6, 1], 'd-bush': [1, 0.6], 'd-cane': [0.5, 1], 'd-cloud': [2, 1], 'd-house': [1, 1], 'd-cone': [0.85, 1.15], 'd-choco': [0.8, 1], 'd-star': [1, 1] };
   const zoneOf = (lv) => ZONES[Math.floor((lv - 1) / 10) % ZONES.length];
@@ -131,19 +158,26 @@
   function worldHtml(g) {
     let html = '';
     const zones = Math.ceil(g.count / 10);
+    const edge = (k) => (k <= 0 ? g.Ht : k >= zones ? 0 : g.pos(k * 10 + 1).y + (MAP_STEP + WORLD_GAP) / 2);   // where world k begins
     for (let k = 0; k < zones; k++) {
-      const z = ZONES[k % ZONES.length];
-      const top = k === zones - 1 ? 0 : g.pos(k * 10 + 10).y - MAP_STEP / 2;
-      const bottom = k === 0 ? g.Ht : g.pos(k * 10 + 1).y + MAP_STEP / 2;
-      html += '<div class="zone" style="top:' + top + 'px;height:' + (bottom - top) + 'px;background:#2a1450 url(art/bg_' + (k % ZONES.length) + '.jpg) center/cover"></div>';
+      const top = edge(k + 1), bottom = edge(k);
+      html += '<div class="zone" style="top:' + top + 'px;height:' + (bottom - top) + 'px;background:#2a1450 center/cover no-repeat" data-bg="art/bg_' + (k % ZONES.length) + '.jpg"></div>';
     }
     for (let k = 0; k < zones; k++) {
-      const z = ZONES[k % ZONES.length], lvTop = Math.min(g.count, k * 10 + 10);
-      html += '<div class="ribbon" style="top:' + Math.max(30, Math.round(g.pos(lvTop).y - 84)) + 'px">World ' + (k + 1) + ' · ' + z.name + '</div>';
+      const z = ZONES[k % ZONES.length], cy = g.pos(k * 10 + 1).y + (MAP_STEP + WORLD_GAP) / 2;
+      html += '<div class="ribbon" style="top:' + Math.round(cy) + 'px"><span><small>WORLD ' + (k + 1) + '</small><b>' + z.name + '</b></span></div>';
     }
     return html;
   }
 
+  let zoneObs = null;
+  function lazyZones() {   // a world's painting is fetched only when it is about to scroll into view
+    const els = document.querySelectorAll('.zone[data-bg]');
+    if (!('IntersectionObserver' in window)) { els.forEach((e) => { e.style.backgroundImage = 'url(' + e.dataset.bg + ')'; }); return; }
+    if (zoneObs) zoneObs.disconnect();
+    zoneObs = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { en.target.style.backgroundImage = 'url(' + en.target.dataset.bg + ')'; zoneObs.unobserve(en.target); } }), { rootMargin: '900px 0px' });
+    els.forEach((e) => zoneObs.observe(e));
+  }
   function renderHome() {
     const t = today();
     $('dailyInfo').textContent = daily.last === t ? 'Solved today ✓ come back tomorrow' : dailySize() + '×' + dailySize() + ' · new board today';
@@ -151,7 +185,7 @@
     $('streak').textContent = daily.streak > 1 ? '🔥 ' + daily.streak + ' day streak' : '';
     const map = $('map'), g = mapGeom();
     map.innerHTML = ''; map.style.height = g.Ht + 'px';
-    map.insertAdjacentHTML('beforeend', worldHtml(g));
+    map.insertAdjacentHTML('beforeend', worldHtml(g)); lazyZones();
     // winding trail
     let d = '';
     const pts = [];
@@ -790,6 +824,7 @@
     { sel: 'found', text: 'Welcome! Your goal: put exactly ONE candy in every color. The row up here shows which candies you still need.', at: 'bottom' },
     { sel: 'board', text: 'Tap a square to mark an X, a square that cannot hold a candy. Tap the X again to remove it. Drag across squares to mark many.', at: 'bottom' },
     { sel: 'board', text: 'Double-tap a square to place a candy. Only ONE candy in each row and each column, and candies can never touch, not even diagonally.', at: 'bottom' },
+    { sel: 'board', text: '✅ Do: one candy in every row, column and color.  ❌ Never: two candies in the same row, column or color, or touching each other, even diagonally.', at: 'bottom' },
     { sel: 'hearts', text: 'Careful! A wrong candy costs a heart. Lose all three hearts and you try the level again.', at: 'bottom' },
     { sel: 'hintBtn', text: 'Stuck? The light bulb gives a hint, and the wand places a correct candy for you. You start with a few of each.', at: 'top' },
     { sel: 'found', text: 'Place all the candies to win! You earn stars, coins and prizes. Good luck!', at: 'bottom' }
