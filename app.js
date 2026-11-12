@@ -147,7 +147,7 @@
   function renderHome() {
     const t = today();
     $('dailyInfo').textContent = daily.last === t ? 'Solved today ✓ come back tomorrow' : dailySize() + '×' + dailySize() + ' · new board today';
-    renderScore(); updateHintUi();
+    renderScore(); updateHintUi(); updateSides();
     $('streak').textContent = daily.streak > 1 ? '🔥 ' + daily.streak + ' day streak' : '';
     const map = $('map'), g = mapGeom();
     map.innerHTML = ''; map.style.height = g.Ht + 'px';
@@ -593,6 +593,7 @@
     store.set('score', score); postScore();
     const earnedCoins = cur.n * 2 + (cur.hearts >= 3 ? 4 : 0);
     coins += earnedCoins; saveWallet(); updateHintUi();
+    onSolved();
     $('winCoins').hidden = false; $('winCoins').innerHTML = '+' + earnedCoins + ' ' + coinSvg + ' coins';
     $('winGain').innerHTML = '+' + pt.gain + ' pts<small>' + '×' + pt.mult + ' in a row · ' + score.points + ' today</small>';
     if (m.kind === 'level') {
@@ -720,14 +721,10 @@
   $('undoBtn').onclick = undo;
   document.querySelectorAll('.card').forEach((card) => {
     const x = document.createElement('button'); x.type = 'button'; x.className = 'xclose'; x.setAttribute('aria-label', 'Close');
-    x.onclick = () => { for (const id of ['#howClose', '#rankClose', '#hintCancel', '#shopClose', '#pfClose', '#bonusClaim', '#homeBtn', '#loseHome']) { const b = card.querySelector(id); if (b) { b.click(); return; } } };
+    x.onclick = () => { for (const id of ['#howClose', '#wheelClose', '#chestClose', '#questClose', '#giftClose', '#gamesClose', '#memClose', '#tossClose', '#rankClose', '#hintCancel', '#shopClose', '#pfClose', '#bonusClaim', '#homeBtn', '#loseHome']) { const b = card.querySelector(id); if (b) { b.click(); return; } } };
     card.appendChild(x);
   });
   $('rankBtn').onclick = openRanking;
-  $('navHome').onclick = () => { S.tap(); scrollToLevel(level); };
-  $('navShop').onclick = openShop;
-  $('navRank').onclick = openRanking;
-  $('navMe').onclick = openProfile;
   $('pfClose').onclick = () => { saveProfileName(); S.tap(); $('profile').hidden = true; };
   $('pfName').onchange = saveProfileName;
   $('rankClose').onclick = () => { saveName(); S.tap(); $('ranking').hidden = true; };
@@ -766,6 +763,247 @@
   };
   document.addEventListener('visibilitychange', () => { if (document.hidden) return; });
 
+  /* ---------- extras: gifts, daily quests, chest, lucky wheel, mini-games ---------- */
+  const HOUR = 3600e3, MAX_PLAYS = 2, CHEST_AT = 10;
+  let quests = store.get('quests', null), chest = store.get('chest', { n: 0 }), wheel = store.get('wheel', { date: '', extra: 0 });
+  let gifts = store.get('gifts', { daily: '', free: 0 }), plays = store.get('plays', { date: '', memory: 0, toss: 0 });
+  const give = (p) => { coins += p.coins || 0; hintsLeft += p.hints || 0; wands += p.wands || 0; saveWallet(); updateHintUi(); };
+  const closeAll = () => { ['wheel', 'chest', 'quests', 'gifts', 'games', 'memory', 'toss'].forEach((id) => { $(id).hidden = true; }); };
+  const QDEF = [
+    { id: 'solved', text: 'Solve 3 levels', goal: 3, coins: 25 },
+    { id: 'nohint', text: 'Solve a level with no hints', goal: 1, coins: 30 },
+    { id: 'flawless', text: 'Solve a level without losing a heart', goal: 1, coins: 30 }
+  ];
+  function freshDay() {
+    const t = today();
+    if (!quests || quests.date !== t) { quests = { date: t, p: { solved: 0, nohint: 0, flawless: 0 }, claimed: {}, bonus: false }; store.set('quests', quests); }
+    if (plays.date !== t) { plays = { date: t, memory: 0, toss: 0 }; store.set('plays', plays); }
+  }
+  const dailyGiftReady = () => gifts.daily !== today();
+  const freeGiftReady = () => Date.now() - gifts.free >= 6 * HOUR;
+  const questReady = () => QDEF.some((q) => quests.p[q.id] >= q.goal && !quests.claimed[q.id]);
+  function onSolved() {
+    freshDay();
+    quests.p.solved++; if (!cur.hints) quests.p.nohint++; if (cur.hearts >= MAX_HEARTS) quests.p.flawless++;
+    store.set('quests', quests);
+    chest.n = Math.min(CHEST_AT, chest.n + 1); store.set('chest', chest);
+    updateSides();
+  }
+  function updateSides() {
+    freshDay();
+    const set = (id, t) => { const e = $(id); if (e) e.textContent = t; };
+    set('medDailyTag', daily.last === today() ? '✓' : 'Play');
+    const free = wheel.date !== today() || wheel.extra > 0;
+    set('medWheelTag', free ? 'FREE' : 'Tomorrow'); $('medWheel').classList.toggle('ready', free);
+    set('medChestTag', chest.n >= CHEST_AT ? 'OPEN' : chest.n + '/' + CHEST_AT); $('medChest').classList.toggle('ready', chest.n >= CHEST_AT);
+    const left = (MAX_PLAYS - plays.memory) + (MAX_PLAYS - plays.toss);
+    set('medGamesTag', left + '/' + MAX_PLAYS * 2); $('medGames').classList.toggle('ready', left > 0);
+    $('navQuests').classList.toggle('dot', questReady()); $('navGifts').classList.toggle('dot', dailyGiftReady() || freeGiftReady());
+  }
+  function rewardRow(p) { return '<div class="rwd">' + prizeHtml(p) + '</div>'; }
+
+  /* gifts */
+  function openGifts() {
+    S.unlock(); S.tap(); closeAll();
+    const list = $('giftList'); list.innerHTML = '';
+    const rows = [
+      { name: 'Daily gift', sub: dailyGiftReady() ? 'Ready to collect!' : 'Come back tomorrow', ready: dailyGiftReady(), prize: { coins: 20 }, claim: () => { gifts.daily = today(); } },
+      { name: 'Free hint', sub: freeGiftReady() ? 'Ready to collect!' : 'Ready in ' + (() => { const ms = 6 * HOUR - (Date.now() - gifts.free), h = Math.floor(ms / HOUR), m = Math.ceil((ms % HOUR) / 60000); return h + 'h ' + m + 'm'; })(), ready: freeGiftReady(), prize: { hints: 1 }, claim: () => { gifts.free = Date.now(); } }
+    ];
+    rows.forEach((r) => {
+      const d = document.createElement('div'); d.className = 'shoprow';
+      d.innerHTML = '<span><b>' + r.name + '</b><small>' + r.sub + '</small></span>' + rewardRow(r.prize);
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy'; b.textContent = 'Get'; b.disabled = !r.ready;
+      b.onclick = () => { if (!r.ready) return; r.claim(); store.set('gifts', gifts); give(r.prize); S.win(); updateSides(); openGifts(); };
+      d.appendChild(b); list.appendChild(d);
+    });
+    $('gifts').hidden = false;
+  }
+  /* quests */
+  function openQuests() {
+    S.unlock(); S.tap(); closeAll(); freshDay();
+    const list = $('questList'); list.innerHTML = '';
+    QDEF.forEach((q) => {
+      const v = Math.min(q.goal, quests.p[q.id]), done = v >= q.goal, got = quests.claimed[q.id];
+      const d = document.createElement('div'); d.className = 'shoprow quest';
+      d.innerHTML = '<span><b>' + q.text + '</b><small>' + v + ' / ' + q.goal + '</small><i class="qbar"><u style="width:' + (v / q.goal) * 100 + '%"></u></i></span>';
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy'; b.disabled = !done || got;
+      b.innerHTML = got ? '✓' : q.coins + ' ' + coinSvg;
+      b.onclick = () => {
+        if (!done || got) return; quests.claimed[q.id] = true; give({ coins: q.coins }); S.win();
+        if (QDEF.every((x) => quests.claimed[x.id]) && !quests.bonus) { quests.bonus = true; wheel.extra++; store.set('wheel', wheel); }
+        store.set('quests', quests); updateSides(); openQuests();
+      };
+      d.appendChild(b); list.appendChild(d);
+    });
+    $('questBonus').textContent = quests.bonus ? '🎡 Bonus won: 1 extra wheel spin!' : 'Finish all three for a free wheel spin';
+    $('quests').hidden = false;
+  }
+  /* chest */
+  function openChest() {
+    S.unlock(); S.tap(); closeAll();
+    const full = chest.n >= CHEST_AT;
+    $('chestMsg').textContent = full ? 'Your chest is ready!' : 'Solve ' + (CHEST_AT - chest.n) + ' more level' + (CHEST_AT - chest.n > 1 ? 's' : '') + ' to open it';
+    $('chestBar').style.width = (chest.n / CHEST_AT) * 100 + '%'; $('chestPrize').innerHTML = '';
+    const b = $('chestOpen'); b.disabled = !full; b.hidden = false; b.textContent = 'Open chest';
+    $('chest').hidden = false;
+  }
+  function openChestNow() {
+    if (chest.n < CHEST_AT) return;
+    chest.n -= CHEST_AT; store.set('chest', chest);
+    const p = rollPrize(5, true), bonus = { coins: 30 };
+    give(p); give(bonus); S.win(); buzz([30, 40, 60]);
+    $('chestPrize').innerHTML = '<div class="rwd big">' + prizeHtml(p) + '</div><div class="rwd">' + prizeHtml(bonus) + '</div>';
+    $('chestMsg').textContent = 'You found ' + prizeText(p) + ' and 30 coins!';
+    $('chestOpen').hidden = true; $('chestBar').style.width = (chest.n / CHEST_AT) * 100 + '%'; updateSides();
+  }
+  /* lucky wheel */
+  const WSEG = [{ c: 10 }, { h: 1 }, { c: 25 }, { c: 15 }, { w: 1 }, { c: 20 }, { h: 2 }, { c: 50 }], WW = [24, 16, 14, 18, 8, 14, 4, 2], WCOL = ['#ff5fa8', '#ffb347', '#7be37a', '#45d0ff', '#b07bff', '#ffe14d', '#ff7a5c', '#5fd8ff'];
+  let wheelRot = 0, spinning = false;
+  function buildWheel() {
+    let s = '<g id="wheelRot">';
+    for (let i = 0; i < 8; i++) {
+      const a0 = (i * 45 - 90) * Math.PI / 180, a1 = ((i + 1) * 45 - 90) * Math.PI / 180, R = 100;
+      s += '<path d="M110 110 L' + (110 + R * Math.cos(a0)).toFixed(1) + ' ' + (110 + R * Math.sin(a0)).toFixed(1) + ' A' + R + ' ' + R + ' 0 0 1 ' + (110 + R * Math.cos(a1)).toFixed(1) + ' ' + (110 + R * Math.sin(a1)).toFixed(1) + ' Z" fill="' + WCOL[i] + '" stroke="#fff" stroke-width="3"/>';
+      const am = (i * 45 + 22.5 - 90) * Math.PI / 180, x = 110 + 66 * Math.cos(am), y = 110 + 66 * Math.sin(am), g = WSEG[i];
+      const label = g.c ? g.c : g.h ? '💡×' + g.h : '🪄';
+      s += '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" font-size="' + (g.c ? 22 : 18) + '" font-weight="800" fill="#4a1a8f" transform="rotate(' + (i * 45 + 22.5) + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' + label + '</text>';
+    }
+    s += '</g><circle cx="110" cy="110" r="16" fill="#ffc247" stroke="#fff" stroke-width="4"/><path d="M110 4 L100 26 L120 26 Z" fill="#ff3f66" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>';
+    $('wheelSvg').innerHTML = s;
+  }
+  function openWheel() {
+    S.unlock(); S.tap(); closeAll(); if (!$('wheelRot')) buildWheel();
+    const free = wheel.date !== today(), extra = wheel.extra;
+    $('wheelBtn').disabled = spinning || !(free || extra > 0);
+    $('wheelBtn').textContent = free ? 'Spin (free!)' : extra > 0 ? 'Spin (' + extra + ' bonus)' : 'Come back tomorrow';
+    $('wheelMsg').textContent = free || extra > 0 ? 'Spin the wheel for a prize!' : 'Finish the daily quests for an extra spin.';
+    $('wheel').hidden = false;
+  }
+  function spinWheel() {
+    freshDay();
+    const free = wheel.date !== today();
+    if (spinning || !(free || wheel.extra > 0)) return;
+    if (free) wheel.date = today(); else wheel.extra--;
+    store.set('wheel', wheel);
+    let r = Math.random() * WW.reduce((x, y) => x + y, 0), idx = 0;
+    for (let i = 0; i < 8; i++) { r -= WW[i]; if (r <= 0) { idx = i; break; } }
+    const g = WSEG[idx], prize = { coins: g.c, hints: g.h, wands: g.w };
+    give(prize); updateSides();
+    const target = (360 - (idx * 45 + 22.5) + 360) % 360, cur0 = wheelRot % 360;
+    wheelRot += 360 * 5 + ((target - cur0 + 360) % 360);
+    spinning = true; $('wheelBtn').disabled = true; $('wheelMsg').textContent = 'Good luck…';
+    const el = $('wheelRot'); el.style.transition = 'transform 4s cubic-bezier(.15,.7,.1,1)'; el.style.transformOrigin = '110px 110px'; el.style.transform = 'rotate(' + wheelRot + 'deg)';
+    let ticks = 0; const tick = setInterval(() => { S.tap(); if (++ticks > 16) clearInterval(tick); }, 220);
+    setTimeout(() => { spinning = false; $('wheelMsg').textContent = 'You won ' + prizeText(prize) + '!'; S.win(); buzz([30, 40, 60]); openWheelState(); }, 4200);
+  }
+  function openWheelState() {
+    const free = wheel.date !== today(), extra = wheel.extra;
+    $('wheelBtn').disabled = !(free || extra > 0);
+    $('wheelBtn').textContent = free ? 'Spin (free!)' : extra > 0 ? 'Spin (' + extra + ' bonus)' : 'Come back tomorrow';
+  }
+  /* mini-games hub */
+  function openGames() {
+    S.unlock(); S.tap(); closeAll(); freshDay();
+    const list = $('gameList'); list.innerHTML = '';
+    [['memory', 'Memory Match', 'Find all the pairs in 14 moves', 'm-game'], ['toss', 'Candy Toss', 'Toss 5 candies into the jar', 'm-toss']].forEach((g) => {
+      const left = MAX_PLAYS - plays[g[0]], d = document.createElement('div'); d.className = 'shoprow';
+      d.innerHTML = '<svg class="pico"><use href="#' + g[3] + '"/></svg><span><b>' + g[1] + '</b><small>' + g[2] + ' · ' + left + '/' + MAX_PLAYS + ' today</small></span>';
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy'; b.textContent = 'Play'; b.disabled = left <= 0;
+      b.onclick = () => { if (g[0] === 'memory') startMemory(); else startToss(); };
+      d.appendChild(b); list.appendChild(d);
+    });
+    $('games').hidden = false;
+  }
+  /* memory match */
+  function startMemory() {
+    freshDay(); if (plays.memory >= MAX_PLAYS) return;
+    plays.memory++; store.set('plays', plays); updateSides(); closeAll();
+    const deck = [0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5]; for (let i = deck.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+    const grid = $('memGrid'); grid.innerHTML = ''; let first = null, lock = false, found = 0, moves = 14;
+    $('memMoves').textContent = 'Moves left: ' + moves; $('memMsg').textContent = ''; $('memClose').textContent = 'Give up';
+    const finish = (win) => {
+      const reward = win ? 15 + moves * 3 : 5; give({ coins: reward }); S.win(); updateSides();
+      $('memMsg').innerHTML = (win ? 'Great memory! +' : 'Out of moves. +') + reward + ' ' + coinSvg; $('memClose').textContent = 'Done'; lock = true;
+    };
+    deck.forEach((id) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'mcard'; b.dataset.id = id;
+      b.innerHTML = '<span class="front">?</span><span class="back"><svg><use href="#c' + id + '"/></svg></span>';
+      b.onclick = () => {
+        if (lock || b.classList.contains('open') || b.classList.contains('done')) return;
+        b.classList.add('open'); S.tap();
+        if (!first) { first = b; return; }
+        moves--; $('memMoves').textContent = 'Moves left: ' + moves;
+        const a = first; first = null;
+        if (a.dataset.id === b.dataset.id) {
+          a.classList.add('done'); b.classList.add('done'); found++; S.candy(+b.dataset.id, found);
+          if (found === 6) setTimeout(() => finish(true), 500); else if (moves <= 0) setTimeout(() => finish(false), 500);
+        } else {
+          lock = true;
+          setTimeout(() => { a.classList.remove('open'); b.classList.remove('open'); lock = false; if (moves <= 0) finish(false); }, 750);
+        }
+      };
+      grid.appendChild(b);
+    });
+    $('memory').hidden = false;
+  }
+  /* candy toss */
+  let tossRaf = 0;
+  function stopToss() { cancelAnimationFrame(tossRaf); tossRaf = 0; }
+  function startToss() {
+    freshDay(); if (plays.toss >= MAX_PLAYS) return;
+    plays.toss++; store.set('plays', plays); updateSides(); closeAll();
+    $('tossMsg').textContent = 'Tap to toss when the jar is above the candy!'; $('tossClose').textContent = 'Give up'; $('toss').hidden = false;
+    const cv = $('tossCv'), g = cv.getContext('2d'), W = cv.width = 270, H = cv.height = 330, img = new Image(); img.src = 'icons/candy.png';
+    const JY = 64, JW = 64, SX = W / 2, SY = H - 46;
+    let shot = 0, hits = 0, perfect = 0, flying = null, note = '', noteT = 0, over = false, t0 = performance.now(), lastT = t0, jx = W / 2;
+    const jarPos = (t) => W / 2 + Math.sin(t / 1000 * (1.5 + shot * 0.5)) * (W / 2 - JW / 2 - 8);
+    const end = () => {
+      over = true; const reward = hits * 8 + perfect * 6; give({ coins: reward }); S.win(); updateSides();
+      $('tossMsg').innerHTML = hits + ' in the jar! +' + reward + ' ' + coinSvg; $('tossClose').textContent = 'Done';
+    };
+    cv.onpointerdown = (e) => { e.preventDefault(); S.unlock(); if (over || flying) return; flying = { y: SY }; };
+    function frame(now) {
+      const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; if (!over) jx = jarPos(now - t0);
+      if (flying) {
+        flying.y -= 560 * dt;
+        if (flying.y <= JY + 6) {
+          const d = Math.abs(jx - SX);
+          if (d <= JW / 2 - 6) { hits++; if (d <= 9) { perfect++; note = 'Perfect!'; } else note = 'Nice!'; S.candy(shot % 6, hits); buzz(15); } else { note = 'Miss'; S.tap(); }
+          noteT = now; flying = null; shot++; if (shot >= 5) end();
+        }
+      }
+      g.clearRect(0, 0, W, H);
+      const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#9fe3ff'); bg.addColorStop(1, '#ffe3f4'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+      // jar
+      g.fillStyle = 'rgba(255,255,255,.55)'; g.strokeStyle = '#fff'; g.lineWidth = 4; g.beginPath(); g.moveTo(jx - JW / 2, JY - 16); g.lineTo(jx - JW / 2 + 6, JY + 34); g.quadraticCurveTo(jx, JY + 46, jx + JW / 2 - 6, JY + 34); g.lineTo(jx + JW / 2, JY - 16); g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = '#ff5fa8'; g.fillRect(jx - JW / 2 - 4, JY - 22, JW + 8, 8);
+      for (let i = 0; i < hits; i++) { g.fillStyle = ['#ffb347', '#7be37a', '#45d0ff', '#b07bff', '#ffe14d'][i % 5]; g.beginPath(); g.arc(jx - 18 + (i % 3) * 18, JY + 24 - Math.floor(i / 3) * 12, 8, 0, 7); g.fill(); }
+      // candy and ground
+      const cy = flying ? flying.y : SY; if (img.complete && img.naturalWidth) g.drawImage(img, SX - 18, cy - 18, 36, 36); else { g.fillStyle = '#ff5fa8'; g.beginPath(); g.arc(SX, cy, 14, 0, 7); g.fill(); }
+      g.fillStyle = '#7be37a'; g.fillRect(0, H - 18, W, 18);
+      g.fillStyle = '#4a1a8f'; g.font = '800 15px Baloo 2, sans-serif'; g.textAlign = 'left'; g.fillText('Candy ' + Math.min(shot + (flying ? 1 : 0), 5) + ' / 5', 10, H - 26);
+      if (note && now - noteT < 900) { g.textAlign = 'center'; g.font = '800 26px Baloo 2, sans-serif'; g.fillStyle = '#ff3f66'; g.fillText(note, W / 2, H / 2); }
+      tossRaf = requestAnimationFrame(frame);
+    }
+    stopToss(); tossRaf = requestAnimationFrame(frame);
+  }
+  function wireExtras() {
+    $('medDaily').onclick = () => { S.unlock(); S.tap(); if (daily.last === today()) { alert('Daily Candy is done for today. Come back tomorrow!'); return; } transition(() => startDaily()); };
+    $('medWheel').onclick = openWheel; $('medChest').onclick = openChest; $('medGames').onclick = openGames;
+    $('navGifts').onclick = openGifts; $('navQuests').onclick = openQuests;
+    $('navHome').onclick = () => { S.tap(); closeAll(); scrollToLevel(level); }; $('navShop').onclick = openShop; $('navRank').onclick = openRanking;
+    $('walletMe').onclick = openProfile;
+    $('wheelBtn').onclick = spinWheel; $('chestOpen').onclick = openChestNow;
+    $('wheelClose').onclick = () => { S.tap(); if (!spinning) $('wheel').hidden = true; };
+    $('chestClose').onclick = () => { S.tap(); $('chest').hidden = true; };
+    $('questClose').onclick = () => { S.tap(); $('quests').hidden = true; };
+    $('giftClose').onclick = () => { S.tap(); $('gifts').hidden = true; };
+    $('gamesClose').onclick = () => { S.tap(); $('games').hidden = true; };
+    $('memClose').onclick = () => { S.tap(); $('memory').hidden = true; updateSides(); };
+    $('tossClose').onclick = () => { S.tap(); stopToss(); $('toss').hidden = true; updateSides(); };
+  }
+  wireExtras();
   syncSound();
   renderHome();
   scrollToLevel(level);

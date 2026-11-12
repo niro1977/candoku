@@ -396,3 +396,37 @@ body.in-game .nav{display:none}
 .pf-grid div{display:flex;flex-direction:column;align-items:center;padding:7px 4px;border-radius:12px;background:rgba(255,255,255,.55)}
 .pf-grid b{font:800 18px var(--display);color:#5b2a14}
 .pf-grid small{font-size:11px;opacity:.8}
+
+/* side medallions on the map, 5-tab navigation, mini-games */
+.sides{position:sticky;top:96px;height:0;z-index:6;pointer-events:none}
+.sides .col{position:absolute;top:10px;display:flex;flex-direction:column;gap:14px;pointer-events:auto}
+.sides .l{left:2px}.sides .r{right:2px}
+.med{position:relative;width:64px;display:flex;flex-direction:column;align-items:center;background:none;padding:0;filter:drop-shadow(0 4px 4px rgba(40,0,80,.45))}
+.med .disc{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 28%,#fffbe6,#ffe08a 55%,#f0a62a);border:4px solid #2a8aa6;box-shadow:inset 0 -4px 0 rgba(0,0,0,.14),0 0 0 2px #fff}
+.med .disc svg{width:38px;height:38px}
+.med .tag{margin-top:-9px;min-width:46px;padding:1px 8px;border-radius:999px;background:#1f6f86;color:#fff;border:2px solid #fff;font:800 12px var(--display);text-align:center;white-space:nowrap}
+.med.ready .disc{animation:medpulse 1.4s ease-in-out infinite;box-shadow:inset 0 -4px 0 rgba(0,0,0,.14),0 0 0 2px #fff,0 0 16px 4px #ffe14d}
+.med.ready .tag{background:#2fbf4a}
+@keyframes medpulse{50%{transform:scale(1.07)}}
+.nav{grid-template-columns:repeat(5,1fr)}
+.nav button{position:relative}
+.nav button.dot::after{content:"";position:absolute;top:2px;right:calc(50% - 22px);width:12px;height:12px;border-radius:50%;background:#ff3f3f;border:2px solid #fff}
+.chip.me{margin-right:auto;padding-left:4px}
+.chip.me .gum{width:28px;height:28px}
+.chest-art{width:96px;height:96px;margin:0 auto;animation:bob 1.8s ease-in-out infinite}
+.chest-prize{display:flex;flex-direction:column;gap:6px;align-items:center}
+.rwd{display:flex;align-items:center;gap:6px;font:800 18px var(--display)}
+.rwd .pico{width:26px;height:26px}
+.rwd.big .pico{width:40px;height:40px}.rwd.big{font-size:26px}
+.wheel-svg{width:min(230px,72%);margin:0 auto;display:block;overflow:visible}
+.quest .qbar{display:block;height:7px;border-radius:5px;background:rgba(0,0,0,.12);margin-top:4px;overflow:hidden}
+.quest .qbar u{display:block;height:100%;background:linear-gradient(90deg,#ffb347,#ff5fa8);border-radius:5px}
+.memgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.mcard{position:relative;aspect-ratio:1;padding:0;background:none;perspective:500px}
+.mcard .front,.mcard .back{position:absolute;inset:0;display:grid;place-items:center;border-radius:12px;backface-visibility:hidden;transition:transform .35s}
+.mcard .front{background:linear-gradient(180deg,#5fd8ff,#1fa3e8);border:3px solid #fff;box-shadow:0 3px 0 #0f74b3;font:800 24px var(--display);color:#fff}
+.mcard .back{background:#fff8e8;border:3px solid #ffc247;transform:rotateY(180deg)}
+.mcard .back svg{width:70%;height:70%}
+.mcard.open .front{transform:rotateY(180deg)}.mcard.open .back{transform:rotateY(0)}
+.mcard.done{opacity:.55}
+.tosscv{display:block;width:100%;max-width:270px;margin:0 auto;border-radius:14px;border:3px solid #fff;touch-action:none;box-shadow:0 3px 0 rgba(0,0,0,.2)}
