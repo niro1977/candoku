@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=65">
+<link rel="stylesheet" href="style.css?v=66">
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
@@ -43,6 +43,7 @@
     
     <linearGradient id="gGumi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8dffd8"/><stop offset="1" stop-color="#12bd91"/></linearGradient>
     <!-- Gumi: original mascot, a smiling gumdrop -->
+    <symbol id="gumiwin" viewBox="0 0 100 112"><ellipse cx="50" cy="104" rx="26" ry="4.5" fill="#000" opacity=".2"/><image href="art/gumi_win.webp" x="0" y="2" width="100" height="100" preserveAspectRatio="xMidYMax meet"/></symbol>
     <symbol id="gumi" viewBox="0 0 100 112"><ellipse cx="50" cy="104" rx="26" ry="4.5" fill="#000" opacity=".2"/><image href="art/gumi_hero.webp" x="0" y="4" width="100" height="100" preserveAspectRatio="xMidYMax meet"/></symbol>
     <!-- world decorations -->
     <symbol id="d-lolly" viewBox="0 0 60 100"><rect x="27" y="46" width="6" height="54" rx="3" fill="#fff" stroke="#8a2d5e" stroke-width="2"/><circle cx="30" cy="30" r="26" fill="url(#gLolly)" stroke="#8a2d5e" stroke-width="2.6"/><path d="M30 30a3 3 0 0 1 6 0a7 7 0 0 1-14 0a11 11 0 0 1 22 0a15 15 0 0 1-30 0" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/><ellipse cx="19" cy="17" rx="7" ry="3.4" fill="#fff" opacity=".65" transform="rotate(-35 19 17)"/></symbol>
@@ -183,14 +184,14 @@
     <button class="btn" id="clearBtn" type="button" aria-label="Restart" title="Restart"><img class="tico" src="art/tool_restart.webp" alt="" draggable="false"></button>
   </div>
   <div class="tools2"><button class="btn" id="sweepBtn" type="button" aria-label="Sweeper" title="Sweeper"><img class="tico" src="art/ic_sweeper.webp" alt="" draggable="false"><i class="badge" id="sweepBtnBadge">0</i></button><button class="btn" id="lensBtn" type="button" aria-label="Magnifier" title="Magnifier"><img class="tico" src="art/ic_lens.webp" alt="" draggable="false"><i class="badge" id="lensBtnBadge">0</i></button></div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v65</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v66</span></p>
 </main>
 
 <!-- WIN -->
 <div id="win" class="overlay" hidden>
   <div class="rays"><i></i><i class="r2"></i></div>
   <div class="card">
-    <div class="win-gumi"><i class="halo"></i><i class="halo h2"></i><svg><use href="#gumi"/></svg></div>
+    <div class="win-gumi"><i class="halo"></i><i class="halo h2"></i><svg><use href="#gumiwin"/></svg></div>
     <h2>Sweet!</h2>
     <div class="stars" id="winStars"></div>
     <p id="winInfo"></p>
@@ -430,12 +431,12 @@
   <button type="button" id="navShop"><img class="navico" src="art/nav_shop.webp" alt="" draggable="false"><span>Shop</span></button>
   <button type="button" id="navRank"><img class="navico" src="art/nav_rank.webp" alt="" draggable="false"><span>Ranking</span></button>
 </nav>
-<script src="engine.js?v=65"></script>
-<script src="hints.js?v=65"></script>
-<script src="seeds.js?v=65"></script>
-<script src="sound.js?v=65"></script>
-<script src="music.js?v=65"></script>
-<script src="voice.js?v=65"></script>
-<script src="app.js?v=65"></script>
+<script src="engine.js?v=66"></script>
+<script src="hints.js?v=66"></script>
+<script src="seeds.js?v=66"></script>
+<script src="sound.js?v=66"></script>
+<script src="music.js?v=66"></script>
+<script src="voice.js?v=66"></script>
+<script src="app.js?v=66"></script>
 </body>
 </html>
