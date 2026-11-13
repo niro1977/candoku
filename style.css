@@ -748,3 +748,17 @@ body.in-game .nav{display:none}
 .btn.chips{display:flex;align-items:center;gap:3px;padding:6px 10px}
 .btn.chips img{width:20px;height:20px;object-fit:contain}
 .btn.chips em{font-style:normal;font-size:13px}
+
+/* no outlines on text: white lettering gets a soft dark shadow instead, dark lettering stays clean */
+.btn,.btn.main,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,#nextBtn,.bst span,.nav button span,.med .tag,.tag,.col-tabs button,.col-tabs button.on{-webkit-text-stroke:0;paint-order:normal;letter-spacing:.2px}
+.btn.main,#nextBtn,.card .btn:not(.main),.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,.nav button span,.med .tag,.col-tabs button.on,.pl-play{text-shadow:0 2px 3px rgba(0,0,0,.78),0 0 2px rgba(0,0,0,.55)}
+.bst span,.col-tabs button:not(.on),.btn.main:disabled{text-shadow:none}
+.btn.main:disabled{text-shadow:0 1px 2px rgba(0,0,0,.5)}
+/* win popup: squarer and roomier than before, stars unchanged */
+#win .card{--cw:min(334px,calc(100vw - 32px));gap:2px;padding-top:calc(var(--k) * 6)}
+#win .win-gumi{width:74px;height:74px;margin:-4px auto -6px}
+#win .win-gumi svg{width:70px;height:70px}
+#win .stars{margin:0 -4px}
+#win .card p{font-size:12px;margin:0}
+#win .reward{font-size:12px}
+#win .row{gap:10px}
