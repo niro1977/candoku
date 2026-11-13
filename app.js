@@ -166,7 +166,7 @@
     }
     for (let k = 0; k < zones; k++) {
       const z = ZONES[k % ZONES.length], cy = g.pos(k * 10 + 1).y + (MAP_STEP + WORLD_GAP) / 2;
-      html += '<div class="ribbon" style="top:' + Math.round(cy) + 'px"><span><small>WORLD ' + (k + 1) + '</small><b>' + z.name + '</b></span></div>';
+      html += '<div class="ribbon" style="background-image:url(art/ribbon_' + (k % 10) + '.webp);top:' + Math.round(cy) + 'px"><span><small>WORLD ' + (k + 1) + '</small><b>' + z.name + '</b></span></div>';
     }
     return html;
   }

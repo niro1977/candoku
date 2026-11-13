@@ -796,3 +796,7 @@ body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
 
 /* dark lettering never gets an outline: only white text does */
 .badge,.node .badge,.node.hard .badge,.node.veryhard .badge,.node.extreme .badge,#hintLeft,.hint-big b,.card h2,.title b,.col-tabs button:not(.on),.btn:disabled,.play,.coach-body p,.coach-body small,.pl-info,.shoprow b,.shoprow small,.colcell span,.bst span,.rw-it b,.rwd b,.pf-grid b,.pf-grid small{-webkit-text-stroke:0;paint-order:normal;text-shadow:none}
+
+/* each world has its own ribbon color; the logo is shown on its purple background */
+.map .ribbon{color:#fff}
+.logo img{border-radius:22px;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
