@@ -675,3 +675,32 @@ body.in-game .nav{display:none}
 #win .stars{padding-top:20px}
 #win .stars .star:nth-child(1),#win .stars .star:nth-child(3){transform-origin:50% 100%}
 #win .stars .star:nth-child(2){margin-bottom:22px}
+
+/* second row of helpers in the game */
+.tools2{display:flex;justify-content:center;gap:14px;margin-top:-4px}
+.tools2 .btn{position:relative;background:none;border:0;box-shadow:none;padding:0;width:50px;min-height:0;filter:drop-shadow(0 3px 3px rgba(40,0,80,.45))}
+.tools2 .btn .tico{width:46px;height:46px;object-fit:contain;filter:none;pointer-events:none}
+.tools2 .btn .badge{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#fff;color:#c2185b;font:800 12px/20px Poppins,system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.tools2 .btn.empty{opacity:.6}
+.board{width:min(100%,calc(100dvh - 392px),440px)}
+.board.n10{width:min(calc(100vw - 8px),calc(100dvh - 296px),540px)}
+.board.lens .cell{cursor:zoom-in;animation:lenspulse 1s ease-in-out infinite}
+@keyframes lenspulse{50%{box-shadow:inset 0 0 0 3px rgba(255,255,255,.9),0 0 10px rgba(120,230,255,.9)}}
+/* pre-level boosters */
+.pl-boost{display:flex;justify-content:center;gap:10px}
+.pl-boost .bst{position:relative;display:flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;border-radius:14px;background:linear-gradient(180deg,#fff,#dff1ff);border:3px solid #9fc9e8;box-shadow:0 3px 0 #6fa3c8;color:#35557a;font:800 14px var(--display)}
+.pl-boost .bst img{width:32px;height:32px;object-fit:contain}
+.pl-boost .bst i{font-style:normal;background:#35557a;color:#fff;border-radius:999px;min-width:20px;height:20px;line-height:20px;text-align:center;font-size:12px;padding:0 4px}
+.pl-boost .bst.on{border-color:#2fb82f;background:linear-gradient(180deg,#eaffdf,#b9f58f);box-shadow:0 3px 0 #1c8a1c,0 0 12px rgba(120,255,90,.8)}
+.pl-boost .bst.none{opacity:.55}
+/* prize popup */
+#reward{z-index:40;background:radial-gradient(circle at 50% 45%,rgba(120,230,255,.55),rgba(30,20,120,.78))}
+#reward .rw-burst{position:absolute;inset:-30%;pointer-events:none;background:repeating-conic-gradient(from 0deg at 50% 45%,rgba(255,255,255,.3) 0 6deg,rgba(255,255,255,0) 6deg 18deg);animation:raysspin 18s linear infinite;-webkit-mask:radial-gradient(circle at 50% 45%,#000 0,#000 20%,transparent 60%);mask:radial-gradient(circle at 50% 45%,#000 0,#000 20%,transparent 60%)}
+#reward .card{position:relative;--cw:min(300px,calc(100vw - 56px));gap:6px}
+.rw-items{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin:4px 0}
+.rw-it{display:flex;flex-direction:column;align-items:center;animation:rwpop .7s cubic-bezier(.2,1.5,.4,1) both}
+.rw-it img{width:92px;height:92px;object-fit:contain;filter:drop-shadow(0 0 14px rgba(255,235,120,.95)) drop-shadow(0 5px 3px rgba(60,30,0,.4));animation:rwfloat 1.6s ease-in-out .8s infinite}
+.rw-it b{font:800 30px var(--display);color:#c2185b;text-shadow:0 2px 0 #fff}
+.rw-text{font-size:14px;margin:0;color:#35557a;font-weight:800}
+@keyframes rwpop{0%{opacity:0;transform:translateY(-120px) scale(2.2) rotate(-200deg)}60%{opacity:1;transform:translateY(8px) scale(.85) rotate(10deg)}100%{opacity:1;transform:none}}
+@keyframes rwfloat{50%{transform:translateY(-8px) rotate(3deg)}}

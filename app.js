@@ -21,6 +21,7 @@
   let cur = null;
   let score = store.get('score', { date: '', points: 0, run: 0, best: 0 });
   const START_HINTS = 3, HINT_EVERY = 5, WAND_EVERY = 20;
+  let items = Object.assign({ shield: 1, double: 0, sweeper: 1, lens: 1 }, store.get('items', {}));
   let coins = store.get('coins', 30), wands = store.get('wands', 1), bonus = store.get('bonus', { last: '', streak: 0 });
   let hintsLeft = store.get('hints', START_HINTS), cleared = store.get('cleared', 0);   // hints in the bag, levels passed for the first time
   const RANKS = [[0, 'Rookie'], [200, 'Candy Fan'], [500, 'Sweet Tooth'], [1000, 'Sugar Pro'], [2000, 'Candy Master'], [4000, 'Candy Legend']];
@@ -283,12 +284,13 @@
   function saveGame() {
     try {
       if (!cur || cur.done || !cur.meta) { store.set('game', null); return; }
-      store.set('game', { meta: cur.meta, tier: cur.tier, label: cur.label, n: cur.n, state: cur.state, hearts: cur.hearts, hints: cur.hints,
+      store.set('game', { shield: !!cur.shield, double: !!cur.double, meta: cur.meta, tier: cur.tier, label: cur.label, n: cur.n, state: cur.state, hearts: cur.hearts, hints: cur.hints,
         wrong: [...cur.wrongMarks], pen: [...cur.penalized], saved: Date.now() });
     } catch (e) {}
   }
   function applySaved(g) {
     if (!g || g.n !== cur.n || !Array.isArray(g.state) || g.state.length !== cur.n) return false;
+    cur.shield = !!g.shield; cur.double = !!g.double;
     cur.state = g.state.map((r) => r.slice()); cur.hearts = g.hearts; cur.hints = g.hints || 0;
     cur.wrongMarks = new Set(g.wrong || []); cur.penalized = new Set(g.pen || []);
     cur.foundPrev = new Set(); for (let y = 0; y < cur.n; y++) for (let x = 0; x < cur.n; x++) if (cur.state[y][x] === 2) cur.foundPrev.add(cur.regions[y][x]);
@@ -297,6 +299,7 @@
   }
   const savedFor = (meta) => { const g = store.get('game', null); if (!g || !g.meta || g.meta.kind !== meta.kind) return null; return (meta.kind === 'level' ? g.meta.level === meta.level : g.meta.date === meta.date) ? g : null; };
   /* ---------- the card shown before a level ---------- */
+  let pendingBoost = null;
   function openPrelevel(lv, after) {
     const n = sizeFor(lv), tier = tierOf(lv), best = stars[lv] || 0, resume = !!savedFor({ kind: 'level', level: lv });
     $('plTitle').textContent = 'Level ' + lv;
@@ -305,7 +308,11 @@
     $('plInfo').textContent = n + '×' + n + ' board · ' + n + ' candies to find' + (best ? '' : ' · first time!');
     $('plRow').innerHTML = '<span class="chip"><img src="art/ic_heart.webp" alt="" draggable="false"><b>' + MAX_HEARTS + '</b></span><span class="chip"><img src="art/ic_hint.webp" alt="" draggable="false"><b>' + hintsLeft + '</b></span><span class="chip"><img src="art/ic_wand.webp" alt="" draggable="false"><b>' + wands + '</b></span>';
     $('plPlay').textContent = resume ? 'Continue' : 'Play';
-    $('plPlay').onclick = () => { S.unlock(); S.tap(); $('prelevel').hidden = true; if (after) after(); else transition(() => startLevel(lv)); };
+    const pick = { shield: false, double: false }, bx = $('plBoost');
+    const drawBoost = () => { bx.innerHTML = resume ? '' : ['shield', 'double'].map((k) => '<button type="button" class="bst' + (pick[k] ? ' on' : '') + (items[k] > 0 ? '' : ' none') + '" data-k="' + k + '"><img src="art/ic_' + k + '.webp" alt="" draggable="false"><span>' + (k === 'shield' ? 'Shield' : 'x2 Points') + '</span><i>' + items[k] + '</i></button>').join('');
+      bx.querySelectorAll('.bst').forEach((b) => { b.onclick = () => { const k = b.dataset.k; if (items[k] <= 0) { toast('You have none. Buy one in the shop!'); return; } pick[k] = !pick[k]; S.tap(); drawBoost(); }; }); };
+    drawBoost();
+    $('plPlay').onclick = () => { S.unlock(); S.tap(); $('prelevel').hidden = true; pendingBoost = { shield: pick.shield && items.shield > 0, double: pick.double && items.double > 0 }; if (after) after(); else transition(() => startLevel(lv)); };
     $('prelevel').hidden = false;
     if (V) setTimeout(() => V.say(tier === 'normal' ? 'ready' : tier === 'extreme' ? 'veryhard' : tier, true), 350);
   }
@@ -314,8 +321,11 @@
     const b = boardFor(lv);
     makeGame(b, 'Level ' + lv, { kind: 'level', level: lv }, tierOf(lv));
     const resumed = applySaved(savedFor(cur.meta));
+    if (!resumed && pendingBoost) { if (pendingBoost.shield) { items.shield--; cur.shield = true; } if (pendingBoost.double) { items.double--; cur.double = true; } saveWallet(); updateHintUi(); }
+    pendingBoost = null;
     show('game');
     if (resumed) setTimeout(() => toast('Welcome back! Continuing where you left off.'), 500);
+    if (cur.shield) setTimeout(() => toast('🛡 Heart Shield is on!'), 900);
     if (V) setTimeout(() => V.start(lv, tierOf(lv)), 700);
     if (lv % 10 === 0) setTimeout(() => toast('👑 Boss level! Beat it for a big prize.'), 1200);
     if (lv === 1 && (forceCoach || !store.get('seenCoach', false))) setTimeout(startCoach, 1000);
@@ -495,6 +505,7 @@
   }
   function tap(y, x, maybe, candy) {
     if (cur.done) return;
+    if (cur.lensArmed) { lensPeek(y, x); return; }
     S.unlock();
     const s = cur.state[y][x];
     if (maybe || cur.maybeMode) {
@@ -529,6 +540,7 @@
     if (solved()) win();
   }
   function mistake(y, x) {
+    if (cur.shield) { cur.shield = false; toast('🛡 The shield saved your heart!'); S.hint(); buzz([20, 20]); bearReact('happy'); saveGame(); return; }
     cur.hearts--; buzz([40, 30, 40]); S.wrong();
     const el = cellEl(y, x); el.classList.remove('wrong'); void el.offsetWidth; el.classList.add('wrong');
     const h = $('hearts'); h.classList.remove('hit'); void h.offsetWidth; h.classList.add('hit');
@@ -550,13 +562,15 @@
     const t = $('toast'); t.textContent = text; t.classList.add('show');
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 4200);
   }
-  /* ---------- wallet: coins, hints, wands ---------- */
+  /* ---------- wallet: coins, hints, wands, helpers ---------- */
+  function give(p) { coins += p.coins || 0; hintsLeft += p.hints || 0; wands += p.wands || 0; ['shield', 'double', 'sweeper', 'lens'].forEach((k) => { items[k] += p[k] || 0; }); saveWallet(); updateHintUi(); }
   const coinSvg = '<img class="ico" src="art/ic_coin.webp" alt="" draggable="false">';
-  function saveWallet() { store.set('coins', coins); store.set('wands', wands); store.set('hints', hintsLeft); }
+  function saveWallet() { store.set('coins', coins); store.set('wands', wands); store.set('hints', hintsLeft); store.set('items', items); }
   function updateHintUi() {
     const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };
     set('heartN', MAX_HEARTS); set('hintBadge', hintsLeft); set('wandBadge', wands); set('coinN', coins); set('hintN', hintsLeft); set('wandN', wands);
     $('hintBtn').classList.toggle('empty', hintsLeft <= 0); $('wandBtn').classList.toggle('empty', wands <= 0);
+    set('sweepBtnBadge', items.sweeper); set('lensBtnBadge', items.lens); $('sweepBtn').classList.toggle('empty', items.sweeper <= 0); $('lensBtn').classList.toggle('empty', items.lens <= 0);
   }
   const ITEMS = {
     hint: { name: 'Hint', icon: 'hint', price: 30,
@@ -568,6 +582,18 @@
       count: () => wands, add: (n) => { wands += n; }, run: () => useWand(),
       earn: () => { const t = WAND_EVERY - (cleared % WAND_EVERY); return 'You win a free wand every ' + WAND_EVERY + ' levels you pass (' + t + ' more to go), in the Daily Bonus, or buy one with coins.'; } }
   };
+  ITEMS.shield = { name: 'Heart Shield', icon: 'shield', price: 45, count: () => items.shield, add: (n) => { items.shield += n; },
+    desc: 'Pick it before a level starts. The first mistake of that level will not cost you a heart.', run: () => toast('Pick the shield on the screen before a level starts.'),
+    earn: () => 'Won in the Daily Bonus, the lucky wheel, chests and boss levels, or buy one with coins.' };
+  ITEMS.double = { name: 'Double Points', icon: 'double', price: 50, count: () => items.double, add: (n) => { items.double += n; },
+    desc: 'Pick it before a level starts. That level gives you double points for the daily ranking.', run: () => toast('Pick the x2 on the screen before a level starts.'),
+    earn: () => 'Won in the lucky wheel and chests, or buy one with coins.' };
+  ITEMS.sweeper = { name: 'Sweeper', icon: 'sweeper', price: 40, count: () => items.sweeper, add: (n) => { items.sweeper += n; }, run: () => useSweeper(),
+    desc: 'The sweeper marks an X on every square that cannot hold a candy because of the candies you already placed: same row, same column, same color and the squares around them.',
+    earn: () => 'Won in the Daily Bonus, quests and chests, or buy one with coins.' };
+  ITEMS.lens = { name: 'Magnifier', icon: 'lens', price: 35, count: () => items.lens, add: (n) => { items.lens += n; }, run: () => armLens(),
+    desc: 'Tap the magnifier, then tap any square. It tells you the truth: a candy goes there, or it gets an X.',
+    earn: () => 'Won in the Daily Bonus, the lucky wheel and boss levels, or buy one with coins.' };
   let itemKind = 'hint';
   function openItemInfo(kind) {
     if (!cur || cur.done) return;
@@ -600,6 +626,33 @@
     if (h.type === 'candy') { const [y, x] = h.cells[0]; S.candy(cur.regions[y][x], placedCount()); placedFx(y, x, placedCount()); } else S.hint();
     if (solved()) win();
   }
+  /* ---------- sweeper and magnifier ---------- */
+  function useSweeper() {
+    if (!cur || cur.done || items.sweeper <= 0) return;
+    const n = cur.n, mark = [];
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (cur.state[y][x] === 2) {
+      const reg = cur.regions[y][x];
+      for (let yy = 0; yy < n; yy++) for (let xx = 0; xx < n; xx++) {
+        if (cur.state[yy][xx] !== 0 && cur.state[yy][xx] !== 3) continue;
+        if (yy === y || xx === x || cur.regions[yy][xx] === reg || (Math.abs(yy - y) <= 1 && Math.abs(xx - x) <= 1)) mark.push([yy, xx]);
+      }
+    }
+    if (!mark.length) { toast('Place a candy first, then sweep!'); return; }   // nothing is spent
+    items.sweeper--; saveWallet(); updateHintUi(); snapshot();
+    mark.forEach(([yy, xx], k) => { cur.state[yy][xx] = 1; cur.wrongMarks.delete(yy + ',' + xx); setTimeout(() => { const el = cellEl(yy, xx); el.classList.remove('hinted'); void el.offsetWidth; el.classList.add('hinted'); }, Math.min(k * 14, 500)); });
+    paint(); toast('🧹 Swept ' + mark.length + ' square' + (mark.length > 1 ? 's' : '') + '!'); buzz(18); S.hint(); S.praise(1);
+  }
+  function armLens() {
+    if (!cur || cur.done || items.lens <= 0) return;
+    cur.lensArmed = true; $('board').classList.add('lens'); toast('🔍 Tap a square to peek at the truth');
+  }
+  function lensPeek(y, x) {
+    cur.lensArmed = false; $('board').classList.remove('lens');
+    items.lens--; saveWallet(); updateHintUi(); snapshot(); const k = y + ',' + x;
+    if (cur.solution[y] === x) { cur.state[y][x] = 2; cur.wrongMarks.delete(k); paint(); toast('✅ Yes! A candy goes right here'); const pc = placedCount(); S.candy(cur.regions[y][x], pc); placedFx(y, x, pc); if (solved()) win(); }
+    else { cur.state[y][x] = 1; cur.wrongMarks.delete(k); paint(); toast('❌ Not here. Marked with an X'); S.x(); }
+    buzz(16);
+  }
   function useWand() {
     if (!cur || cur.done || wands <= 0) return;
     const rows = []; for (let y = 0; y < cur.n; y++) if (cur.state[y][cur.solution[y]] !== 2) rows.push(y);
@@ -616,7 +669,8 @@
   /* ---------- daily bonus: pick one of nine cards ---------- */
   const PRIZES = [
     { id: 'c10', w: 30, coins: 10 }, { id: 'c25', w: 20, coins: 25 }, { id: 'c50', w: 9, coins: 50, rare: 1 }, { id: 'c100', w: 2, coins: 100, rare: 1 },
-    { id: 'h1', w: 22, hints: 1 }, { id: 'h2', w: 8, hints: 2, rare: 1 }, { id: 'w1', w: 9, wands: 1, rare: 1 }
+    { id: 'h1', w: 22, hints: 1 }, { id: 'h2', w: 8, hints: 2, rare: 1 }, { id: 'w1', w: 9, wands: 1, rare: 1 },
+    { id: 's1', w: 10, shield: 1 }, { id: 'k1', w: 10, sweeper: 1 }, { id: 'l1', w: 10, lens: 1 }, { id: 'd1', w: 5, double: 1, rare: 1 }
   ];
   function rollPrize(streak, onlyRare) {
     const list = PRIZES.filter((p) => !onlyRare || p.rare);
@@ -625,13 +679,28 @@
     for (let i = 0; i < list.length; i++) { r -= wt[i]; if (r <= 0) return list[i]; }
     return list[0];
   }
+  const PICO = { coins: 'coin', hints: 'hint', wands: 'wand', shield: 'shield', double: 'double', sweeper: 'sweeper', lens: 'lens' };
+  const PNAME = { coins: 'coin', hints: 'hint', wands: 'magic wand', shield: 'heart shield', double: 'double-points booster', sweeper: 'sweeper', lens: 'magnifier' };
+  const prizeKeys = (p) => Object.keys(PICO).filter((k) => p[k]);
   function prizeHtml(p) {
-    const im = (n) => '<img class="pico" src="art/ic_' + n + '.webp" alt="" draggable="false">';
-    if (p.coins) return im('coin') + '<b>+' + p.coins + '</b>';
-    if (p.hints) return im('hint') + '<b>+' + p.hints + '</b>';
-    return im('wand') + '<b>+' + p.wands + '</b>';
+    return prizeKeys(p).map((k) => '<img class="pico" src="art/ic_' + PICO[k] + '.webp" alt="" draggable="false"><b>+' + p[k] + '</b>').join('');
   }
-  function prizeText(p) { return p.coins ? p.coins + ' coins' : p.hints ? p.hints + ' hint' + (p.hints > 1 ? 's' : '') : '1 magic wand'; }
+  function prizeText(p) { return prizeKeys(p).map((k) => p[k] + ' ' + PNAME[k] + (p[k] > 1 && k !== 'coins' ? 's' : '') + (k === 'coins' && p[k] > 1 ? 's' : '')).join(' and '); }
+  /* every prize pops up with a message and the narrator, one after another */
+  const rewardQueue = []; let rewardOpen = false;
+  function announce(p, title, big) {
+    rewardQueue.push({ p, title, big }); if (!rewardOpen) nextReward();
+  }
+  function nextReward() {
+    const r = rewardQueue.shift(); if (!r) { rewardOpen = false; return; }
+    rewardOpen = true;
+    $('rwTitle').textContent = r.title || 'You got a prize!';
+    $('rwItems').innerHTML = prizeKeys(r.p).map((k, n) => '<div class="rw-it" style="animation-delay:' + (0.25 + n * 0.18) + 's"><img src="art/ic_' + PICO[k] + '.webp" alt="" draggable="false"><b>+' + r.p[k] + '</b></div>').join('');
+    $('rwText').textContent = 'Your ' + prizeText(r.p) + (prizeKeys(r.p).length > 1 || r.p.coins ? ' will be added to your bag.' : ' will be added to your bag.');
+    $('reward').hidden = false; S.win(); buzz([25, 30, 45]);
+    if (V) setTimeout(() => V.say(r.big ? 'bigreward' : r.p.wands ? 'wandget' : ['reward1', 'reward2', 'reward3'][Math.floor(Math.random() * 3)], true), 350);
+  }
+  function giveReward(p, title, big) { give(p); announce(p, title, big); }
   function openBonus() {
     const grid = $('bonusGrid'); grid.innerHTML = ''; $('bonusClaim').hidden = true; $('bonusStreak').textContent = '';
     $('bonusMsg').textContent = 'Pick a card to get your reward!';
@@ -645,13 +714,13 @@
         const streak = bonus.last === yd ? bonus.streak + 1 : 1;
         const prize = rollPrize(streak, streak % 7 === 0);
         bonus = { last: t, streak }; store.set('bonus', bonus);
-        coins += prize.coins || 0; hintsLeft += prize.hints || 0; wands += prize.wands || 0; saveWallet(); updateHintUi();
+        give(prize);
         b.querySelector('.back').innerHTML = prizeHtml(prize); b.classList.add('open', 'mine'); S.ui('flip', 1, 1); S.win(); buzz([20, 30, 40]);
         $('bonusMsg').textContent = 'You won ' + prizeText(prize) + '!';
         $('bonusStreak').textContent = '🔥 Day ' + streak + (streak % 7 === 0 ? ' · big prize day!' : ' · come back tomorrow for more');
         // the other cards show what they hid
         [...grid.children].forEach((c, k) => { if (c === b) return; setTimeout(() => { c.querySelector('.back').innerHTML = prizeHtml(rollPrize(streak, false)); c.classList.add('open', 'dim'); S.ui('flip', 0.9 + (k % 4) * 0.08, 0.7); }, 450 + k * 90); });
-        setTimeout(() => { $('bonusClaim').hidden = false; }, 1400);
+        setTimeout(() => { $('bonusClaim').hidden = false; announce(prize, streak % 7 === 0 ? 'Big prize day!' : 'Daily Bonus!', streak % 7 === 0); }, 1500);
       };
       grid.appendChild(b);
     }
@@ -686,7 +755,7 @@
     S.unlock(); S.tap();
     $('shopCoins').textContent = coins;
     const list = $('shopList'); list.innerHTML = '';
-    for (const k of ['hint', 'wand']) {
+    for (const k of ['hint', 'wand', 'shield', 'double', 'sweeper', 'lens']) {
       const it = ITEMS[k], row = document.createElement('div'); row.className = 'shoprow';
       row.innerHTML = '<img class="pico" src="art/ic_' + it.icon + '.webp" alt="" draggable="false"><span><b>' + it.name + '</b><small>you have ' + it.count() + '</small></span>';
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy'; b.innerHTML = it.price + ' ' + coinSvg; b.disabled = coins < it.price;
@@ -705,7 +774,7 @@
     let reward = false, wandReward = false;
     freshScore();
     score.run++;
-    const pt = pointsFor(cur.n, score.run);
+    const pt = pointsFor(cur.n, score.run); if (cur.double) { pt.gain *= 2; pt.mult = pt.mult + '×2 booster'; }
     score.points += pt.gain; score.best = Math.max(score.best || 0, score.points);
     store.set('score', score); postScore();
     const earnedCoins = cur.n * 2 + (cur.hearts >= 3 ? 4 : 0);
@@ -718,8 +787,8 @@
       if (level === m.level) {
         level = m.level + 1; store.set('level', level); pendingHop = { from: m.level, to: level };
         cleared++; store.set('cleared', cleared);                       // only a first-time pass counts toward the reward
-        if (cleared % HINT_EVERY === 0) { hintsLeft++; store.set('hints', hintsLeft); reward = true; }
-        if (cleared % WAND_EVERY === 0) { wands++; store.set('wands', wands); wandReward = true; }
+        if (cleared % HINT_EVERY === 0) { give({ hints: 1 }); reward = true; setTimeout(() => announce({ hints: 1 }, 'Level reward!'), 3600); }
+        if (cleared % WAND_EVERY === 0) { give({ wands: 1 }); wandReward = true; setTimeout(() => announce({ wands: 1 }, 'Big level reward!', true), 4200); }
       }
     } else if (m.kind === 'daily' && daily.last !== m.date) {
       const y = new Date(); y.setDate(y.getDate() - 1);
@@ -735,9 +804,9 @@
     else if (m.kind === 'level') { wr.hidden = false; wr.textContent = (cleared % HINT_EVERY) + ' / ' + HINT_EVERY + ' levels to a free hint · wand in ' + (WAND_EVERY - (cleared % WAND_EVERY)) + ' more'; }
     else wr.hidden = true;
     if (m.kind === 'level' && m.level % 10 === 0) {
-      const flawless = cur.hearts >= MAX_HEARTS, bp = { coins: flawless ? 100 : 60, wands: 1, hints: flawless ? 2 : 0 };
-      give(bp); wr.hidden = false;
-      wr.innerHTML = '👑 Boss defeated! +' + bp.coins + ' coins, +1 wand' + (flawless ? ', +2 hints' : '<br><small>No hearts lost = an even bigger prize!</small>');
+      const flawless = cur.hearts >= MAX_HEARTS, bp = { coins: flawless ? 100 : 60, wands: 1, hints: flawless ? 2 : 0, shield: 1, lens: flawless ? 1 : 0 };
+      give(bp); setTimeout(() => announce(bp, '👑 Boss defeated!', true), 3600); wr.hidden = false;
+      wr.innerHTML = '👑 Boss defeated! Prizes: ' + prizeText(bp) + (flawless ? '' : '<br><small>No hearts lost = an even bigger prize!</small>');
     }
     updateHintUi();
     $('nextBtn').textContent = m.kind === 'level' ? 'Next level' : 'Back to map';
@@ -885,6 +954,9 @@
   $('rankName2').onchange = saveName;
   $('hintBtn').onclick = () => openItemInfo('hint');
   $('wandBtn').onclick = () => openItemInfo('wand');
+  $('sweepBtn').onclick = () => openItemInfo('sweeper');
+  $('lensBtn').onclick = () => openItemInfo('lens');
+  $('rwOk').onclick = () => { S.tap(); $('reward').hidden = true; setTimeout(nextReward, 220); };
   $('hintUse').onclick = onItemButton;
   $('walletCoins').onclick = openShop;
   $('shopClose').onclick = () => { S.tap(); $('shop').hidden = true; };
@@ -945,7 +1017,7 @@
   const HOUR = 3600e3, MAX_PLAYS = 2, CHEST_AT = 10;
   let quests = store.get('quests', null), chest = store.get('chest', { n: 0 }), wheel = store.get('wheel', { date: '', extra: 0 });
   let gifts = store.get('gifts', { daily: '', free: 0 }), plays = store.get('plays', { date: '', memory: 0, toss: 0 });
-  const give = (p) => { coins += p.coins || 0; hintsLeft += p.hints || 0; wands += p.wands || 0; saveWallet(); updateHintUi(); };
+
   const closeAll = () => { ['wheel', 'chest', 'quests', 'gifts', 'games', 'memory', 'toss'].forEach((id) => { $(id).hidden = true; }); };
   const QDEF = [
     { id: 'solved', text: 'Solve 3 levels', goal: 3, coins: 25 },
@@ -992,7 +1064,7 @@
       const d = document.createElement('div'); d.className = 'shoprow';
       d.innerHTML = '<span><b>' + r.name + '</b><small>' + r.sub + '</small></span>' + rewardRow(r.prize);
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy'; b.textContent = 'Get'; b.disabled = !r.ready;
-      b.onclick = () => { if (!r.ready) return; r.claim(); store.set('gifts', gifts); give(r.prize); S.win(); updateSides(); openGifts(); };
+      b.onclick = () => { if (!r.ready) return; r.claim(); store.set('gifts', gifts); giveReward(r.prize, 'A gift for you!'); updateSides(); openGifts(); };
       d.appendChild(b); list.appendChild(d);
     });
     $('gifts').hidden = false;
@@ -1008,7 +1080,7 @@
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy'; b.disabled = !done || got;
       b.innerHTML = got ? '✓' : q.coins + ' ' + coinSvg;
       b.onclick = () => {
-        if (!done || got) return; quests.claimed[q.id] = true; give({ coins: q.coins }); S.win();
+        if (!done || got) return; quests.claimed[q.id] = true; giveReward({ coins: q.coins }, 'Quest complete!');
         if (QDEF.every((x) => quests.claimed[x.id]) && !quests.bonus) { quests.bonus = true; wheel.extra++; store.set('wheel', wheel); }
         store.set('quests', quests); updateSides(); openQuests();
       };
@@ -1030,13 +1102,13 @@
     if (chest.n < CHEST_AT) return;
     chest.n -= CHEST_AT; store.set('chest', chest);
     const p = rollPrize(5, true), bonus = { coins: 30 };
-    give(p); give(bonus); S.win(); buzz([30, 40, 60]);
+    give(p); give(bonus); announce(Object.assign({}, p, { coins: (p.coins || 0) + 30 }), 'Candy Chest!', true); buzz([30, 40, 60]);
     $('chestPrize').innerHTML = '<div class="rwd big">' + prizeHtml(p) + '</div><div class="rwd">' + prizeHtml(bonus) + '</div>';
     $('chestMsg').textContent = 'You found ' + prizeText(p) + ' and 30 coins!';
     $('chestOpen').hidden = true; $('chestBar').style.width = (chest.n / CHEST_AT) * 100 + '%'; updateSides();
   }
   /* lucky wheel */
-  const WSEG = [{ c: 10 }, { h: 1 }, { c: 25 }, { c: 15 }, { w: 1 }, { c: 20 }, { h: 2 }, { c: 50 }], WW = [24, 16, 14, 18, 8, 14, 4, 2], WCOL = ['#ff5fa8', '#ffb347', '#7be37a', '#45d0ff', '#b07bff', '#ffe14d', '#ff7a5c', '#5fd8ff'];
+  const WSEG = [{ c: 10 }, { h: 1 }, { s: 1 }, { k: 1 }, { w: 1 }, { l: 1 }, { d: 1 }, { c: 50 }], WW = [24, 16, 12, 12, 8, 12, 5, 3], WCOL = ['#ff5fa8', '#ffb347', '#7be37a', '#45d0ff', '#b07bff', '#ffe14d', '#ff7a5c', '#5fd8ff'];
   let wheelRot = 0, spinning = false;
   function buildWheel() {
     let s = '<g id="wheelRot">';
@@ -1044,7 +1116,7 @@
       const a0 = (i * 45 - 90) * Math.PI / 180, a1 = ((i + 1) * 45 - 90) * Math.PI / 180, R = 100;
       s += '<path d="M110 110 L' + (110 + R * Math.cos(a0)).toFixed(1) + ' ' + (110 + R * Math.sin(a0)).toFixed(1) + ' A' + R + ' ' + R + ' 0 0 1 ' + (110 + R * Math.cos(a1)).toFixed(1) + ' ' + (110 + R * Math.sin(a1)).toFixed(1) + ' Z" fill="' + WCOL[i] + '" stroke="#fff" stroke-width="3"/>';
       const am = (i * 45 + 22.5 - 90) * Math.PI / 180, x = 110 + 66 * Math.cos(am), y = 110 + 66 * Math.sin(am), g = WSEG[i];
-      const label = g.c ? g.c : g.h ? '💡×' + g.h : '🪄';
+      const label = g.c ? g.c : g.h ? '💡' : g.w ? '🪄' : g.s ? '🛡' : g.k ? '🧹' : g.l ? '🔍' : '×2';
       s += '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" font-size="' + (g.c ? 22 : 18) + '" font-weight="800" fill="#4a1a8f" transform="rotate(' + (i * 45 + 22.5) + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' + label + '</text>';
     }
     s += '</g><circle cx="110" cy="110" r="16" fill="#ffc247" stroke="#fff" stroke-width="4"/><path d="M110 4 L100 26 L120 26 Z" fill="#ff3f66" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>';
@@ -1066,14 +1138,14 @@
     store.set('wheel', wheel);
     let r = Math.random() * WW.reduce((x, y) => x + y, 0), idx = 0;
     for (let i = 0; i < 8; i++) { r -= WW[i]; if (r <= 0) { idx = i; break; } }
-    const g = WSEG[idx], prize = { coins: g.c, hints: g.h, wands: g.w };
+    const g = WSEG[idx], prize = { coins: g.c, hints: g.h, wands: g.w, shield: g.s, sweeper: g.k, lens: g.l, double: g.d };
     give(prize); updateSides();
     const target = (360 - (idx * 45 + 22.5) + 360) % 360, cur0 = wheelRot % 360;
     wheelRot += 360 * 5 + ((target - cur0 + 360) % 360);
     spinning = true; $('wheelBtn').disabled = true; $('wheelMsg').textContent = 'Good luck…';
     const el = $('wheelRot'); el.style.transition = 'transform 4s cubic-bezier(.15,.7,.1,1)'; el.style.transformOrigin = '110px 110px'; el.style.transform = 'rotate(' + wheelRot + 'deg)';
     let ticks = 0; const tick = setInterval(() => { S.tap(); if (++ticks > 16) clearInterval(tick); }, 220);
-    setTimeout(() => { spinning = false; $('wheelMsg').textContent = 'You won ' + prizeText(prize) + '!'; S.win(); buzz([30, 40, 60]); openWheelState(); }, 4200);
+    setTimeout(() => { spinning = false; $('wheelMsg').textContent = 'You won ' + prizeText(prize) + '!'; buzz([30, 40, 60]); openWheelState(); announce(prize, 'Lucky Wheel!', !!(prize.wands || prize.double || prize.coins >= 50)); }, 4200);
   }
   function openWheelState() {
     const free = wheel.date !== today(), extra = wheel.extra;
