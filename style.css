@@ -281,7 +281,7 @@ body.in-game .screen{min-height:0;height:100dvh;padding-bottom:16px}
 
 /* hint inventory */
 #hintBtn{position:relative}
-#hintBtn .badge{position:absolute;top:-7px;right:-5px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#fff;color:#c2185b;font:800 13px/22px Poppins,system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+#hintBtn .badge{position:absolute;top:-7px;right:-5px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#fff;color:#c2185b;font:800 13px/22px Nunito,system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 #hintBtn.empty{opacity:.65}
 #hintBtn.empty .badge{background:#444;color:#fff}
 .hint-big{display:flex;align-items:center;justify-content:center;gap:10px;font-size:34px;font-weight:800}
@@ -293,7 +293,7 @@ body.in-game .screen{min-height:0;height:100dvh;padding-bottom:16px}
 /* daily ranking */
 .rank-btn{margin-top:6px}
 .namefield{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 0;font-weight:600;font-size:14px}
-.namefield input{width:150px;padding:8px 10px;border-radius:10px;border:2px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;font:600 15px Poppins,system-ui,sans-serif;text-align:center}
+.namefield input{width:150px;padding:8px 10px;border-radius:10px;border:2px solid rgba(255,255,255,.5);background:rgba(255,255,255,.15);color:#fff;font:600 15px Nunito,system-ui,sans-serif;text-align:center}
 .rlist{max-height:44vh;overflow:auto;margin:6px 0;text-align:left}
 .rrow{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.1);margin-bottom:5px;font-weight:600}
 .rrow b{text-align:center}
@@ -349,7 +349,7 @@ body.in-game .help .ver{font-size:10px;opacity:.7}
 .tools{grid-template-columns:repeat(5,1fr);gap:6px}
 .tools .btn{padding-left:2px;padding-right:2px;font-size:13px;position:relative}
 .tools .btn svg{width:20px;height:20px}
-#wandBtn .badge{position:absolute;top:-7px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#fff;color:#c2185b;font:800 12px/20px Poppins,system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+#wandBtn .badge{position:absolute;top:-7px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#fff;color:#c2185b;font:800 12px/20px Nunito,system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 #wandBtn.empty{opacity:.65}
 .ico{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.2em}
 .reward.coins{margin-top:2px}
@@ -680,7 +680,7 @@ body.in-game .nav{display:none}
 .tools2{display:flex;justify-content:center;gap:14px;margin-top:-4px}
 .tools2 .btn{position:relative;background:none;border:0;box-shadow:none;padding:0;width:50px;min-height:0;filter:drop-shadow(0 3px 3px rgba(40,0,80,.45))}
 .tools2 .btn .tico{width:46px;height:46px;object-fit:contain;filter:none;pointer-events:none}
-.tools2 .btn .badge{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#fff;color:#c2185b;font:800 12px/20px Poppins,system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.tools2 .btn .badge{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#fff;color:#c2185b;font:800 12px/20px Nunito,system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.3)}
 .tools2 .btn.empty{opacity:.6}
 .board{width:min(100%,calc(100dvh - 392px),440px)}
 .board.n10{width:min(calc(100vw - 8px),calc(100dvh - 296px),540px)}
@@ -779,10 +779,10 @@ body.in-game .nav{display:none}
 .bst span{text-shadow:none}
 .win-gain,.reward,.rw-text{text-shadow:none}
 
-/* ===== Poppins everywhere ===== */
-:root{--display:'Poppins','Trebuchet MS',system-ui,sans-serif;--body:'Poppins',system-ui,sans-serif}
-body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
-.btn,.btn.main,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,#nextBtn,.pl-play,.col-tabs button,.bst span,.nav button span,.med .tag,.tag{font-family:'Poppins',system-ui,sans-serif;font-weight:800;letter-spacing:.2px}
+/* ===== Nunito everywhere ===== */
+:root{--display:'Nunito','Trebuchet MS',system-ui,sans-serif;--body:'Nunito',system-ui,sans-serif}
+body,button,input,textarea{font-family:'Nunito',system-ui,sans-serif}
+.btn,.btn.main,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,#nextBtn,.pl-play,.col-tabs button,.bst span,.nav button span,.med .tag,.tag{font-family:'Nunito',system-ui,sans-serif;font-weight:800;letter-spacing:.2px}
 /* ===== the logo ===== */
 .logo{display:flex;justify-content:center;animation:logobob 3.2s ease-in-out infinite;filter:drop-shadow(0 6px 6px rgba(40,0,80,.45)) drop-shadow(0 0 14px rgba(255,255,255,.35))}
 .logo img{width:min(78vw,330px);height:auto;display:block}
@@ -848,3 +848,7 @@ body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
 /* smaller bear on the map */
 .mascot{width:70px;height:74px;margin:-64px 0 0 -35px}
 .hopper.gumi{width:70px;height:74px;margin:-64px 0 0 -35px}
+
+/* Nunito: heavy weight for every label */
+body,button,input,textarea{font-family:'Nunito',system-ui,sans-serif;font-weight:800}
+.btn,.btn.main,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,#nextBtn,.pl-play,.col-tabs button,.nav button span,.med .tag,.tag,.node,.chip b,.card h2,.title b,.ribbon b{font-family:'Nunito',system-ui,sans-serif;font-weight:900}
