@@ -793,3 +793,6 @@ body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
 .btn.main,#nextBtn,.card .btn,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,.nav button span,.med .tag,.tag,.col-tabs button,.pl-play,.fx-word,.hint-big b,.ld b,.help,.ribbon b,.ribbon small,.node,.node small,.node .badge,.toast,.tier,.pl-tier,.hearts b,.ver,.sides .tag,.map .ribbon span,.node span,.badge{-webkit-text-stroke:1.6px #000;paint-order:stroke fill;text-shadow:0 2px 0 rgba(0,0,0,.9),0 3px 6px rgba(0,0,0,.7)}
 .chip b,.badge,.title b,.card h2,.card p,.card small,.stk span,.shoprow b,.shoprow small,.pl-info,.rw-text,.reward,.rwd b,.bst span,.colcell span{-webkit-text-stroke:0;text-shadow:none}
 .chip b{-webkit-text-stroke:0}
+
+/* dark lettering never gets an outline: only white text does */
+.badge,.node .badge,.node.hard .badge,.node.veryhard .badge,.node.extreme .badge,#hintLeft,.hint-big b,.card h2,.title b,.col-tabs button:not(.on),.btn:disabled,.play,.coach-body p,.coach-body small,.pl-info,.shoprow b,.shoprow small,.colcell span,.bst span,.rw-it b,.rwd b,.pf-grid b,.pf-grid small{-webkit-text-stroke:0;paint-order:normal;text-shadow:none}
