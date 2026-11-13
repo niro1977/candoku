@@ -809,3 +809,7 @@ body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
 .node.hard.locked,.node.veryhard.locked,.node.extreme.locked{filter:saturate(.85) brightness(.9)}
 /* the mascot shines: warm glow + crisp edge */
 .mascot,.hopper.gumi{filter:drop-shadow(0 0 8px rgba(255,235,150,.95)) drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+
+/* a bigger bear on the map, standing right on its level circle */
+.mascot{width:92px;height:96px;margin:-84px 0 0 -46px}
+.hopper.gumi{width:92px;height:96px;margin:-84px 0 0 -46px}
