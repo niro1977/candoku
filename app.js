@@ -20,7 +20,7 @@
   let daily = store.get('daily', { last: '', streak: 0 });
   let cur = null;
   let score = store.get('score', { date: '', points: 0, run: 0, best: 0 });
-  const START_HINTS = 3, HINT_EVERY = 5;
+  const START_HINTS = 3, HINT_EVERY = 5, WAND_EVERY = 20;
   let coins = store.get('coins', 30), wands = store.get('wands', 1), bonus = store.get('bonus', { last: '', streak: 0 });
   let hintsLeft = store.get('hints', START_HINTS), cleared = store.get('cleared', 0);   // hints in the bag, levels passed for the first time
   const RANKS = [[0, 'Rookie'], [200, 'Candy Fan'], [500, 'Sweet Tooth'], [1000, 'Sugar Pro'], [2000, 'Candy Master'], [4000, 'Candy Legend']];
@@ -566,7 +566,7 @@
     wand: { name: 'Magic Wand', icon: 'wand', price: 60,
       desc: 'The wand puts one correct candy on the board for you, with no risk. Use it when you are really stuck.',
       count: () => wands, add: (n) => { wands += n; }, run: () => useWand(),
-      earn: () => 'Wands are won in the Daily Bonus, or bought with coins.' }
+      earn: () => { const t = WAND_EVERY - (cleared % WAND_EVERY); return 'You win a free wand every ' + WAND_EVERY + ' levels you pass (' + t + ' more to go), in the Daily Bonus, or buy one with coins.'; } }
   };
   let itemKind = 'hint';
   function openItemInfo(kind) {
@@ -702,7 +702,7 @@
     cur.done = true; saveGame(); buzz([30, 40, 60]); S.win();
     if (V) setTimeout(() => V.win(cur.hearts), 3100);   // after the three stars have landed
     const m = cur.meta, earned = Math.max(1, cur.hearts);
-    let reward = false;
+    let reward = false, wandReward = false;
     freshScore();
     score.run++;
     const pt = pointsFor(cur.n, score.run);
@@ -719,6 +719,7 @@
         level = m.level + 1; store.set('level', level); pendingHop = { from: m.level, to: level };
         cleared++; store.set('cleared', cleared);                       // only a first-time pass counts toward the reward
         if (cleared % HINT_EVERY === 0) { hintsLeft++; store.set('hints', hintsLeft); reward = true; }
+        if (cleared % WAND_EVERY === 0) { wands++; store.set('wands', wands); wandReward = true; }
       }
     } else if (m.kind === 'daily' && daily.last !== m.date) {
       const y = new Date(); y.setDate(y.getDate() - 1);
@@ -729,8 +730,9 @@
     $('winStars').innerHTML = st;
     $('winInfo').textContent = cur.n + '×' + cur.n + (cur.tier !== 'normal' ? ' ' + tierLabel[cur.tier] : '') + ' solved' + (cur.hints ? ' · ' + cur.hints + ' hint' + (cur.hints > 1 ? 's' : '') : ' · no hints');
     const wr = $('winReward');
-    if (reward) { wr.hidden = false; wr.innerHTML = '🎁 Reward! <b>+1 hint</b> for passing ' + HINT_EVERY + ' levels'; }
-    else if (m.kind === 'level') { wr.hidden = false; wr.textContent = (cleared % HINT_EVERY) + ' / ' + HINT_EVERY + ' levels to your next free hint'; }
+    if (wandReward) { wr.hidden = false; wr.innerHTML = '🪄 Big reward! <b>+1 magic wand</b> for passing ' + WAND_EVERY + ' levels' + (reward ? '<br>🎁 and +1 hint' : ''); }
+    else if (reward) { wr.hidden = false; wr.innerHTML = '🎁 Reward! <b>+1 hint</b> for passing ' + HINT_EVERY + ' levels · wand in ' + (WAND_EVERY - (cleared % WAND_EVERY)) + ' more'; }
+    else if (m.kind === 'level') { wr.hidden = false; wr.textContent = (cleared % HINT_EVERY) + ' / ' + HINT_EVERY + ' levels to a free hint · wand in ' + (WAND_EVERY - (cleared % WAND_EVERY)) + ' more'; }
     else wr.hidden = true;
     if (m.kind === 'level' && m.level % 10 === 0) {
       const flawless = cur.hearts >= MAX_HEARTS, bp = { coins: flawless ? 100 : 60, wands: 1, hints: flawless ? 2 : 0 };

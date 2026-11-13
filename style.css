@@ -663,3 +663,15 @@ body.in-game .nav{display:none}
 .pl-row .chip{height:32px;padding:0 10px 0 6px;font-size:14px}
 .pl-row .chip img{width:22px;height:22px;object-fit:contain}
 #prelevel .pl-play{background:linear-gradient(180deg,#8cf060,#2fb82f);border:2px solid #1c8a1c;box-shadow:0 6px 0 #146b17;font-size:26px;padding:10px;letter-spacing:1px;color:#fff;text-shadow:0 2px 0 rgba(8,70,20,.7)}
+
+/* win screen: a glowing sunburst instead of the dark blur, and the stars in an arch */
+#win{background:radial-gradient(circle at 50% 42%,#6fe9ff 0,#2a8ee8 36%,#2a3fb8 66%,#1c1470 100%);backdrop-filter:none;overflow:hidden}
+#win .rays{position:absolute;inset:-30%;pointer-events:none;z-index:0}
+#win .rays i{position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 42%,rgba(255,255,255,.34) 0 7deg,rgba(255,255,255,0) 7deg 20deg);animation:raysspin 22s linear infinite;-webkit-mask:radial-gradient(circle at 50% 42%,#000 0,#000 18%,transparent 62%);mask:radial-gradient(circle at 50% 42%,#000 0,#000 18%,transparent 62%)}
+#win .rays i.r2{background:repeating-conic-gradient(from 10deg at 50% 42%,rgba(255,235,140,.28) 0 5deg,rgba(255,235,140,0) 5deg 30deg);animation-duration:34s;animation-direction:reverse}
+@keyframes raysspin{to{transform:rotate(360deg)}}
+#win .card{position:relative;z-index:1}
+.stars{align-items:flex-end}
+#win .stars{padding-top:20px}
+#win .stars .star:nth-child(1),#win .stars .star:nth-child(3){transform-origin:50% 100%}
+#win .stars .star:nth-child(2){margin-bottom:22px}
