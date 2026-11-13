@@ -844,3 +844,7 @@ body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
 .win-gumi svg{animation:gumientry .9s cubic-bezier(.2,1.4,.4,1) both,gumidance 1.1s ease-in-out .9s infinite}
 #win .win-gumi{width:120px;height:110px;margin:-12px auto -6px}
 #win .win-gumi svg{width:116px;height:116px}
+
+/* smaller bear on the map */
+.mascot{width:70px;height:74px;margin:-64px 0 0 -35px}
+.hopper.gumi{width:70px;height:74px;margin:-64px 0 0 -35px}
