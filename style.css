@@ -813,3 +813,9 @@ body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
 /* a bigger bear on the map, standing right on its level circle */
 .mascot{width:92px;height:96px;margin:-84px 0 0 -46px}
 .hopper.gumi{width:92px;height:96px;margin:-84px 0 0 -46px}
+
+.card .xclose{pointer-events:auto;cursor:pointer;z-index:5}
+.overlay .card{position:relative}
+
+.mascot img,.mascot svg,.hopper.gumi svg,.win-gumi svg,.hero-gumi{image-rendering:auto}
+.mascot,.hopper.gumi,.win-gumi svg{filter:contrast(1.06) saturate(1.12) drop-shadow(0 0 9px rgba(255,238,160,.95)) drop-shadow(0 3px 2px rgba(0,0,0,.4))}

@@ -210,7 +210,7 @@
       b.innerHTML = html;
       b.onclick = () => { S.unlock(); S.tap(); openPrelevel(lv); };
       map.appendChild(b);
-      if (lv === level) map.insertAdjacentHTML('beforeend', '<div class="mascot" style="left:' + p.x + 'px;top:' + (p.y - 30) + 'px"><svg><use href="#gumi"/></svg></div>');
+      if (lv === (mascotAt || level)) map.insertAdjacentHTML('beforeend', '<div class="mascot" style="left:' + p.x + 'px;top:' + (p.y - 30) + 'px"><svg><use href="#gumi"/></svg></div>');
     }
   }
   function scrollToLevel(lv) {
@@ -219,6 +219,7 @@
     window.scrollTo(0, Math.max(0, y - window.innerHeight * 0.55));
   }
   let pendingHop = null;   // set when a win moves you on, played the next time the map is shown
+  let mascotAt = 0;   // while set, the bear is drawn on this level instead of the current one
   async function hopTo(from, to) {
     // our bear jumps from the level you just passed to the next one and stands there
     const g = mapGeom(), a = g.pos(from), b = g.pos(to), map = $('map'), still = map.querySelector('.mascot');
@@ -233,14 +234,14 @@
       { transform: 'translate(' + dx * 0.5 + 'px,' + (dy * 0.5 - 90) + 'px) scale(1.08,1.16)', offset: 0.5 },
       { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1.16,.84)', offset: 0.88 },
       { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1,1)' }
-    ], { duration: 950, easing: 'ease-in-out', fill: 'forwards' });
+    ], { duration: 520, easing: 'cubic-bezier(.3,.1,.3,1)', fill: 'forwards' });
     await anim.finished.catch(() => {});
     S.candy((to - 1) % 10, 3); buzz(15);
     const node = map.querySelector('.node[data-lv="' + to + '"]');
     if (node) node.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 400 });
     if (still) still.style.visibility = '';
     h.remove();
-    await sleep(750);   // the bear stands on its new level for a moment
+    mascotAt = 0; await sleep(260);
   }
 
   /* ---------- boards ---------- */
@@ -921,19 +922,21 @@
   /* ---------- navigation ---------- */
   async function toMap() {
     const p = pendingHop; pendingHop = null;
+    if (p) mascotAt = p.from;
     await transition(() => { renderHome(); show('home'); scrollToLevel(level); });
-    if (p) { await sleep(250); await hopTo(p.from, p.to); }
+    if (p) { await sleep(120); await hopTo(p.from, p.to); }
   }
   async function nextLevel() {
     $('win').hidden = true;
     if (cur.meta.kind !== 'level') { await toMap(); return; }
     const from = cur.meta.level, to = level; pendingHop = null;
     try {
+      mascotAt = from;
       await transition(() => { renderHome(); show('home'); scrollToLevel(to); });
-      await sleep(200);
-      await Promise.race([hopTo(from, to), sleep(3500)]);
+      await sleep(100);
+      await Promise.race([hopTo(from, to), sleep(2500)]); mascotAt = 0;
       if (V && to > 1 && (to - 1) % 10 === 0) V.say('Welcome to ' + zoneOf(to).name + '!', true);
-      await sleep(250);
+      await sleep(120);
       await new Promise((res) => openPrelevel(to, () => transition(() => startLevel(to)).then(res)));
     } catch (e) {
       console.error(e);
@@ -947,7 +950,13 @@
   $('undoBtn').onclick = undo;
   document.querySelectorAll('.card').forEach((card) => {
     const x = document.createElement('button'); x.type = 'button'; x.className = 'xclose'; x.setAttribute('aria-label', 'Close');
-    x.onclick = () => { for (const id of ['#howClose', '#wheelClose', '#chestClose', '#questClose', '#giftClose', '#gamesClose', '#memClose', '#tossClose', '#rankClose', '#hintCancel', '#shopClose', '#colClose', '#pfClose', '#bonusClaim', '#homeBtn', '#loseHome']) { const b = card.querySelector(id); if (b) { b.click(); return; } } };
+    x.onclick = (e) => {
+      e.stopPropagation(); S.tap();
+      const ov = card.closest('.overlay'); if (!ov) return;
+      const ids = ['#rwOk', '#howClose', '#wheelClose', '#chestClose', '#questClose', '#giftClose', '#gamesClose', '#memClose', '#tossClose', '#rankClose', '#hintCancel', '#shopClose', '#colClose', '#pfClose', '#homeBtn', '#loseHome', '#bonusClaim'];
+      for (const id of ids) { const b = card.querySelector(id); if (b) { b.click(); if (ov.hidden) return; break; } }
+      ov.hidden = true;                                   // any popup without its own button just closes
+    };
     card.appendChild(x);
   });
   $('rankBtn').onclick = openRanking;
