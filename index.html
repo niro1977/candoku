@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@700;800&display=swap">
-<link rel="stylesheet" href="style.css?v=49">
+<link rel="stylesheet" href="style.css?v=50">
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
@@ -137,6 +137,7 @@
     <button class="chip" id="walletCoins" type="button" aria-label="Shop"><img class="" src="art/ic_coin.webp" alt="" draggable="false"><b id="coinN">0</b><i>+</i></button>
     <span class="chip"><img class="" src="art/ic_hint.webp" alt="" draggable="false"><b id="hintN">3</b></span>
     <span class="chip"><img class="" src="art/ic_wand.webp" alt="" draggable="false"><b id="wandN">0</b></span>
+    <button class="chip gearchip" id="gearMap" type="button" aria-label="Settings"><svg><use href="#gear"/></svg></button>
   </div>
   <button class="daily" id="daily" type="button">
     <span class="daily-ico"><svg><use href="#c3"/></svg></span>
@@ -184,7 +185,7 @@
     <button class="btn" id="clearBtn" type="button" aria-label="Restart" title="Restart"><img class="tico" src="art/tool_restart.webp" alt="" draggable="false"></button>
   </div>
   <div class="tools2"><button class="btn" id="sweepBtn" type="button" aria-label="Sweeper" title="Sweeper"><img class="tico" src="art/ic_sweeper.webp" alt="" draggable="false"><i class="badge" id="sweepBtnBadge">0</i></button><button class="btn" id="lensBtn" type="button" aria-label="Magnifier" title="Magnifier"><img class="tico" src="art/ic_lens.webp" alt="" draggable="false"><i class="badge" id="lensBtnBadge">0</i></button></div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v49</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v50</span></p>
 </main>
 
 <!-- WIN -->
@@ -229,6 +230,15 @@
   </div>
 </div>
 
+<!-- COLLECTION -->
+<div id="collection" class="overlay" hidden><div class="card">
+  <h2>My Collection</h2>
+  <div class="col-tabs" id="colTabs"><button type="button" data-t="outfits" class="on">Outfits</button><button type="button" data-t="frames">Frames</button><button type="button" data-t="stickers">Stickers</button></div>
+  <div class="col-grid" id="colGrid"></div>
+  <p class="small" id="colNote"></p>
+  <button class="btn main wide" id="colClose" type="button">Close</button>
+</div></div>
+
 <!-- PRIZE POPUP -->
 <div id="reward" class="overlay" hidden><div class="rw-burst"></div><div class="card">
   <h2 id="rwTitle">You got a prize!</h2>
@@ -258,7 +268,8 @@
 
 <!-- QUESTS -->
 <div id="quests" class="overlay" hidden><div class="card">
-  <h2>Daily Quests</h2>
+  <h2>Challenges</h2>
+  <div class="col-tabs" id="qTabs"><button type="button" data-t="daily" class="on">Daily</button><button type="button" data-t="weekly">Weekly</button><button type="button" data-t="trophies">Trophies</button></div>
   <div class="shoplist" id="questList"></div>
   <p class="reward" id="questBonus"></p>
   <button class="btn main wide" id="questClose" type="button">Close</button>
@@ -323,6 +334,7 @@
       </div>
     </div>
     <div class="pf-grid" id="pfGrid"></div>
+    <button class="btn wide" id="pfCollection" type="button">My collection</button>
     <button class="btn main wide" id="pfClose" type="button">Close</button>
   </div>
 </div>
@@ -420,12 +432,12 @@
   <button type="button" id="navShop"><img class="navico" src="art/nav_shop.webp" alt="" draggable="false"><span>Shop</span></button>
   <button type="button" id="navRank"><img class="navico" src="art/nav_rank.webp" alt="" draggable="false"><span>Ranking</span></button>
 </nav>
-<script src="engine.js?v=49"></script>
-<script src="hints.js?v=49"></script>
-<script src="seeds.js?v=49"></script>
-<script src="sound.js?v=49"></script>
-<script src="music.js?v=49"></script>
-<script src="voice.js?v=49"></script>
-<script src="app.js?v=49"></script>
+<script src="engine.js?v=50"></script>
+<script src="hints.js?v=50"></script>
+<script src="seeds.js?v=50"></script>
+<script src="sound.js?v=50"></script>
+<script src="music.js?v=50"></script>
+<script src="voice.js?v=50"></script>
+<script src="app.js?v=50"></script>
 </body>
 </html>

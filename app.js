@@ -688,15 +688,16 @@
   function prizeText(p) { return prizeKeys(p).map((k) => p[k] + ' ' + PNAME[k] + (p[k] > 1 && k !== 'coins' ? 's' : '') + (k === 'coins' && p[k] > 1 ? 's' : '')).join(' and '); }
   /* every prize pops up with a message and the narrator, one after another */
   const rewardQueue = []; let rewardOpen = false;
-  function announce(p, title, big) {
-    rewardQueue.push({ p, title, big }); if (!rewardOpen) nextReward();
+  function announce(p, title, big, html) {
+    rewardQueue.push({ p, title, big, html }); if (!rewardOpen) nextReward();
   }
   function nextReward() {
     const r = rewardQueue.shift(); if (!r) { rewardOpen = false; return; }
     rewardOpen = true;
     $('rwTitle').textContent = r.title || 'You got a prize!';
-    $('rwItems').innerHTML = prizeKeys(r.p).map((k, n) => '<div class="rw-it" style="animation-delay:' + (0.25 + n * 0.18) + 's"><img src="art/ic_' + PICO[k] + '.webp" alt="" draggable="false"><b>+' + r.p[k] + '</b></div>').join('');
-    $('rwText').textContent = 'Your ' + prizeText(r.p) + (prizeKeys(r.p).length > 1 || r.p.coins ? ' will be added to your bag.' : ' will be added to your bag.');
+    const kk = prizeKeys(r.p);
+    $('rwItems').innerHTML = (r.html || '') + kk.map((k, n) => '<div class="rw-it" style="animation-delay:' + (0.25 + n * 0.18) + 's"><img src="art/ic_' + PICO[k] + '.webp" alt="" draggable="false"><b>+' + r.p[k] + '</b></div>').join('');
+    $('rwText').textContent = kk.length ? 'Your ' + prizeText(r.p) + ' will be added to your bag.' : (r.html ? 'Find it in My Collection (Profile).' : '');
     $('reward').hidden = false; S.win(); buzz([25, 30, 45]);
     if (V) setTimeout(() => V.say(r.big ? 'bigreward' : r.p.wands ? 'wandget' : ['reward1', 'reward2', 'reward3'][Math.floor(Math.random() * 3)], true), 350);
   }
@@ -788,6 +789,7 @@
         level = m.level + 1; store.set('level', level); pendingHop = { from: m.level, to: level };
         cleared++; store.set('cleared', cleared);                       // only a first-time pass counts toward the reward
         if (cleared % HINT_EVERY === 0) { give({ hints: 1 }); reward = true; setTimeout(() => announce({ hints: 1 }, 'Level reward!'), 3600); }
+        checkUnlocks(m);
         if (cleared % WAND_EVERY === 0) { give({ wands: 1 }); wandReward = true; setTimeout(() => announce({ wands: 1 }, 'Big level reward!', true), 4200); }
       }
     } else if (m.kind === 'daily' && daily.last !== m.date) {
@@ -944,10 +946,15 @@
   $('undoBtn').onclick = undo;
   document.querySelectorAll('.card').forEach((card) => {
     const x = document.createElement('button'); x.type = 'button'; x.className = 'xclose'; x.setAttribute('aria-label', 'Close');
-    x.onclick = () => { for (const id of ['#howClose', '#wheelClose', '#chestClose', '#questClose', '#giftClose', '#gamesClose', '#memClose', '#tossClose', '#rankClose', '#hintCancel', '#shopClose', '#pfClose', '#bonusClaim', '#homeBtn', '#loseHome']) { const b = card.querySelector(id); if (b) { b.click(); return; } } };
+    x.onclick = () => { for (const id of ['#howClose', '#wheelClose', '#chestClose', '#questClose', '#giftClose', '#gamesClose', '#memClose', '#tossClose', '#rankClose', '#hintCancel', '#shopClose', '#colClose', '#pfClose', '#bonusClaim', '#homeBtn', '#loseHome']) { const b = card.querySelector(id); if (b) { b.click(); return; } } };
     card.appendChild(x);
   });
   $('rankBtn').onclick = openRanking;
+  $('pfCollection').onclick = openCollection;
+  $('colClose').onclick = () => { S.tap(); $('collection').hidden = true; };
+  document.querySelectorAll('#colTabs button').forEach((b) => { b.onclick = () => { colTab = b.dataset.t; S.tap(); renderCollection(); }; });
+  document.querySelectorAll('#qTabs button').forEach((b) => { b.onclick = () => { qTab = b.dataset.t; S.tap(); renderQuests(); }; });
+  $('gearMap').onclick = () => { S.tap(); syncOpts(); $('how').hidden = false; };
   $('pfClose').onclick = () => { saveProfileName(); S.tap(); $('profile').hidden = true; };
   $('pfName').onchange = saveProfileName;
   $('rankClose').onclick = () => { saveName(); S.tap(); $('ranking').hidden = true; };
@@ -1013,6 +1020,121 @@
   $('coachSkip').onclick = endCoach;
   window.addEventListener('resize', () => { if (!$('coach').hidden) coachPlace(); });
   $('replayCoach').onclick = () => { $('how').hidden = true; forceCoach = true; transition(() => startLevel(1)); };
+
+  /* ---------- collection: outfits, board frames, stickers ---------- */
+  const OUTFITS = [{ id: 'hero', name: 'Hero', img: 'gumi_hero', at: 0 }, { id: 'pirate', name: 'Captain', img: 'gumi_pirate', at: 20 }, { id: 'astronaut', name: 'Astronaut', img: 'gumi_astronaut', at: 50 },
+    { id: 'chef', name: 'Chef', img: 'gumi_chef', at: 80 }, { id: 'ninja', name: 'Ninja', img: 'gumi_ninja', at: 120 }];
+  const FRAMES = [{ id: 'cream', name: 'Cream', bg: '#f7f1e5', at: 0 }, { id: 'mint', name: 'Mint', bg: 'linear-gradient(160deg,#e6fff0,#b9f0d2)', at: 10 }, { id: 'sky', name: 'Sky', bg: 'linear-gradient(160deg,#e6f4ff,#bcdcfb)', at: 25 },
+    { id: 'rose', name: 'Rose', bg: 'linear-gradient(160deg,#fff0f6,#ffcfe0)', at: 40 }, { id: 'gold', name: 'Gold', bg: 'linear-gradient(160deg,#fff7c9,#ffd96a)', at: 70 }, { id: 'night', name: 'Night', bg: 'linear-gradient(160deg,#5c4fd0,#2a2470)', at: 100 }];
+  const WORLD_NAMES = ['Lollipop Meadow', 'Chocolate River', 'Frosting Mountains', 'Cotton Candy Sky', 'Ice Cream Beach', 'Gingerbread Winter', 'Donut Lake', 'Cookie Canyon', 'Crystal Caves', 'Jelly Jungle', 'Cupcake Village', 'Candy Cane Forest', 'Caramel Falls', 'Carnival Fairground', 'Macaron Mesa', 'Waffle Castle', 'Soda Springs', 'Honey Hive Hills', 'Berry Bog', 'Mint Mountain', 'Licorice Night Market', 'Sugar Dunes Oasis', 'Pudding Pools', 'Cinnamon Autumn Forest', 'Starlight Sprinkle Galaxy', 'Toffee Treehouse Village', 'Gumdrop Garden', 'Royal Cake Palace', 'Rainbow Sherbet Glacier', 'Sweet Kingdom Gate'];
+  const passed = () => Math.max(0, level - 1);
+  let outfit = store.get('outfit', 'hero'), frame = store.get('frame', 'cream');
+  const outfitOf = (id) => OUTFITS.find((o) => o.id === id) || OUTFITS[0], frameOf = (id) => FRAMES.find((f) => f.id === id) || FRAMES[0];
+  function applyLook() {
+    if (passed() < outfitOf(outfit).at) outfit = 'hero'; if (passed() < frameOf(frame).at) frame = 'cream';
+    const im = document.querySelector('#gumi image'); if (im) im.setAttribute('href', 'art/' + outfitOf(outfit).img + '.webp');
+    const g = $('game'); if (g) g.style.setProperty('--fbg', frameOf(frame).bg);
+    document.documentElement.style.setProperty('--fbg', frameOf(frame).bg);
+  }
+  const stickerCount = () => Math.min(WORLD_NAMES.length, Math.floor(passed() / 10));
+  let colTab = 'outfits';
+  function openCollection() {
+    S.unlock(); S.tap(); $('profile').hidden = true; renderCollection(); $('collection').hidden = false;
+  }
+  function renderCollection() {
+    const grid = $('colGrid'), note = $('colNote'); grid.innerHTML = '';
+    document.querySelectorAll('#colTabs button').forEach((b) => b.classList.toggle('on', b.dataset.t === colTab));
+    if (colTab === 'outfits') {
+      OUTFITS.forEach((o) => {
+        const open = passed() >= o.at, b = document.createElement('button'); b.type = 'button'; b.className = 'colcell' + (outfit === o.id ? ' sel' : '') + (open ? '' : ' lock');
+        b.innerHTML = '<img src="art/' + o.img + '.webp" alt="" draggable="false"><span>' + o.name + '</span>' + (open ? '' : '<i>Level ' + o.at + '</i>');
+        b.onclick = () => { if (!open) { toast('Pass ' + o.at + ' levels to unlock ' + o.name); return; } outfit = o.id; store.set('outfit', outfit); applyLook(); S.tap(); renderCollection(); };
+        grid.appendChild(b);
+      });
+      note.textContent = 'New outfits for your bear as you pass levels.';
+    } else if (colTab === 'frames') {
+      FRAMES.forEach((f) => {
+        const open = passed() >= f.at, b = document.createElement('button'); b.type = 'button'; b.className = 'colcell frm' + (frame === f.id ? ' sel' : '') + (open ? '' : ' lock');
+        b.innerHTML = '<div class="swatch" style="background:' + f.bg + '"><u></u><u></u><u></u><u></u></div><span>' + f.name + '</span>' + (open ? '' : '<i>Level ' + f.at + '</i>');
+        b.onclick = () => { if (!open) { toast('Pass ' + f.at + ' levels to unlock the ' + f.name + ' frame'); return; } frame = f.id; store.set('frame', frame); applyLook(); S.tap(); renderCollection(); };
+        grid.appendChild(b);
+      });
+      note.textContent = 'Your board frame, used in every level.';
+    } else {
+      WORLD_NAMES.forEach((w, i) => {
+        const open = i < stickerCount(), b = document.createElement('div'); b.className = 'colcell stk' + (open ? '' : ' lock');
+        b.innerHTML = '<div class="sticker" style="background-image:url(art/bg_' + i + '.jpg)"></div><span>' + (open ? w : '?') + '</span>';
+        grid.appendChild(b);
+      });
+      note.textContent = stickerCount() + ' / ' + WORLD_NAMES.length + ' stickers · a prize at 5, 10, 20 and 30';
+    }
+  }
+  /* unlocks and sticker prizes announced the moment you earn them */
+  function checkUnlocks(m) {
+    const lv = m.level, extra = [];
+    OUTFITS.filter((o) => o.at === lv && o.at > 0).forEach((o) => extra.push({ t: 'New outfit!', html: '<div class="rw-it"><img src="art/' + o.img + '.webp" alt="" draggable="false"><b>' + o.name + '</b></div>', big: true }));
+    FRAMES.filter((f) => f.at === lv && f.at > 0).forEach((f) => extra.push({ t: 'New board frame!', html: '<div class="rw-it"><div class="swatch big" style="background:' + f.bg + '"><u></u><u></u><u></u><u></u></div><b>' + f.name + '</b></div>' }));
+    if (lv % 10 === 0 && lv / 10 <= WORLD_NAMES.length) {
+      const i = lv / 10 - 1; extra.push({ t: 'New sticker!', html: '<div class="rw-it"><div class="sticker big" style="background-image:url(art/bg_' + i + '.jpg)"></div><b>' + WORLD_NAMES[i] + '</b></div>' });
+      const n = lv / 10, prizes = { 5: { coins: 150, lens: 1 }, 10: { coins: 300, wands: 1, shield: 1 }, 20: { coins: 600, wands: 2, double: 1 }, 30: { coins: 1000, wands: 3, shield: 2, lens: 2 } };
+      if (prizes[n]) { give(prizes[n]); extra.push({ p: prizes[n], t: 'Album prize! ' + n + ' stickers', big: true }); }
+    }
+    extra.forEach((e, k) => setTimeout(() => announce(e.p || {}, e.t, e.big, e.html), 5200 + k * 100));
+  }
+
+  /* ---------- challenges: daily, weekly, trophies ---------- */
+  const weekKey = () => { const d = new Date(); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return t.getUTCFullYear() + '-W' + Math.ceil(((t - y0) / 864e5 + 1) / 7); };
+  let stats = Object.assign({ solved: 0, flawless: 0, nohint: 0, bosses: 0, run: 0, maxRun: 0 }, store.get('stats', {}));
+  let weekly = store.get('weekly', null), achClaimed = store.get('achClaimed', {});
+  const WDEF = [{ id: 'w1', text: 'Solve 15 levels this week', goal: 15, key: 'solved', prize: { coins: 100, double: 1 } },
+    { id: 'w2', text: 'Win 3 Hard (or harder) levels', goal: 3, key: 'hard', prize: { lens: 1, shield: 1 } },
+    { id: 'w3', text: 'Win 5 levels without losing a heart', goal: 5, key: 'flawless', prize: { wands: 1, coins: 60 } }];
+  const ADEF = [{ id: 'a1', text: 'Pass 10 levels', goal: 10, get: () => stats.solved, prize: { coins: 50 } },
+    { id: 'a2', text: 'Pass 50 levels', goal: 50, get: () => stats.solved, prize: { coins: 120, shield: 1 } },
+    { id: 'a3', text: 'Pass 100 levels', goal: 100, get: () => stats.solved, prize: { coins: 250, lens: 2 } },
+    { id: 'a4', text: 'Pass 200 levels', goal: 200, get: () => stats.solved, prize: { coins: 500, wands: 2, double: 1 } },
+    { id: 'a5', text: 'Win 10 levels without losing a heart', goal: 10, get: () => stats.flawless, prize: { sweeper: 2 } },
+    { id: 'a6', text: 'Win 50 levels without losing a heart', goal: 50, get: () => stats.flawless, prize: { coins: 200, shield: 2 } },
+    { id: 'a7', text: 'Win 10 levels with no hints', goal: 10, get: () => stats.nohint, prize: { coins: 80 } },
+    { id: 'a8', text: 'Defeat 3 bosses', goal: 3, get: () => stats.bosses, prize: { wands: 1, coins: 100 } },
+    { id: 'a9', text: 'Sky Path: 5 flawless levels in a row', goal: 5, get: () => stats.maxRun, prize: { coins: 100, lens: 1 } },
+    { id: 'a10', text: 'Daily Bonus streak of 7 days', goal: 7, get: () => Math.max(bonus.streak || 0, 0), prize: { wands: 1, coins: 100 } }];
+  function freshWeek() { const k = weekKey(); if (!weekly || weekly.week !== k) { weekly = { week: k, solved: 0, hard: 0, flawless: 0, claimed: {} }; store.set('weekly', weekly); } }
+  function trackSolved() {
+    freshWeek(); const flawless = cur.hearts >= MAX_HEARTS;
+    stats.solved++; if (flawless) { stats.flawless++; stats.run++; stats.maxRun = Math.max(stats.maxRun, stats.run); } else stats.run = 0; if (!cur.hints) stats.nohint++;
+    if (cur.meta && cur.meta.kind === 'level' && cur.meta.level % 10 === 0) stats.bosses++;
+    weekly.solved++; if (cur.tier !== 'normal') weekly.hard++; if (flawless) weekly.flawless++;
+    store.set('stats', stats); store.set('weekly', weekly);
+  }
+  const ready = (cur0, goal, claimed) => cur0 >= goal && !claimed;
+  const anyChallengeReady = () => { freshWeek(); return WDEF.some((w) => ready(weekly[w.key], w.goal, weekly.claimed[w.id])) || ADEF.some((x) => ready(x.get(), x.goal, achClaimed[x.id])); };
+  let qTab = 'daily';
+  function prizeChips(p) { return prizeKeys(p).map((k) => '<img src="art/ic_' + PICO[k] + '.webp" alt="" draggable="false"><em>' + p[k] + '</em>').join(''); }
+  function renderQuests() {
+    const list = $('questList'); list.innerHTML = ''; freshDay(); freshWeek();
+    document.querySelectorAll('#qTabs button').forEach((b) => b.classList.toggle('on', b.dataset.t === qTab));
+    const row = (text, v, goal, claimed, prizeHtmlStr, claim) => {
+      const val = Math.min(goal, v), done = val >= goal, d = document.createElement('div'); d.className = 'shoprow quest';
+      d.innerHTML = '<span><b>' + text + '</b><small>' + val + ' / ' + goal + '</small><i class="qbar"><u style="width:' + (val / goal) * 100 + '%"></u></i></span>';
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy chips'; b.disabled = !done || claimed; b.innerHTML = claimed ? '✓' : prizeHtmlStr;
+      b.onclick = () => { if (!done || claimed) return; claim(); }; d.appendChild(b); list.appendChild(d);
+    };
+    if (qTab === 'daily') {
+      QDEF.forEach((q) => row(q.text, quests.p[q.id], q.goal, quests.claimed[q.id], q.coins + ' ' + coinSvg, () => {
+        quests.claimed[q.id] = true; giveReward({ coins: q.coins }, 'Quest complete!');
+        if (QDEF.every((x) => quests.claimed[x.id]) && !quests.bonus) { quests.bonus = true; wheel.extra++; store.set('wheel', wheel); }
+        store.set('quests', quests); updateSides(); renderQuests();
+      }));
+      $('questBonus').textContent = quests.bonus ? '🎡 Bonus won: 1 extra wheel spin!' : 'Finish all three for a free wheel spin';
+    } else if (qTab === 'weekly') {
+      WDEF.forEach((w) => row(w.text, weekly[w.key], w.goal, weekly.claimed[w.id], prizeChips(w.prize), () => { weekly.claimed[w.id] = true; store.set('weekly', weekly); giveReward(w.prize, 'Weekly challenge!', true); updateSides(); renderQuests(); }));
+      $('questBonus').textContent = 'Weekly challenges restart every Monday';
+    } else {
+      ADEF.forEach((x) => row(x.text, x.get(), x.goal, achClaimed[x.id], prizeChips(x.prize), () => { achClaimed[x.id] = true; store.set('achClaimed', achClaimed); giveReward(x.prize, 'Trophy won!', true); updateSides(); renderQuests(); }));
+      $('questBonus').textContent = 'Trophies are earned once, for good';
+    }
+  }
   /* ---------- extras: gifts, daily quests, chest, lucky wheel, mini-games ---------- */
   const HOUR = 3600e3, MAX_PLAYS = 2, CHEST_AT = 10;
   let quests = store.get('quests', null), chest = store.get('chest', { n: 0 }), wheel = store.get('wheel', { date: '', extra: 0 });
@@ -1031,9 +1153,9 @@
   }
   const dailyGiftReady = () => gifts.daily !== today();
   const freeGiftReady = () => Date.now() - gifts.free >= 6 * HOUR;
-  const questReady = () => QDEF.some((q) => quests.p[q.id] >= q.goal && !quests.claimed[q.id]);
+  const questReady = () => QDEF.some((q) => quests.p[q.id] >= q.goal && !quests.claimed[q.id]) || anyChallengeReady();
   function onSolved() {
-    freshDay();
+    freshDay(); trackSolved();
     quests.p.solved++; if (!cur.hints) quests.p.nohint++; if (cur.hearts >= MAX_HEARTS) quests.p.flawless++;
     store.set('quests', quests);
     chest.n = Math.min(CHEST_AT, chest.n + 1); store.set('chest', chest);
@@ -1071,23 +1193,7 @@
   }
   /* quests */
   function openQuests() {
-    S.unlock(); S.tap(); closeAll(); freshDay();
-    const list = $('questList'); list.innerHTML = '';
-    QDEF.forEach((q) => {
-      const v = Math.min(q.goal, quests.p[q.id]), done = v >= q.goal, got = quests.claimed[q.id];
-      const d = document.createElement('div'); d.className = 'shoprow quest';
-      d.innerHTML = '<span><b>' + q.text + '</b><small>' + v + ' / ' + q.goal + '</small><i class="qbar"><u style="width:' + (v / q.goal) * 100 + '%"></u></i></span>';
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn main buy'; b.disabled = !done || got;
-      b.innerHTML = got ? '✓' : q.coins + ' ' + coinSvg;
-      b.onclick = () => {
-        if (!done || got) return; quests.claimed[q.id] = true; giveReward({ coins: q.coins }, 'Quest complete!');
-        if (QDEF.every((x) => quests.claimed[x.id]) && !quests.bonus) { quests.bonus = true; wheel.extra++; store.set('wheel', wheel); }
-        store.set('quests', quests); updateSides(); openQuests();
-      };
-      d.appendChild(b); list.appendChild(d);
-    });
-    $('questBonus').textContent = quests.bonus ? '🎡 Bonus won: 1 extra wheel spin!' : 'Finish all three for a free wheel spin';
-    $('quests').hidden = false;
+    S.unlock(); S.tap(); closeAll(); renderQuests(); $('quests').hidden = false;
   }
   /* chest */
   function openChest() {
@@ -1265,6 +1371,7 @@
   })();
   document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
   window.addEventListener('pagehide', saveGame);
+  applyLook();
   syncSound();
   renderHome();
   scrollToLevel(level);

@@ -704,3 +704,47 @@ body.in-game .nav{display:none}
 .rw-text{font-size:14px;margin:0;color:#35557a;font-weight:800}
 @keyframes rwpop{0%{opacity:0;transform:translateY(-120px) scale(2.2) rotate(-200deg)}60%{opacity:1;transform:translateY(8px) scale(.85) rotate(10deg)}100%{opacity:1;transform:none}}
 @keyframes rwfloat{50%{transform:translateY(-8px) rotate(3deg)}}
+
+/* ----- board frames chosen in the collection ----- */
+.board,.board.hard,.board.veryhard,.board.extreme{background:var(--fbg,#f7f1e5)}
+/* ----- smaller win popup: frame and text shrink, stars keep their size ----- */
+#win .card{--cw:min(272px,calc(100vw - 72px));gap:4px;padding-top:calc(var(--k) * 10)}
+#win .win-gumi{width:92px;height:92px;margin:-6px auto -8px}
+#win .win-gumi svg{width:86px;height:86px}
+#win .card p{font-size:12px}
+#win .gain{font-size:21px}
+#win .gain small{font-size:10px}
+#win .stars{margin:0 -22px}
+#win .stars img.star{width:88px;height:88px;margin:0 -5px}
+#win .card .btn{padding:6px 8px;font-size:13px}
+#win .card .link{padding:4px 14px;font-size:12px}
+/* ----- readable text on every button: a dark outline around the lettering ----- */
+.btn,.btn.main,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,#nextBtn,.bst span,.nav button span,.med .tag,.tag{-webkit-text-stroke:3px #2a1208;paint-order:stroke fill;text-shadow:0 2px 0 rgba(30,10,0,.55);letter-spacing:.3px}
+.nav button span{-webkit-text-stroke:2.5px #2a1208}
+.btn.main:disabled{-webkit-text-stroke-color:#3a3a3a}
+/* ----- settings gear in the always-visible header ----- */
+.gearchip{width:34px;padding:0;justify-content:center;cursor:pointer;margin-left:0}
+.gearchip svg{width:20px;height:20px;color:#7a2fd0}
+.wallet{gap:4px}
+.wallet .chip{padding:0 6px 0 4px;font-size:13px}
+.wallet .chip.me{padding:0 4px}
+/* ----- collection / tabs ----- */
+.col-tabs{display:flex;justify-content:center;gap:6px;margin:2px 0}
+.col-tabs button{padding:6px 12px;border-radius:12px;background:linear-gradient(180deg,#e9f3ff,#bcd6f0);border:2px solid #86aed2;box-shadow:0 3px 0 #5f8fb8;color:#35557a;font:800 13px var(--display);-webkit-text-stroke:0;text-shadow:none}
+.col-tabs button.on{background:linear-gradient(180deg,#8cf060,#2fb82f);border-color:#1c8a1c;box-shadow:0 3px 0 #146b17;color:#fff;-webkit-text-stroke:2.5px #2a1208;paint-order:stroke fill}
+.col-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:42vh;overflow:auto;padding:2px}
+.colcell{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:14px;background:rgba(255,255,255,.6);border:3px solid transparent;color:#35557a;font:800 12px var(--display)}
+.colcell img{width:64px;height:64px;object-fit:contain}
+.colcell.sel{border-color:#2fb82f;background:#eaffdf;box-shadow:0 0 10px rgba(80,220,60,.6)}
+.colcell.lock{opacity:.55;filter:grayscale(.7)}
+.colcell i{font-style:normal;font-size:10px;background:#35557a;color:#fff;border-radius:8px;padding:1px 6px}
+.swatch{position:relative;width:64px;height:64px;border-radius:14px;border:3px solid #ffc247;box-shadow:inset 0 0 0 3px rgba(255,255,255,.6);display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:8px}
+.swatch u{border-radius:5px;background:rgba(255,255,255,.55)}
+.swatch.big{width:96px;height:96px}
+.sticker{width:64px;height:64px;border-radius:50%;background:#444 center/cover;border:4px solid #fff;box-shadow:0 0 0 3px #ffc247,0 4px 6px rgba(0,0,0,.35)}
+.sticker.big{width:96px;height:96px}
+.colcell.stk span{font-size:10px;line-height:1.1;text-align:center}
+/* chips on the claim buttons */
+.btn.chips{display:flex;align-items:center;gap:3px;padding:6px 10px}
+.btn.chips img{width:20px;height:20px;object-fit:contain}
+.btn.chips em{font-style:normal;font-size:13px}
