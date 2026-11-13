@@ -778,3 +778,18 @@ body.in-game .nav{display:none}
 .chip b,.badge,.title b{text-shadow:0 1px 2px rgba(255,255,255,.5)}
 .bst span{text-shadow:none}
 .win-gain,.reward,.rw-text{text-shadow:none}
+
+/* ===== Poppins everywhere ===== */
+:root{--display:'Poppins','Trebuchet MS',system-ui,sans-serif;--body:'Poppins',system-ui,sans-serif}
+body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
+.btn,.btn.main,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,#nextBtn,.pl-play,.col-tabs button,.bst span,.nav button span,.med .tag,.tag{font-family:'Poppins',system-ui,sans-serif;font-weight:800;letter-spacing:.2px}
+/* ===== the logo ===== */
+.logo{display:flex;justify-content:center;animation:logobob 3.2s ease-in-out infinite;filter:drop-shadow(0 6px 6px rgba(40,0,80,.45)) drop-shadow(0 0 14px rgba(255,255,255,.35))}
+.logo img{width:min(78vw,330px);height:auto;display:block}
+.hero .logo img{width:min(50vw,210px)}
+.logo.big img{width:min(88vw,420px)}
+@keyframes logobob{0%,100%{transform:translateY(0) rotate(-.6deg)}50%{transform:translateY(-5px) rotate(.6deg)}}
+/* ===== every white label gets a thin black outline (with the soft shadow kept) ===== */
+.btn.main,#nextBtn,.card .btn,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,.nav button span,.med .tag,.tag,.col-tabs button,.pl-play,.fx-word,.hint-big b,.ld b,.help,.ribbon b,.ribbon small,.node,.node small,.node .badge,.toast,.tier,.pl-tier,.hearts b,.ver,.sides .tag,.map .ribbon span,.node span,.badge{-webkit-text-stroke:1.6px #000;paint-order:stroke fill;text-shadow:0 2px 0 rgba(0,0,0,.9),0 3px 6px rgba(0,0,0,.7)}
+.chip b,.badge,.title b,.card h2,.card p,.card small,.stk span,.shoprow b,.shoprow small,.pl-info,.rw-text,.reward,.rwd b,.bst span,.colcell span{-webkit-text-stroke:0;text-shadow:none}
+.chip b{-webkit-text-stroke:0}

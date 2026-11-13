@@ -854,7 +854,7 @@
     { text: 'Help Gumi put them back. One candy in every color, and no two candies can touch!', scene: 'mission' }
   ];
   let introStep = 0, rainTimer = null;
-  const logoHtml = () => '<div class="logo big" aria-label="Candoku">' + ['#ff5fa2', '#ffb42e', '#ffe14d', '#3dffb0', '#3fd0ff', '#c8a0ff', '#ff6a6a'].map((c, i) => '<span style="--c:' + c + '">' + 'Candoku'[i] + '</span>').join('') + '</div>';
+  const logoHtml = () => '<div class="logo big" aria-label="Candoku"><img src="art/logo.webp" alt="Candoku" draggable="false"></div>';
   function sceneHtml(kind) {
     if (kind === 'happy') {
       let o = ''; for (let i = 0; i < 6; i++) o += '<span class="oc" style="--a:' + i * 60 + 'deg"><svg><use href="#c' + i + '"/></svg></span>';
