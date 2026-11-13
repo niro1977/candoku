@@ -852,3 +852,5 @@ body,button,input,textarea{font-family:'Nunito',system-ui,sans-serif}
 /* Nunito: heavy weight for every label */
 body,button,input,textarea{font-family:'Nunito',system-ui,sans-serif;font-weight:800}
 .btn,.btn.main,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,#nextBtn,.pl-play,.col-tabs button,.nav button span,.med .tag,.tag,.node,.chip b,.card h2,.title b,.ribbon b{font-family:'Nunito',system-ui,sans-serif;font-weight:900}
+
+.mascot,.hopper.gumi,.win-gumi svg{filter:drop-shadow(0 3px 3px rgba(60,0,30,.35))}
