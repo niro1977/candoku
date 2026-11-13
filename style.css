@@ -800,3 +800,6 @@ body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
 /* each world has its own ribbon color; the logo is shown on its purple background */
 .map .ribbon{color:#fff}
 .logo img{border-radius:22px;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
+
+/* level circles share their world's color */
+.node:not(.hard):not(.veryhard):not(.extreme):not(.locked){border-color:var(--cb,#fff)}

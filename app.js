@@ -113,6 +113,7 @@
   }
 
   /* ---------- level map ---------- */
+  const WORLD_HUES = [178, 330, 270, 140, 215, 8, 300, 45, 100, 195];   // same colors as the world ribbons
   const MAP_STEP = 96, WORLD_GAP = 96;
   function mapGeom() {
     const W = Math.min(window.innerWidth, 460) - 32;
@@ -202,7 +203,7 @@
       b.type = 'button'; b.className = 'node ' + (tier === 'normal' ? '' : tier) + (lv > level ? ' locked' : '') + (lv === level ? ' current' : '');
       b.dataset.lv = lv;
       b.style.left = p.x + 'px'; b.style.top = p.y + 'px';
-      if (tier === 'normal') b.style.setProperty('--c', COLORS[(n - 5) % COLORS.length]);
+      if (tier === 'normal') { const hue = WORLD_HUES[Math.floor((lv - 1) / 10) % 10]; b.style.setProperty('--c', 'hsl(' + hue + ',78%,50%)'); b.style.setProperty('--cb', 'hsl(' + hue + ',85%,88%)'); }
       let html = lv + '<small>' + n + '×' + n + '</small>';
       if (tier !== 'normal') html += '<span class="badge">' + (tier === 'hard' ? 'HARD' : tier === 'extreme' ? 'EXTREME' : 'VERY HARD') + '</span>';
       if (lv < level && stars[lv]) { html += '<span class="st">'; for (let i = 1; i <= 3; i++) html += starSvg(i <= stars[lv]); html += '</span>'; }
