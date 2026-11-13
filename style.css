@@ -803,3 +803,9 @@ body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
 
 /* level circles share their world's color */
 .node:not(.hard):not(.veryhard):not(.extreme):not(.locked){border-color:var(--cb,#fff)}
+
+/* locked levels keep their world's color (a little softer), never one flat purple */
+.node.locked{background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.5),transparent 46%),var(--c,#9a82c8);border-color:var(--cb,#cdbdf0);color:rgba(255,255,255,.92);filter:saturate(.8) brightness(.93);box-shadow:0 5px 0 rgba(40,0,80,.3)}
+.node.hard.locked,.node.veryhard.locked,.node.extreme.locked{filter:saturate(.85) brightness(.9)}
+/* the mascot shines: warm glow + crisp edge */
+.mascot,.hopper.gumi{filter:drop-shadow(0 0 8px rgba(255,235,150,.95)) drop-shadow(0 3px 2px rgba(0,0,0,.4))}
