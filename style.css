@@ -819,3 +819,22 @@ body,button,input,textarea{font-family:'Poppins',system-ui,sans-serif}
 
 .mascot img,.mascot svg,.hopper.gumi svg,.win-gumi svg,.hero-gumi{image-rendering:auto}
 .mascot,.hopper.gumi,.win-gumi svg{filter:contrast(1.06) saturate(1.12) drop-shadow(0 0 9px rgba(255,238,160,.95)) drop-shadow(0 3px 2px rgba(0,0,0,.4))}
+
+/* win popup: nearly square, only stars + prize, big buttons */
+#win .card{--cw:min(330px,calc(100vw - 40px));gap:6px}
+#win #winInfo,#win #winGain,#win #winCoins,#win .card .link{display:none}
+#win .win-gumi{width:84px;height:84px;margin:-6px auto -4px}
+#win .win-gumi svg{width:80px;height:80px}
+#win .stars img.star{width:84px;height:84px}
+#win .reward{font-size:14px;margin:2px 0 0;line-height:1.2}
+#win .row{gap:12px;margin-top:6px}
+#win .card .btn{padding:16px 10px;font-size:19px;min-height:62px}
+#win .card #nextBtn{flex:1.25;font-size:21px}
+#win .card #shareBtn{flex:1}
+
+/* squarer win popup */
+#win .card{--cw:min(318px,calc(100vw - 48px));padding-bottom:calc(var(--k) * 20)}
+#win .win-gumi{width:104px;height:104px;margin:-10px auto -8px}
+#win .win-gumi svg{width:100px;height:100px}
+#win .stars{margin:0 -10px}
+#win .stars img.star{width:78px;height:78px}
