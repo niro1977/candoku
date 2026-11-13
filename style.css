@@ -762,3 +762,19 @@ body.in-game .nav{display:none}
 #win .card p{font-size:12px;margin:0}
 #win .reward{font-size:12px}
 #win .row{gap:10px}
+
+/* ===== glossy candy buttons (made with GPT Image in Overchat), bolder lettering, deeper shadow on white text ===== */
+.btn,.btn.main,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,#nextBtn,.pl-play,.col-tabs button,.bst span,.nav button span,.med .tag,.tag,.plTitle{font-family:'Lilita One','Baloo 2',system-ui,sans-serif;font-weight:400;letter-spacing:.6px}
+.btn.main,.card .btn.main,.daily-go,.play{background:url(art/btn_orange.webp) center/100% 100% no-repeat;border:0;box-shadow:none;border-radius:0;padding:12px 18px;filter:drop-shadow(0 5px 3px rgba(60,20,0,.5))}
+.card .btn:not(.main),.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link{background:url(art/btn_blue.webp) center/100% 100% no-repeat;border:0;box-shadow:none;border-radius:0;filter:drop-shadow(0 4px 3px rgba(0,20,60,.5))}
+#nextBtn,#nextBtn.btn,#prelevel .pl-play,.pl-play,#plPlay{background:url(art/btn_green.webp) center/100% 100% no-repeat;border:0;box-shadow:none;border-radius:0;filter:drop-shadow(0 5px 3px rgba(0,40,0,.5))}
+.btn.main:disabled,.card .btn:disabled{filter:grayscale(.7) brightness(.85);opacity:.7}
+.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link{padding:8px 26px}
+.btn:active,.card .link:active{transform:translateY(3px) scale(.98);filter:brightness(.95)}
+.col-tabs button{background:url(art/btn_blue.webp) center/100% 100% no-repeat;border:0;box-shadow:none;border-radius:0;color:#fff;padding:8px 14px;filter:drop-shadow(0 3px 2px rgba(0,20,60,.45))}
+.col-tabs button.on{background-image:url(art/btn_green.webp);filter:drop-shadow(0 0 8px rgba(120,255,90,.8)) drop-shadow(0 3px 2px rgba(0,40,0,.5))}
+/* every white label: a clearly darker, softer shadow, no outline */
+.btn.main,#nextBtn,.card .btn,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,.nav button span,.med .tag,.tag,.col-tabs button,.pl-play,.fx-word,.hint-big b,.chip b,.hearts,.badge,.title b,.ver,.ld b,.help,.zone-name,.ribbon b,.ribbon small,.node,.node small,.node .badge,.toast{text-shadow:0 2px 0 rgba(0,0,0,.9),0 4px 8px rgba(0,0,0,.85),0 0 3px rgba(0,0,0,.8)}
+.chip b,.badge,.title b{text-shadow:0 1px 2px rgba(255,255,255,.5)}
+.bst span{text-shadow:none}
+.win-gain,.reward,.rw-text{text-shadow:none}

@@ -22,6 +22,43 @@
   }
   function ready() { return on && init(); }
 
+  /* ---- studio-style polish: a short plate reverb, FM bells and plucked marimba ---- */
+  let wet = null;
+  function reverb() {
+    if (wet) return wet;
+    const len = Math.floor(ctx.sampleRate * 1.5), ir = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+    const conv = ctx.createConvolver(); conv.buffer = ir;
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 500;
+    wet = ctx.createGain(); wet.gain.value = 0.55; wet.connect(hp); hp.connect(conv); conv.connect(master);
+    return wet;
+  }
+  // a glass/crystal bell: FM with a decaying modulator plus two inharmonic partials; part of it goes to the reverb
+  function bell(f, t, dur, vel, send) {
+    const car = ctx.createOscillator(), mod = ctx.createOscillator(), mg = ctx.createGain(), g = ctx.createGain();
+    car.type = 'sine'; mod.type = 'sine'; car.frequency.value = f; mod.frequency.value = f * 3.5;
+    mg.gain.setValueAtTime(f * 1.6, t); mg.gain.exponentialRampToValueAtTime(f * 0.02, t + dur * 0.5);
+    mod.connect(mg); mg.connect(car.frequency);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vel, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    car.connect(g); g.connect(master); if (send !== 0) { const s = ctx.createGain(); s.gain.value = send == null ? 0.45 : send; g.connect(s); s.connect(reverb()); }
+    car.start(t); mod.start(t); car.stop(t + dur + 0.05); mod.stop(t + dur + 0.05);
+    [[2.76, 0.35, 0.5], [5.4, 0.18, 0.22]].forEach(([r, v, d]) => osc('sine', f * r, t, dur * d, vel * v));
+  }
+  // soft marimba-like pluck (body of the sound)
+  function pluck(f, t, dur, vel) {
+    const o = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter();
+    o.type = 'triangle'; o2.type = 'sine'; o.frequency.value = f; o2.frequency.value = f * 4;
+    lp.type = 'lowpass'; lp.frequency.setValueAtTime(f * 7, t); lp.frequency.exponentialRampToValueAtTime(f * 1.5, t + dur);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vel, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(lp); o2.connect(lp); lp.connect(g); g.connect(master); o.start(t); o2.start(t); o.stop(t + dur + 0.05); o2.stop(t + dur + 0.05);
+  }
+  function sparkle(t, vel) {   // a quick upward shimmer
+    const s = ctx.createBufferSource(), hp = ctx.createBiquadFilter(), g = ctx.createGain();
+    s.buffer = noiseBuf; hp.type = 'bandpass'; hp.Q.value = 1.4; hp.frequency.setValueAtTime(4500, t); hp.frequency.exponentialRampToValueAtTime(11000, t + 0.22);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vel, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.26);
+    s.connect(hp); hp.connect(g); g.connect(master); const r = ctx.createGain(); r.gain.value = 0.5; g.connect(r); r.connect(reverb()); s.start(t); s.stop(t + 0.3);
+  }
+
   /* Recorded UI sounds (Kenney, CC0) in audio/sfx. Each one falls back to the synthesized sound until it has loaded. */
   const bufs = {}, pending = {};
   function loadSample(name) {
@@ -80,32 +117,32 @@
     dest() { return master; },
     isOn() { return on; },
     toggle() { on = !on; try { localStorage.setItem('candoku.sound', JSON.stringify(on)); } catch (e) {} if (on) { init(); S.tap(); } return on; },
+    // a candy is revealed: warm pluck, a three-note crystal arpeggio that climbs with progress, a shimmer and a soft low thump
     candy(id, step) {
       if (!ready()) return;
-      const t = ctx.currentTime, semi = SCALE[(Math.max(1, step) - 1) % SCALE.length];
-      voices[id % voices.length](hz(semi), t);
-      osc('sine', hz(semi + 12) * 2, t + 0.02, 0.35, 0.06); // sparkle on top
-      const run = [[1, 1], [0, 1], [6, 1], [3, 1], [8, 1], [1, 2], [0, 2], [6, 2], [3, 2]][(Math.max(1, step) - 1) % 9]; sample('n' + run[0], run[1], 0.95, t + 0.005);
+      const t = ctx.currentTime, k = Math.max(1, step) - 1, root = SCALE[k % SCALE.length] + (k >= SCALE.length ? 12 : 0);
+      reverb();
+      osc('sine', 110, t, 0.18, 0.3, 48);
+      pluck(hz(root), t, 0.35, 0.34);
+      [0, 4, 7].forEach((x, n) => bell(hz(root + 12 + x), t + 0.018 + n * 0.055, 0.9 - n * 0.1, 0.16 - n * 0.02));
+      sparkle(t + 0.02, 0.07);
     },
-    x() { if (!ready()) return; const t = ctx.currentTime; noise(t, 0.05, 0.3, 2600, 2); osc('sine', 520, t, 0.07, 0.12); },
-    tap() { if (!ready()) return; const t = ctx.currentTime; osc('sine', 660, t, 0.09, 0.25, 880); },
-    wrong() { if (!ready()) return; const t = ctx.currentTime; osc('sawtooth', 180, t, 0.28, 0.25, 90); osc('square', 140, t + 0.08, 0.25, 0.15, 70); },
-    hint() { if (!ready()) return; const t = ctx.currentTime; [0, 4, 7, 12].forEach((s, i) => osc('sine', hz(s + 12), t + i * 0.07, 0.3, 0.22)); },
+    x() { if (!ready()) return; const t = ctx.currentTime; pluck(520, t, 0.07, 0.16); noise(t, 0.035, 0.12, 3200, 2); },
+    tap() { if (!ready()) return; const t = ctx.currentTime; pluck(780, t, 0.1, 0.22); bell(1560, t, 0.28, 0.07, 0.25); },
+    wrong() { if (!ready()) return; const t = ctx.currentTime; osc('sine', 220, t, 0.34, 0.34, 110); pluck(196, t, 0.28, 0.22); pluck(147, t + 0.09, 0.3, 0.2); },
+    hint() { if (!ready()) return; const t = ctx.currentTime; reverb(); [0, 4, 7, 12, 16].forEach((s, i) => bell(hz(s + 12), t + i * 0.06, 0.8, 0.16)); sparkle(t + 0.1, 0.06); },
     win() { if (!ready()) return; if (sample('stars', 1, 0.95)) return; const t = ctx.currentTime; [0, 4, 7, 12, 16, 19, 24].forEach((s, i) => { osc('triangle', hz(s + 12), t + i * 0.09, 0.45, 0.28); osc('sine', hz(s + 24), t + i * 0.09, 0.3, 0.1); }); },
     // a candy lands: soft thump + glassy sparkle run, the run climbs with progress
     place(step) {
       if (!ready()) return;
       const t = ctx.currentTime, base = SCALE[(Math.max(1, step) - 1) % SCALE.length] + 12;
-      osc('sine', 150, t, 0.16, 0.34, 55);
-      [0, 4, 7, 12].forEach((x, k) => osc('triangle', hz(base + 12 + x), t + 0.03 + k * 0.045, 0.32, 0.12));
-      noise(t, 0.18, 0.1, 8000, 1.2);
+      reverb(); osc('sine', 130, t, 0.16, 0.26, 52); bell(hz(base + 12), t + 0.02, 0.7, 0.12);
     },
     // a word of praise pops up
     praise(level) {
       if (!ready()) return;
       const t = ctx.currentTime, up = [0, 4, 7, 12, 16].slice(0, 3 + Math.min(2, level || 0));
-      up.forEach((x, k) => { osc('square', hz(x + 24), t + k * 0.055, 0.2, 0.05); osc('triangle', hz(x + 24), t + k * 0.055, 0.34, 0.15); });
-      noise(t, 0.35, 0.09, 6500, 0.9);
+      reverb(); up.forEach((x, k) => bell(hz(x + 24), t + k * 0.06, 0.7, 0.14)); sparkle(t + 0.05, 0.07);
     },
     ui(name) { if (!ready()) return; const m = { open: 'tap', close: 'tap', back: 'tap', flip: 'tap', buy: 'hint', coin: 'hint' }[name]; if (m && S[m]) S[m](); },
     starIn() { if (!ready()) return; const t = ctx.currentTime; noise(t, 0.4, 0.18, 2400, 0.8); osc('sine', 280, t, 0.42, 0.1, 1600); },
@@ -115,9 +152,8 @@
       osc('sine', 130, t, 0.2, 0.4, 48);   // landing thump
       if (!earned) { osc('sine', 330, t, 0.2, 0.12, 200); return; }
       const base = [0, 4, 7][Math.min(i, 3) - 1] + 12;
-      osc('triangle', hz(base + 12), t, 0.6, 0.3); osc('sine', hz(base + 24), t, 0.5, 0.18); osc('sine', hz(base + 31), t + 0.03, 0.4, 0.1);
-      noise(t, 0.3, 0.14, 7200, 1.2);
-      [0, 7, 12, 16].forEach((x, k) => osc('sine', hz(base + 24 + x), t + 0.05 + k * 0.05, 0.28, 0.07));
+      reverb(); bell(hz(base + 12), t, 1.2, 0.26); bell(hz(base + 24), t + 0.02, 1.0, 0.14); sparkle(t, 0.1);
+      [0, 7, 12, 16].forEach((x, k) => bell(hz(base + 24 + x), t + 0.05 + k * 0.05, 0.6, 0.08));
     },
     fanfare() {
       if (!ready()) return;
@@ -127,8 +163,8 @@
       [12, 16, 19, 24, 28, 31, 36].forEach((x, k) => osc('sine', hz(x + 12), t + 0.12 + k * 0.07, 0.4, 0.14));
       noise(t + 0.1, 0.6, 0.12, 6000, 0.8);
     },
-    lose() { if (!ready()) return; const t = ctx.currentTime; [7, 4, 0, -5].forEach((s, i) => osc('triangle', hz(s), t + i * 0.18, 0.4, 0.3)); },
-    hop() { if (!ready()) return; const t = ctx.currentTime; osc('sine', 500, t, 0.14, 0.25, 900); },
+    lose() { if (!ready()) return; const t = ctx.currentTime; reverb(); [7, 4, 0, -5].forEach((s, i) => { pluck(hz(s), t + i * 0.2, 0.5, 0.28); bell(hz(s + 12), t + i * 0.2, 0.7, 0.07, 0.3); }); },
+    hop() { if (!ready()) return; const t = ctx.currentTime; pluck(520, t, 0.12, 0.2); pluck(780, t + 0.08, 0.14, 0.2); bell(1560, t + 0.1, 0.4, 0.06); },
     whoosh() { if (!ready()) return; const t = ctx.currentTime; noise(t, 0.5, 0.22, 900, 0.6); osc('sine', 300, t, 0.45, 0.1, 1200); }
   };
   root.CandokuSound = S;
