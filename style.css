@@ -988,3 +988,12 @@ body:not(.in-game) #mapfx{display:block}
 .board.blk{background:#000}
 
 .board.hard,.board.veryhard,.board.extreme{background:#000}
+
+/* the floating wallet that catches coins on the game screen sits just under the header, never over its buttons, and is only there for a moment */
+.bank{top:calc(env(safe-area-inset-top,0px) + 98px);padding:3px 12px 3px 6px;font-size:18px}
+.bank img{width:26px;height:26px}
+
+.hopper.gumi{display:block}
+.hopper.gumi img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%;pointer-events:none}
+.hopper.gumi{animation:none}
+.hopper.gumi{transform-origin:50% 100%}

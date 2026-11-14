@@ -230,16 +230,24 @@
     const g = mapGeom(), a = g.pos(from), b = g.pos(to), map = $('map'), still = map.querySelector('.mascot');
     if (still) still.style.visibility = 'hidden';
     const h = document.createElement('div'); h.className = 'hopper gumi';
-    h.style.left = a.x + 'px'; h.style.top = (a.y - 30) + 'px'; h.innerHTML = '<svg><use href="#gumi"/></svg>';
+    h.style.left = a.x + 'px'; h.style.top = (a.y - 30) + 'px';
+    h.innerHTML = '<img class="hg" src="art/gumi_hero.webp" alt="" draggable="false"><img class="ha" src="art/gumi_jump.webp" alt="" draggable="false">';
     map.appendChild(h);
-    const dx = b.x - a.x, dy = b.y - a.y;
+    const dx = b.x - a.x, dy = b.y - a.y, T = 1000;
     S.hop();
+    // natural jump: crouch, launch (stretched), tucked mid-air pose, fall, squash on landing, settle
+    const out = 'cubic-bezier(.23,1,.32,1)', inn = 'cubic-bezier(.55,0,1,.45)';
     const anim = h.animate([
-      { transform: 'translate(0,0) scale(1,1)' },
-      { transform: 'translate(' + dx * 0.5 + 'px,' + (dy * 0.5 - 90) + 'px) scale(1.08,1.16)', offset: 0.5 },
-      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1.16,.84)', offset: 0.88 },
-      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1,1)' }
-    ], { duration: 900, easing: 'cubic-bezier(.35,.1,.3,1)', fill: 'forwards' });
+      { transform: 'translate(0,0) scale(1,1)', offset: 0, easing: out },
+      { transform: 'translate(0,0) scale(1.12,.84)', offset: 0.12, easing: out },
+      { transform: 'translate(' + dx * 0.06 + 'px,' + (dy * 0.06 - 14) + 'px) scale(.92,1.14)', offset: 0.18, easing: 'linear' },
+      { transform: 'translate(' + dx * 0.5 + 'px,' + (dy * 0.5 - 96) + 'px) scale(1,1) rotate(-6deg)', offset: 0.5, easing: inn },
+      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(.95,1.08) rotate(3deg)', offset: 0.84, easing: out },
+      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1.16,.82)', offset: 0.9, easing: out },
+      { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1,1)', offset: 1 }
+    ], { duration: T, fill: 'forwards' });
+    h.querySelector('.ha').animate([{ opacity: 0, offset: 0 }, { opacity: 0, offset: 0.14 }, { opacity: 1, offset: 0.17 }, { opacity: 1, offset: 0.8 }, { opacity: 0, offset: 0.83 }, { opacity: 0, offset: 1 }], { duration: T, fill: 'forwards' });
+    h.querySelector('.hg').animate([{ opacity: 1, offset: 0 }, { opacity: 1, offset: 0.14 }, { opacity: 0, offset: 0.17 }, { opacity: 0, offset: 0.8 }, { opacity: 1, offset: 0.83 }, { opacity: 1, offset: 1 }], { duration: T, fill: 'forwards' });
     await anim.finished.catch(() => {});
     S.candy((to - 1) % 10, 3); buzz(15);
     const node = map.querySelector('.node[data-lv="' + to + '"]');
@@ -606,14 +614,13 @@
     const wal = $('walletCoins'), home = !$('home').hidden && wal && wal.getBoundingClientRect().width > 0 && wal.getBoundingClientRect().top >= -4;
     const bank = $('bank'), tgt = home ? wal : bank;
     const settle = () => { coinHold = Math.max(0, coinHold - amount); updateHintUi(); };
-    if (!home) { settle(); return; }
     if (!fromEl || !fromEl.getBoundingClientRect) { settle(); return; }
     setTimeout(() => {
       if (!home) { clearTimeout(bankT); bank.hidden = false; updateHintUi(); }
       const a = fromEl.getBoundingClientRect(), L = fxLayer();
       if (!a.width) { settle(); return; }
       const sx = a.left + a.width / 2, sy = a.top + a.height / 2;
-      const n = Math.min(16, Math.max(6, Math.round(amount / 3))); let left = amount, done = 0;
+      const n = Math.min(12, Math.max(5, Math.round(amount / 4))); let left = amount, done = 0;
       for (let k = 0; k < n; k++) {
         const p = document.createElement('img'); p.src = 'art/ic_coin.webp'; p.className = 'fx-coin'; p.draggable = false; p.style.opacity = 0;
         p.style.left = sx + 'px'; p.style.top = sy + 'px'; L.appendChild(p);
@@ -624,18 +631,18 @@
           { transform: 'translate(calc(-50% + ' + jx + 'px),' + jy + 'px) scale(1.15)', opacity: 1, offset: 0.2 },
           { transform: 'translate(calc(-50% + ' + (tx * 0.55 + bow) + 'px),' + (ty * 0.5 + jy) + 'px) scale(1)', opacity: 1, offset: 0.62 },
           { transform: 'translate(calc(-50% + ' + tx + 'px),' + ty + 'px) scale(.55)', opacity: 1 }
-        ], { duration: 850 + Math.random() * 250, delay: k * 70, easing: 'cubic-bezier(.45,.05,.55,.95)', fill: 'both' });
+        ], { duration: 480 + Math.random() * 160, delay: k * 32, easing: 'cubic-bezier(.45,.05,.55,.95)', fill: 'both' });
         an.onfinish = () => {
           p.remove(); done++;
           const part = done === n ? left : Math.round(amount / n); left -= part; coinHold = Math.max(0, coinHold - part); updateHintUi();
           tgt.classList.remove('bump'); void tgt.offsetWidth; tgt.classList.add('bump');
           if (done % 2 === 1) S.ui('coin'); buzz(8);
-          if (done === n && !home) bankT = setTimeout(() => { bank.hidden = true; }, 1100);
+          if (done === n && !home) bankT = setTimeout(() => { bank.hidden = true; }, 800);
         };
       }
     }, delay || 0);
   }
-  if (location.search.includes('dbg')) window.CandokuDebug = { flyCoins: (n) => { coins += n; saveWallet(); flyCoins(document.querySelector('.mascot') || document.body, n, 0); } };
+  if (location.search.includes('dbg')) window.CandokuDebug = { hop: (f, t) => { mascotAt = f; renderHome(); show('home'); scrollToLevel(f); return hopTo(f, t); }, flyCoins: (n) => { coins += n; saveWallet(); flyCoins(document.querySelector('.mascot') || document.body, n, 0); } };
   function saveWallet() { store.set('coins', coins); store.set('wands', wands); store.set('hints', hintsLeft); store.set('items', items); }
   function updateHintUi() {
     const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };
