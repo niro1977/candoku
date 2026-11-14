@@ -14,7 +14,7 @@
     first: 'Sweet!', yummy: 'Yummy!', tasty: 'Tasty!', nice: 'Nice one!', delicious: 'Delicious!',
     perfect: 'Delicious! Perfect!', divine: 'Divine! Perfect!', sugartastic: 'Sugar-tastic! Perfect!',
     verytasty: 'Very tasty!', close: 'Sweet! That was close!', lose: 'Oh no! Try again!',
-    go: "Let's go!", ready: 'Ready? Go!', hard: 'Hard level! You can do it!', veryhard: 'Very hard level! Good luck!',
+    go: "Let's go!", ready: 'Ready? Go!', hard: 'Hard level! You can do it!', veryhard: 'Very hard level! Good luck!', extremehard: 'Extremely hard level! Good luck!',
     reward1: 'You got a prize!', reward2: 'Congratulations!', reward3: 'Wow! Nice reward!', bigreward: 'Amazing! A big reward!', wandget: 'A magic wand! Use it wisely!',
     z0: 'Welcome to Lollipop Meadow!', z1: 'Welcome to Chocolate River!', z2: 'Welcome to Frosting Mountains!', z3: 'Welcome to Cotton Candy Sky!',
     z4: 'Welcome to Ice Cream Beach!', z5: 'Welcome to Gingerbread Winter!', z6: 'Welcome to Donut Lake!', z7: 'Welcome to Cookie Canyon!', z8: 'Welcome to Crystal Caves!',
@@ -96,7 +96,7 @@
     first() { V.say('first'); },
     win(hearts) { V.say(hearts >= 3 ? any(['divine', 'sugartastic', 'perfect']) : hearts === 2 ? any(['delicious', 'verytasty']) : 'close', true); },
     lose() { V.say('lose', true); },
-    start(lv, tier) { V.say(tier === 'veryhard' ? 'veryhard' : tier === 'hard' ? 'hard' : any(['go', 'ready']), true); }
+    start(lv, tier) { V.say(tier === 'extreme' ? 'extremehard' : tier === 'veryhard' ? 'veryhard' : tier === 'hard' ? 'hard' : any(['go', 'ready']), true); }
   };
   document.addEventListener('pointerdown', () => { if (enabled) preload(); }, { once: true });
   root.CandokuVoice = V;

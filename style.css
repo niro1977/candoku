@@ -983,3 +983,8 @@ body:not(.in-game) #mapfx{display:block}
 @media (prefers-reduced-motion:reduce){
   #win .win-gumi .gbody,#win .win-gumi .g-air,#win .win-gumi .g-ground,#win .win-gumi .gshadow{animation:none}
 }
+
+/* Hard / Very Hard / Extreme: the board itself plays on black, the rest of the screen keeps its world */
+.board.blk{background:#000}
+
+.board.hard,.board.veryhard,.board.extreme{background:#000}

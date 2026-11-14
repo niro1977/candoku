@@ -305,9 +305,9 @@
   }
   function setScene(i, tier) {
     const box = $('scene');
+    const bd = $('board'); if (bd) bd.classList.toggle('blk', !!tier && tier !== 'normal');   // special levels: only the board itself is black
     if (box) {
       box.style.setProperty('--bgimg', 'url(art/bg_' + i + '.jpg)'); box.dataset.world = i;
-      box.classList.toggle('dark', !!tier && tier !== 'normal');   // special levels play on black
       sparkField(box, 22);
     }
     if (M) M.world(i);
@@ -346,7 +346,7 @@
     drawBoost();
     $('plPlay').onclick = () => { S.unlock(); S.tap(); $('prelevel').hidden = true; preSpoken = true; pendingBoost = { shield: pick.shield && items.shield > 0, double: pick.double && items.double > 0 }; if (after) after(); else transition(() => startLevel(lv)); };
     $('prelevel').hidden = false;
-    if (V) setTimeout(() => V.say(tier === 'normal' ? 'ready' : tier === 'extreme' ? 'veryhard' : tier, true), 350);
+    if (V) setTimeout(() => V.say(tier === 'normal' ? 'ready' : tier === 'extreme' ? 'extremehard' : tier, true), 350);
   }
   function startLevel(lv) {
     setScene(worldIdx(lv), tierOf(lv));
