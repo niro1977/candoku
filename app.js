@@ -614,7 +614,7 @@
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 4200);
   }
   /* ---------- wallet: coins, hints, wands, helpers ---------- */
-  function give(p) { coins += p.coins || 0; hintsLeft += p.hints || 0; wands += p.wands || 0; ['shield', 'double', 'sweeper', 'lens'].forEach((k) => { items[k] += p[k] || 0; }); saveWallet(); updateHintUi(); }
+  function give(p, noHold) { coins += p.coins || 0; if (p.coins && !noHold) { coinHold += p.coins; } hintsLeft += p.hints || 0; wands += p.wands || 0; ['shield', 'double', 'sweeper', 'lens'].forEach((k) => { items[k] += p[k] || 0; }); saveWallet(); updateHintUi(); }
   const coinSvg = '<img class="ico" src="art/ic_coin.webp" alt="" draggable="false">';
   /* coins you win fly into the main wallet (the top chip, or a floating bank on the game screen) and the counter ticks up as each lands */
   let coinHold = 0, bankT = 0;
@@ -625,8 +625,9 @@
     const tgt = home ? wal : { getBoundingClientRect: () => ({ left: innerWidth * 0.3, top: 6, width: 40, height: 30 }), classList: { remove() {}, add() {} } };
     const settle = () => { coinHold = Math.max(0, coinHold - amount); updateHintUi(); };
     if (!fromEl || !fromEl.getBoundingClientRect) { settle(); return; }
+    const a = fromEl.getBoundingClientRect();   // measured now, so it still works if the card is closed this very moment
     setTimeout(() => {
-      const a = fromEl.getBoundingClientRect(), L = fxLayer();
+      const L = fxLayer();
       if (!a.width) { settle(); return; }
       const sx = a.left + a.width / 2, sy = a.top + a.height / 2;
       const n = Math.min(12, Math.max(5, Math.round(amount / 4))); let left = amount, done = 0;
@@ -775,7 +776,6 @@
   /* every prize pops up with a message and the narrator, one after another */
   const rewardQueue = []; let rewardOpen = false, curReward = null;
   function announce(p, title, big, html) {
-    if (p && p.coins) { coinHold += p.coins; updateHintUi(); }
     rewardQueue.push({ p, title, big, html }); if (!rewardOpen) nextReward();
   }
   function nextReward() {
@@ -786,7 +786,13 @@
     $('rwItems').innerHTML = (r.html || '') + kk.map((k, n) => '<div class="rw-it" style="animation-delay:' + (0.25 + n * 0.18) + 's"><img src="art/ic_' + PICO[k] + '.webp" alt="" draggable="false"><b>+' + r.p[k] + '</b></div>').join('');
     $('rwText').textContent = kk.length ? 'Your ' + prizeText(r.p) + ' will be added to your bag.' : (r.html ? 'Find it in My Collection (Profile).' : '');
     $('reward').hidden = false; S.win(); buzz([25, 30, 45]);
+    r.flown = false; if (r.p && r.p.coins) setTimeout(() => flyReward(r), 900);
     if (V) setTimeout(() => V.say(r.big ? 'bigreward' : r.p.wands ? 'wandget' : ['reward1', 'reward2', 'reward3'][Math.floor(Math.random() * 3)], true), 350);
+  }
+  // the coins of a prize fly up into the top-bar wallet by themselves while the card is showing
+  function flyReward(r) {
+    if (!r || r.flown || !r.p || !r.p.coins) return; r.flown = true;
+    const ci = $('rwItems').querySelector('img[src*="ic_coin"]'); flyCoins(ci || $('rwItems'), r.p.coins, 0, true);
   }
   function giveReward(p, title, big) { give(p); announce(p, title, big); }
   function openBonus() {
@@ -1059,7 +1065,7 @@
   $('wandBtn').onclick = () => openItemInfo('wand');
   $('sweepBtn').onclick = () => openItemInfo('sweeper');
   $('lensBtn').onclick = () => openItemInfo('lens');
-  $('rwOk').onclick = () => { S.tap(); const ci = $('rwItems').querySelector('img[src*="ic_coin"]'), cp = curReward && curReward.p && curReward.p.coins; if (cp) flyCoins(ci || $('rwItems'), cp, 0, true); $('reward').hidden = true; setTimeout(nextReward, 220); };
+  $('rwOk').onclick = () => { S.tap(); flyReward(curReward); $('reward').hidden = true; setTimeout(nextReward, 220); };
   $('hintUse').onclick = onItemButton;
   $('walletCoins').onclick = openShop;
   $('shopClose').onclick = () => { S.tap(); $('shop').hidden = true; };
@@ -1119,15 +1125,15 @@
   $('replayCoach').onclick = () => { $('how').hidden = true; forceCoach = true; transition(() => startLevel(1)); };
 
   /* ---------- collection: outfits, board frames, stickers ---------- */
-  // a new outfit every 20 levels passed; each has a standing pose (map, collection) and an arms-up pose (win screen, the in-air jump)
+  // two outfits at the start, then a new one every 15 levels passed; each has a standing pose (map, collection) and an arms-up pose (win screen, the in-air jump)
   const OUTFITS = [{ id: 'hero', name: 'Varsity Gumi', img: 'gumi_hero', win: 'gumi_win', air: 'gumi_jump', at: 0 },
-    { id: 'chef', name: 'Chef Gumi', img: 'gumi_chef_stand', win: 'gumi_chef_win', air: 'gumi_chef_win', at: 20 },
-    { id: 'fire', name: 'Firefighter Gumi', img: 'gumi_fire_stand', win: 'gumi_fire_win', air: 'gumi_fire_win', at: 40 },
-    { id: 'pirate', name: 'Pirate Gumi', img: 'gumi_pirate_stand', win: 'gumi_pirate_win', air: 'gumi_pirate_win', at: 60 },
-    { id: 'cowboy', name: 'Cowboy Gumi', img: 'gumi_cowboy_stand', win: 'gumi_cowboy_win', air: 'gumi_cowboy_win', at: 80 },
-    { id: 'wizard', name: 'Wizard Gumi', img: 'gumi_wizard_stand', win: 'gumi_wizard_win', air: 'gumi_wizard_win', at: 100 },
-    { id: 'king', name: 'King Gumi', img: 'gumi_king_stand', win: 'gumi_king_win', air: 'gumi_king_win', at: 120 },
-    { id: 'ninja', name: 'Ninja Gumi', img: 'gumi_ninja_stand', win: 'gumi_ninja_win', air: 'gumi_ninja_win', at: 140 }];
+    { id: 'chef', name: 'Chef Gumi', img: 'gumi_chef_stand', win: 'gumi_chef_win', air: 'gumi_chef_win', at: 0 },
+    { id: 'fire', name: 'Firefighter Gumi', img: 'gumi_fire_stand', win: 'gumi_fire_win', air: 'gumi_fire_win', at: 15 },
+    { id: 'pirate', name: 'Pirate Gumi', img: 'gumi_pirate_stand', win: 'gumi_pirate_win', air: 'gumi_pirate_win', at: 30 },
+    { id: 'cowboy', name: 'Cowboy Gumi', img: 'gumi_cowboy_stand', win: 'gumi_cowboy_win', air: 'gumi_cowboy_win', at: 45 },
+    { id: 'wizard', name: 'Wizard Gumi', img: 'gumi_wizard_stand', win: 'gumi_wizard_win', air: 'gumi_wizard_win', at: 60 },
+    { id: 'king', name: 'King Gumi', img: 'gumi_king_stand', win: 'gumi_king_win', air: 'gumi_king_win', at: 75 },
+    { id: 'ninja', name: 'Ninja Gumi', img: 'gumi_ninja_stand', win: 'gumi_ninja_win', air: 'gumi_ninja_win', at: 90 }];
   // bear colours: the pink jelly is recoloured on the fly (clothes stay as they are); a new colour at 10, 30, 50, 70 and 90 levels
   const BEARCOLORS = [{ id: 'pink', name: 'Pink', hue: 0, at: 0, css: '#ff3d9a' }, { id: 'blue', name: 'Blue', hue: -125, at: 10, css: '#3d8bff' }, { id: 'green', name: 'Green', hue: 150, at: 30, css: '#2fd16b' },
     { id: 'orange', name: 'Orange', hue: 50, at: 50, css: '#ff8a1f' }, { id: 'purple', name: 'Purple', hue: -60, at: 70, css: '#9a4dff' }, { id: 'yellow', name: 'Yellow', hue: 80, at: 90, css: '#ffcf1f' }];
@@ -1203,7 +1209,7 @@
         cr.appendChild(d);
       });
       grid.appendChild(cr);
-      note.textContent = 'A new outfit every 20 levels, and a new bear colour every 20 levels, from level 10.';
+      note.textContent = 'Start with two bears, and win a new outfit every 15 levels. A new colour comes every 20 levels, from level 10.';
     } else if (colTab === 'frames') {
       FRAMES.forEach((f) => {
         const open = passed() >= f.at, b = document.createElement('button'); b.type = 'button'; b.className = 'colcell frm' + (frame === f.id ? ' sel' : '') + (open ? '' : ' lock');
@@ -1456,7 +1462,7 @@
     const grid = $('memGrid'); grid.innerHTML = ''; let first = null, lock = false, found = 0, moves = 14;
     $('memMoves').textContent = 'Moves left: ' + moves; $('memMsg').textContent = ''; $('memClose').textContent = 'Give up';
     const finish = (win) => {
-      const reward = win ? 15 + moves * 3 : 5; give({ coins: reward }); S.win(); updateSides();
+      const reward = win ? 15 + moves * 3 : 5; give({ coins: reward }, true); S.win(); updateSides();
       $('memMsg').innerHTML = (win ? 'Great memory! +' : 'Out of moves. +') + reward + ' ' + coinSvg; $('memClose').textContent = 'Done'; lock = true;
     };
     deck.forEach((id) => {
@@ -1492,7 +1498,7 @@
     let shot = 0, hits = 0, perfect = 0, flying = null, note = '', noteT = 0, over = false, t0 = performance.now(), lastT = t0, jx = W / 2;
     const jarPos = (t) => W / 2 + Math.sin(t / 1000 * (1.5 + shot * 0.5)) * (W / 2 - JW / 2 - 8);
     const end = () => {
-      over = true; const reward = hits * 8 + perfect * 6; give({ coins: reward }); S.win(); updateSides();
+      over = true; const reward = hits * 8 + perfect * 6; give({ coins: reward }, true); S.win(); updateSides();
       $('tossMsg').innerHTML = hits + ' in the jar! +' + reward + ' ' + coinSvg; $('tossClose').textContent = 'Done';
     };
     cv.onpointerdown = (e) => { e.preventDefault(); S.unlock(); if (over || flying) return; flying = { y: SY }; };
