@@ -584,10 +584,47 @@
   /* ---------- wallet: coins, hints, wands, helpers ---------- */
   function give(p) { coins += p.coins || 0; hintsLeft += p.hints || 0; wands += p.wands || 0; ['shield', 'double', 'sweeper', 'lens'].forEach((k) => { items[k] += p[k] || 0; }); saveWallet(); updateHintUi(); }
   const coinSvg = '<img class="ico" src="art/ic_coin.webp" alt="" draggable="false">';
+  /* coins you win fly into the main wallet (the top chip, or a floating bank on the game screen) and the counter ticks up as each lands */
+  let coinHold = 0, bankT = 0;
+  function flyCoins(fromEl, amount, delay, held) {
+    if (!amount || amount <= 0) return;
+    if (!held) { coinHold += amount; updateHintUi(); }
+    const wal = $('walletCoins'), home = !$('home').hidden && wal && wal.getBoundingClientRect().width > 0 && wal.getBoundingClientRect().top >= -4;
+    const bank = $('bank'), tgt = home ? wal : bank;
+    const settle = () => { coinHold = Math.max(0, coinHold - amount); updateHintUi(); };
+    if (!fromEl || !fromEl.getBoundingClientRect) { settle(); return; }
+    setTimeout(() => {
+      if (!home) { clearTimeout(bankT); bank.hidden = false; updateHintUi(); }
+      const a = fromEl.getBoundingClientRect(), L = fxLayer();
+      if (!a.width) { settle(); return; }
+      const sx = a.left + a.width / 2, sy = a.top + a.height / 2;
+      const n = Math.min(16, Math.max(6, Math.round(amount / 3))); let left = amount, done = 0;
+      for (let k = 0; k < n; k++) {
+        const p = document.createElement('img'); p.src = 'art/ic_coin.webp'; p.className = 'fx-coin'; p.draggable = false; p.style.opacity = 0;
+        p.style.left = sx + 'px'; p.style.top = sy + 'px'; L.appendChild(p);
+        const t = tgt.getBoundingClientRect(), tx = t.left + t.width * 0.3 - sx, ty = t.top + t.height / 2 - sy;
+        const jx = (Math.random() - 0.5) * 120, jy = (Math.random() - 0.5) * 70, bow = (Math.random() < 0.5 ? -1 : 1) * (40 + Math.random() * 70);
+        const an = p.animate([
+          { transform: 'translate(-50%,-50%) scale(.4)', opacity: 0 },
+          { transform: 'translate(calc(-50% + ' + jx + 'px),' + jy + 'px) scale(1.15)', opacity: 1, offset: 0.2 },
+          { transform: 'translate(calc(-50% + ' + (tx * 0.55 + bow) + 'px),' + (ty * 0.5 + jy) + 'px) scale(1)', opacity: 1, offset: 0.62 },
+          { transform: 'translate(calc(-50% + ' + tx + 'px),' + ty + 'px) scale(.55)', opacity: 1 }
+        ], { duration: 850 + Math.random() * 250, delay: k * 70, easing: 'cubic-bezier(.45,.05,.55,.95)', fill: 'both' });
+        an.onfinish = () => {
+          p.remove(); done++;
+          const part = done === n ? left : Math.round(amount / n); left -= part; coinHold = Math.max(0, coinHold - part); updateHintUi();
+          tgt.classList.remove('bump'); void tgt.offsetWidth; tgt.classList.add('bump');
+          if (done % 2 === 1) S.ui('coin'); buzz(8);
+          if (done === n && !home) bankT = setTimeout(() => { bank.hidden = true; }, 1100);
+        };
+      }
+    }, delay || 0);
+  }
+  if (location.search.includes('dbg')) window.CandokuDebug = { flyCoins: (n) => { coins += n; saveWallet(); flyCoins(document.querySelector('.mascot') || document.body, n, 0); } };
   function saveWallet() { store.set('coins', coins); store.set('wands', wands); store.set('hints', hintsLeft); store.set('items', items); }
   function updateHintUi() {
     const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };
-    set('heartN', MAX_HEARTS); set('hintBadge', hintsLeft); set('wandBadge', wands); set('coinN', coins); set('hintN', hintsLeft); set('wandN', wands);
+    set('heartN', MAX_HEARTS); set('hintBadge', hintsLeft); set('wandBadge', wands); set('coinN', coins - coinHold); set('bankN', coins - coinHold); set('hintN', hintsLeft); set('wandN', wands);
     $('hintBtn').classList.toggle('empty', hintsLeft <= 0); $('wandBtn').classList.toggle('empty', wands <= 0);
     set('sweepBtnBadge', items.sweeper); set('lensBtnBadge', items.lens); $('sweepBtn').classList.toggle('empty', items.sweeper <= 0); $('lensBtn').classList.toggle('empty', items.lens <= 0);
   }
@@ -706,12 +743,13 @@
   }
   function prizeText(p) { return prizeKeys(p).map((k) => p[k] + ' ' + PNAME[k] + (p[k] > 1 && k !== 'coins' ? 's' : '') + (k === 'coins' && p[k] > 1 ? 's' : '')).join(' and '); }
   /* every prize pops up with a message and the narrator, one after another */
-  const rewardQueue = []; let rewardOpen = false;
+  const rewardQueue = []; let rewardOpen = false, curReward = null;
   function announce(p, title, big, html) {
+    if (p && p.coins) { coinHold += p.coins; updateHintUi(); }
     rewardQueue.push({ p, title, big, html }); if (!rewardOpen) nextReward();
   }
   function nextReward() {
-    const r = rewardQueue.shift(); if (!r) { rewardOpen = false; return; }
+    const r = rewardQueue.shift(); curReward = r; if (!r) { rewardOpen = false; return; }
     rewardOpen = true;
     $('rwTitle').textContent = r.title || 'You got a prize!';
     const kk = prizeKeys(r.p);
@@ -800,6 +838,7 @@
     const earnedCoins = cur.n * 2 + (cur.hearts >= 3 ? 4 : 0);
     coins += earnedCoins; saveWallet(); updateHintUi();
     onSolved();
+    setTimeout(() => flyCoins($('winCoins'), earnedCoins, 0), 1400);
     $('winCoins').hidden = false; $('winCoins').innerHTML = '+' + earnedCoins + ' ' + coinSvg + ' coins';
     $('winGain').innerHTML = '+' + pt.gain + ' pts<small>' + '×' + pt.mult + ' in a row · ' + score.points + ' today</small>';
     if (m.kind === 'level') {
@@ -990,7 +1029,7 @@
   $('wandBtn').onclick = () => openItemInfo('wand');
   $('sweepBtn').onclick = () => openItemInfo('sweeper');
   $('lensBtn').onclick = () => openItemInfo('lens');
-  $('rwOk').onclick = () => { S.tap(); $('reward').hidden = true; setTimeout(nextReward, 220); };
+  $('rwOk').onclick = () => { S.tap(); const ci = $('rwItems').querySelector('img[src*="ic_coin"]'), cp = curReward && curReward.p && curReward.p.coins; if (cp) flyCoins(ci || $('rwItems'), cp, 0, true); $('reward').hidden = true; setTimeout(nextReward, 220); };
   $('hintUse').onclick = onItemButton;
   $('walletCoins').onclick = openShop;
   $('shopClose').onclick = () => { S.tap(); $('shop').hidden = true; };
