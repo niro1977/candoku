@@ -1015,3 +1015,7 @@ body:not(.in-game) #mapfx{display:block}
 .map .ribbon span{width:78%!important;margin:0 auto!important;transform:translateY(-4px)!important;text-align:center!important;display:block}
 .map .ribbon b{white-space:nowrap!important;display:block;text-align:center}
 .map .ribbon small{padding-left:2.5px!important;text-align:center}
+
+/* centre the two title lines with flex so that even an over-long name overflows equally to both sides, never to one */
+.map .ribbon span{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;width:84%!important}
+.map .ribbon span small,.map .ribbon span b{display:block;width:max-content;max-width:none;margin:0!important;text-align:center}

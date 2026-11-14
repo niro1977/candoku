@@ -188,11 +188,12 @@
   // keep every world title on one line, centred, shrinking long names until they fit the ribbon body
   function fitRibbons() {
     document.querySelectorAll('.map .ribbon').forEach((r) => {
-      const b = r.querySelector('b'), sp = r.querySelector('span'); if (!b || !sp || !sp.clientWidth) return;
+      const b = r.querySelector('b'), sp = r.querySelector('span'); if (!b || !sp || !r.clientWidth) return;
       let fs = 17; b.style.fontSize = fs + 'px';
-      while (b.scrollWidth > sp.clientWidth && fs > 10) { fs -= 0.5; b.style.fontSize = fs + 'px'; }
+      while (b.scrollWidth > r.clientWidth * 0.7 && fs > 9) { fs -= 0.5; b.style.fontSize = fs + 'px'; }
     });
   }
+  window.addEventListener('resize', () => { fitRibbons(); });
   function renderHome() {
     const t = today();
     $('dailyInfo').textContent = daily.last === t ? 'Solved today ✓ come back tomorrow' : dailySize() + '×' + dailySize() + ' · new board today';
