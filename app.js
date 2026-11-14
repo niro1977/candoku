@@ -241,7 +241,7 @@
     if (still) still.style.visibility = 'hidden';
     const h = document.createElement('div'); h.className = 'hopper gumi';
     h.style.left = a.x + 'px'; h.style.top = (a.y - 30) + 'px';
-    h.innerHTML = '<img class="hg" src="art/gumi_hero.webp" alt="" draggable="false"><img class="ha" src="art/gumi_jump.webp" alt="" draggable="false">';
+    h.innerHTML = '<img class="hg" src="art/' + look.stand + '.webp" alt="" draggable="false"><img class="ha" src="art/' + look.air + '.webp" alt="" draggable="false">';
     map.appendChild(h);
     const dx = b.x - a.x, dy = b.y - a.y, T = 1000;
     S.hop();
@@ -1119,7 +1119,11 @@
   $('replayCoach').onclick = () => { $('how').hidden = true; forceCoach = true; transition(() => startLevel(1)); };
 
   /* ---------- collection: outfits, board frames, stickers ---------- */
-  const OUTFITS = [{ id: 'hero', name: 'Gumi', img: 'gumi_hero', at: 0 }];
+  // a new outfit every 20 levels passed; each has a standing pose (map, collection) and an arms-up pose (win screen, the in-air jump)
+  const OUTFITS = [{ id: 'hero', name: 'Varsity Gumi', img: 'gumi_hero', win: 'gumi_win', air: 'gumi_jump', at: 0 },
+    { id: 'chef', name: 'Chef Gumi', img: 'gumi_chef_stand', win: 'gumi_chef_win', air: 'gumi_chef_win', at: 20 },
+    { id: 'fire', name: 'Firefighter Gumi', img: 'gumi_fire_stand', win: 'gumi_fire_win', air: 'gumi_fire_win', at: 40 }];
+  let look = { stand: 'gumi_hero', win: 'gumi_win', air: 'gumi_jump' };
   const FRAMES = [{ id: 'cream', name: 'Cream', bg: '#f7f1e5', at: 0 }, { id: 'mint', name: 'Mint', bg: 'linear-gradient(160deg,#e6fff0,#b9f0d2)', at: 10 }, { id: 'sky', name: 'Sky', bg: 'linear-gradient(160deg,#e6f4ff,#bcdcfb)', at: 25 },
     { id: 'rose', name: 'Rose', bg: 'linear-gradient(160deg,#fff0f6,#ffcfe0)', at: 40 }, { id: 'gold', name: 'Gold', bg: 'linear-gradient(160deg,#fff7c9,#ffd96a)', at: 70 }, { id: 'night', name: 'Night', bg: 'linear-gradient(160deg,#5c4fd0,#2a2470)', at: 100 }];
   const WORLD_NAMES = ['Lollipop Meadow', 'Chocolate River', 'Frosting Mountains', 'Cotton Candy Sky', 'Ice Cream Beach', 'Gingerbread Winter', 'Donut Lake', 'Cookie Canyon', 'Crystal Caves', 'Jelly Jungle', 'Cupcake Village', 'Candy Cane Forest', 'Caramel Falls', 'Carnival Fairground', 'Macaron Mesa', 'Waffle Castle', 'Soda Springs', 'Honey Hive Hills', 'Berry Bog', 'Mint Mountain', 'Licorice Night Market', 'Sugar Dunes Oasis', 'Pudding Pools', 'Cinnamon Autumn Forest', 'Starlight Sprinkle Galaxy', 'Toffee Treehouse Village', 'Gumdrop Garden', 'Royal Cake Palace', 'Rainbow Sherbet Glacier', 'Sweet Kingdom Gate'];
@@ -1128,7 +1132,11 @@
   const outfitOf = (id) => OUTFITS.find((o) => o.id === id) || OUTFITS[0], frameOf = (id) => FRAMES.find((f) => f.id === id) || FRAMES[0];
   function applyLook() {
     if (passed() < outfitOf(outfit).at) outfit = 'hero'; if (passed() < frameOf(frame).at) frame = 'cream';
-    const im = document.querySelector('#gumi image'); if (im) im.setAttribute('href', 'art/' + outfitOf(outfit).img + '.webp');
+    const o = outfitOf(outfit); look = { stand: o.img, win: o.win, air: o.air };
+    const im = document.querySelector('#gumi image'); if (im) im.setAttribute('href', 'art/' + o.img + '.webp');
+    const iw = document.querySelector('#gumiwin image'); if (iw) iw.setAttribute('href', 'art/' + o.win + '.webp');
+    const gg = document.querySelector('#win .g-ground'), ga = document.querySelector('#win .g-air'); if (gg) gg.src = 'art/' + o.win + '.webp'; if (ga) ga.src = 'art/' + o.air + '.webp';
+    document.body.dataset.outfit = o.id;
     const g = $('game'); if (g) g.style.setProperty('--fbg', frameOf(frame).bg);
     document.documentElement.style.setProperty('--fbg', frameOf(frame).bg);
   }
@@ -1147,7 +1155,7 @@
         b.onclick = () => { if (!open) { toast('Pass ' + o.at + ' levels to unlock ' + o.name); return; } outfit = o.id; store.set('outfit', outfit); applyLook(); S.tap(); renderCollection(); };
         grid.appendChild(b);
       });
-      note.textContent = 'New outfits for your bear as you pass levels.';
+      note.textContent = 'A new outfit for your bear every 20 levels you pass.';
     } else if (colTab === 'frames') {
       FRAMES.forEach((f) => {
         const open = passed() >= f.at, b = document.createElement('button'); b.type = 'button'; b.className = 'colcell frm' + (frame === f.id ? ' sel' : '') + (open ? '' : ' lock');

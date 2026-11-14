@@ -1019,3 +1019,6 @@ body:not(.in-game) #mapfx{display:block}
 /* centre the two title lines with flex so that even an over-long name overflows equally to both sides, never to one */
 .map .ribbon span{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;width:84%!important}
 .map .ribbon span small,.map .ribbon span b{display:block;width:max-content;max-width:none;margin:0!important;text-align:center}
+
+/* the blink pose belongs to the varsity jacket only */
+body:not([data-outfit="hero"]) .mascot .blink{display:none}
