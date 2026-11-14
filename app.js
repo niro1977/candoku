@@ -244,7 +244,9 @@
     S.candy((to - 1) % 10, 3); buzz(15);
     const node = map.querySelector('.node[data-lv="' + to + '"]');
     if (node) node.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.3)' }, { transform: 'scale(1)' }], { duration: 400 });
-    if (still) still.style.visibility = '';
+    // the resting bear now stands at the NEW level (it was drawn at the old one while the hop played)
+    if (still) { still.style.left = b.x + 'px'; still.style.top = (b.y - 30) + 'px'; still.style.visibility = ''; }
+    else map.insertAdjacentHTML('beforeend', '<div class="mascot" style="left:' + b.x + 'px;top:' + (b.y - 30) + 'px"><svg><use href="#gumi"/></svg></div>');
     h.remove();
     mascotAt = 0; await sleep(260);
   }
