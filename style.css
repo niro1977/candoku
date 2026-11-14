@@ -949,3 +949,11 @@ body:not(.in-game) #mapfx{display:block}
 @keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(1)}}
 .bank.bump{animation:bankbump .28s ease-out}
 @keyframes bankbump{0%{transform:translateX(-50%) scale(1)}40%{transform:translateX(-50%) scale(1.22)}100%{transform:translateX(-50%) scale(1)}}
+
+/* level circles: tag above the number, stars under it, all inside the circle */
+.node.hard,.node.veryhard,.node.extreme{padding-top:13px}
+.node.hasst{padding-bottom:12px}
+.node .badge,.node.hasst .badge{top:6px;font-size:8px;line-height:1;padding:2px 5px;letter-spacing:.3px;z-index:3}
+.node.extreme .badge{top:8px}
+.node .st,.node.hasst .st{top:auto;bottom:5px;left:50%;transform:translateX(-50%);gap:0;z-index:2}
+.node .st img.star{width:15px;height:15px}

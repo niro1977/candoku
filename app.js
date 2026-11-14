@@ -409,7 +409,7 @@
     else if (drag.mode === 'remove' && s === 1) ns = 0;
     if (ns === s) return false;
     if (!drag.snap) { snapshot(); drag.snap = true; }
-    cur.state[y][x] = ns; cur.wrongMarks.delete(y + ',' + x);
+    cur.state[y][x] = ns; cur.wrongMarks.delete(y + ',' + x); buzz(9);
     const now = performance.now();
     if (now - lastDragSound > 55) { lastDragSound = now; if (ns === 1) S.x(); else S.tap(); }
     return true;
@@ -1234,7 +1234,7 @@
     const set = (id, t) => { const e = $(id); if (e) e.textContent = t; };
     set('medDailyTag', daily.last === today() ? '✓' : 'Play');
     const free = wheel.date !== today() || wheel.extra > 0;
-    set('medWheelTag', free ? 'FREE' : 'Tomorrow'); $('medWheel').classList.toggle('ready', free);
+    set('medWheelTag', free ? 'FREE' : 'Soon'); $('medWheel').classList.toggle('ready', free);
     set('medChestTag', chest.n >= CHEST_AT ? 'OPEN' : chest.n + '/' + CHEST_AT); $('medChest').classList.toggle('ready', chest.n >= CHEST_AT);
     const left = (MAX_PLAYS - plays.memory) + (MAX_PLAYS - plays.toss);
     set('medGamesTag', left + '/' + MAX_PLAYS * 2); $('medGames').classList.toggle('ready', left > 0);
