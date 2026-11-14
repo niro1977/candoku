@@ -252,13 +252,15 @@
   }
 
   /* ---------- boards ---------- */
+  // every Hard / Very Hard / Extreme level (and the mixed-in hard 9x9 / 8x8 boards) takes its own board from the pool: no level repeats an earlier one
+  const POOL_KEY = (lv) => { const t = tierOf(lv); return t !== 'normal' ? t : varietySize(lv) ? 'hard' : null; };
+  const POOL_IDX = (() => { const c = {}, o = {}; for (let lv = 1; lv <= 400; lv++) { const k = POOL_KEY(lv); if (!k) continue; const id = k + sizeFor(lv); o[lv] = c[id] || 0; c[id] = o[lv] + 1; } return o; })();
   function boardFor(lv) {
-    const n = sizeFor(lv), tier = tierOf(lv);
-    if (tier !== 'normal') {
-      const pool = (SEEDS[tier] || {})[n];
-      if (pool && pool.length) return E.generate(n, pool[Math.floor(lv / (tier === 'hard' ? 5 : tier === 'extreme' ? 50 : 10)) % pool.length]);
+    const n = sizeFor(lv), key = POOL_KEY(lv);
+    if (key) {
+      const pool = (SEEDS[key] || {})[n];
+      if (pool && pool.length) return E.generate(n, pool[POOL_IDX[lv] % pool.length]);
     }
-    if (varietySize(lv)) { const pool = (SEEDS.hard || {})[n]; if (pool && pool.length) return E.generate(n, pool[lv % pool.length]); }
     // normal levels: skip boards that would need guessing
     let b = null;
     for (let k = 0, tries = n >= 9 ? 2 : 6; k < tries; k++) {
