@@ -612,11 +612,10 @@
     if (!amount || amount <= 0) return;
     if (!held) { coinHold += amount; updateHintUi(); }
     const wal = $('walletCoins'), home = !$('home').hidden && wal && wal.getBoundingClientRect().width > 0 && wal.getBoundingClientRect().top >= -4;
-    const bank = $('bank'), tgt = home ? wal : bank;
+    const tgt = home ? wal : { getBoundingClientRect: () => ({ left: innerWidth * 0.3, top: 6, width: 40, height: 30 }), classList: { remove() {}, add() {} } };
     const settle = () => { coinHold = Math.max(0, coinHold - amount); updateHintUi(); };
     if (!fromEl || !fromEl.getBoundingClientRect) { settle(); return; }
     setTimeout(() => {
-      if (!home) { clearTimeout(bankT); bank.hidden = false; updateHintUi(); }
       const a = fromEl.getBoundingClientRect(), L = fxLayer();
       if (!a.width) { settle(); return; }
       const sx = a.left + a.width / 2, sy = a.top + a.height / 2;
@@ -631,18 +630,17 @@
           { transform: 'translate(calc(-50% + ' + jx + 'px),' + jy + 'px) scale(1.15)', opacity: 1, offset: 0.2 },
           { transform: 'translate(calc(-50% + ' + (tx * 0.55 + bow) + 'px),' + (ty * 0.5 + jy) + 'px) scale(1)', opacity: 1, offset: 0.62 },
           { transform: 'translate(calc(-50% + ' + tx + 'px),' + ty + 'px) scale(.55)', opacity: 1 }
-        ], { duration: 480 + Math.random() * 160, delay: k * 32, easing: 'cubic-bezier(.45,.05,.55,.95)', fill: 'both' });
+        ], { duration: 420 + Math.random() * 140, delay: k * 24, easing: 'cubic-bezier(.45,.05,.55,.95)', fill: 'both' });
         an.onfinish = () => {
           p.remove(); done++;
           const part = done === n ? left : Math.round(amount / n); left -= part; coinHold = Math.max(0, coinHold - part); updateHintUi();
           tgt.classList.remove('bump'); void tgt.offsetWidth; tgt.classList.add('bump');
           if (done % 2 === 1) S.ui('coin'); buzz(8);
-          if (done === n && !home) bankT = setTimeout(() => { bank.hidden = true; }, 800);
         };
       }
     }, delay || 0);
   }
-  if (location.search.includes('dbg')) window.CandokuDebug = { hop: (f, t) => { mascotAt = f; renderHome(); show('home'); scrollToLevel(f); return hopTo(f, t); }, flyCoins: (n) => { coins += n; saveWallet(); flyCoins(document.querySelector('.mascot') || document.body, n, 0); } };
+  if (location.search.includes('dbg')) window.CandokuDebug = { hop: (f, t) => { mascotAt = f; renderHome(); show('home'); scrollToLevel(f); return hopTo(f, t); }, flyCoins: (n) => { coins += n; saveWallet(); flyCoins([...document.querySelectorAll('.mascot,#board')].find((e) => e.getBoundingClientRect().width) || document.body, n, 0); } };
   function saveWallet() { store.set('coins', coins); store.set('wands', wands); store.set('hints', hintsLeft); store.set('items', items); }
   function updateHintUi() {
     const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };

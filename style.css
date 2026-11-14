@@ -1007,3 +1007,5 @@ body:not(.in-game) #mapfx{display:block}
 @media (prefers-reduced-motion:reduce){.mascot .blink,.lose-gumi{animation:none}}
 .lose-gumi{display:flex;justify-content:center;align-items:flex-end;width:auto;height:150px;margin:-6px auto 6px}
 .lose-gumi img{width:auto;height:100%;max-width:100%}
+
+.bank{display:none!important}
