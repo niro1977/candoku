@@ -241,7 +241,7 @@
     if (still) still.style.visibility = 'hidden';
     const h = document.createElement('div'); h.className = 'hopper gumi';
     h.style.left = a.x + 'px'; h.style.top = (a.y - 30) + 'px';
-    h.innerHTML = '<img class="hg" src="art/' + look.stand + '.webp" alt="" draggable="false"><img class="ha" src="art/' + look.air + '.webp" alt="" draggable="false">';
+    h.innerHTML = '<img class="hg" src="' + look.stand + '" alt="" draggable="false"><img class="ha" src="' + look.air + '" alt="" draggable="false">';
     map.appendChild(h);
     const dx = b.x - a.x, dy = b.y - a.y, T = 1000;
     S.hop();
@@ -1122,8 +1122,43 @@
   // a new outfit every 20 levels passed; each has a standing pose (map, collection) and an arms-up pose (win screen, the in-air jump)
   const OUTFITS = [{ id: 'hero', name: 'Varsity Gumi', img: 'gumi_hero', win: 'gumi_win', air: 'gumi_jump', at: 0 },
     { id: 'chef', name: 'Chef Gumi', img: 'gumi_chef_stand', win: 'gumi_chef_win', air: 'gumi_chef_win', at: 20 },
-    { id: 'fire', name: 'Firefighter Gumi', img: 'gumi_fire_stand', win: 'gumi_fire_win', air: 'gumi_fire_win', at: 40 }];
-  let look = { stand: 'gumi_hero', win: 'gumi_win', air: 'gumi_jump' };
+    { id: 'fire', name: 'Firefighter Gumi', img: 'gumi_fire_stand', win: 'gumi_fire_win', air: 'gumi_fire_win', at: 40 },
+    { id: 'pirate', name: 'Pirate Gumi', img: 'gumi_pirate_stand', win: 'gumi_pirate_win', air: 'gumi_pirate_win', at: 60 },
+    { id: 'cowboy', name: 'Cowboy Gumi', img: 'gumi_cowboy_stand', win: 'gumi_cowboy_win', air: 'gumi_cowboy_win', at: 80 },
+    { id: 'wizard', name: 'Wizard Gumi', img: 'gumi_wizard_stand', win: 'gumi_wizard_win', air: 'gumi_wizard_win', at: 100 },
+    { id: 'king', name: 'King Gumi', img: 'gumi_king_stand', win: 'gumi_king_win', air: 'gumi_king_win', at: 120 },
+    { id: 'ninja', name: 'Ninja Gumi', img: 'gumi_ninja_stand', win: 'gumi_ninja_win', air: 'gumi_ninja_win', at: 140 }];
+  // bear colours: the pink jelly is recoloured on the fly (clothes stay as they are); a new colour at 10, 30, 50, 70 and 90 levels
+  const BEARCOLORS = [{ id: 'pink', name: 'Pink', hue: 0, at: 0, css: '#ff3d9a' }, { id: 'blue', name: 'Blue', hue: -125, at: 10, css: '#3d8bff' }, { id: 'green', name: 'Green', hue: 150, at: 30, css: '#2fd16b' },
+    { id: 'orange', name: 'Orange', hue: 50, at: 50, css: '#ff8a1f' }, { id: 'purple', name: 'Purple', hue: -60, at: 70, css: '#9a4dff' }, { id: 'yellow', name: 'Yellow', hue: 80, at: 90, css: '#ffcf1f' }];
+  const colorCache = {};
+  function recolor(name, hue) {
+    const url = 'art/' + name + '.webp'; if (!hue) return Promise.resolve(url);
+    const key = name + hue; if (colorCache[key]) return colorCache[key];
+    colorCache[key] = new Promise((res) => {
+      const im = new Image(); im.onload = () => {
+        try {
+          const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; const g = c.getContext('2d'); g.drawImage(im, 0, 0);
+          const d = g.getImageData(0, 0, c.width, c.height), p = d.data;
+          for (let i = 0; i < p.length; i += 4) {
+            if (p[i + 3] < 8) continue;
+            const r = p[i] / 255, gg = p[i + 1] / 255, b = p[i + 2] / 255, mx = Math.max(r, gg, b), mn = Math.min(r, gg, b), dl = mx - mn;
+            if (dl < 0.18 || mx < 0.3) continue;
+            let h = mx === r ? ((gg - b) / dl) % 6 : mx === gg ? (b - r) / dl + 2 : (r - gg) / dl + 4; h = (h * 60 + 360) % 360;
+            if (h < 312 || h > 349) continue;            // only the pink jelly; reds, whites, teal and gold are left alone
+            const s = mx === 0 ? 0 : dl / mx; let nh = (h + hue + 360) % 360, f = nh / 60, ii = Math.floor(f) % 6, ff = f - Math.floor(f);
+            const v = mx, pp = v * (1 - s), q = v * (1 - ff * s), t = v * (1 - (1 - ff) * s); const o = [[v, t, pp], [q, v, pp], [pp, v, t], [pp, q, v], [t, pp, v], [v, pp, q]][ii];
+            p[i] = o[0] * 255; p[i + 1] = o[1] * 255; p[i + 2] = o[2] * 255;
+          }
+          g.putImageData(d, 0, 0); res(c.toDataURL('image/webp', 0.9));
+        } catch (e) { res(url); }
+      }; im.onerror = () => res(url); im.src = url;
+    });
+    return colorCache[key];
+  }
+  let bearColor = store.get('bearColor', 'pink');
+  const bearColorOf = (id) => BEARCOLORS.find((c) => c.id === id) || BEARCOLORS[0];
+  let look = { stand: 'art/gumi_hero.webp', win: 'art/gumi_win.webp', air: 'art/gumi_jump.webp' };
   const FRAMES = [{ id: 'cream', name: 'Cream', bg: '#f7f1e5', at: 0 }, { id: 'mint', name: 'Mint', bg: 'linear-gradient(160deg,#e6fff0,#b9f0d2)', at: 10 }, { id: 'sky', name: 'Sky', bg: 'linear-gradient(160deg,#e6f4ff,#bcdcfb)', at: 25 },
     { id: 'rose', name: 'Rose', bg: 'linear-gradient(160deg,#fff0f6,#ffcfe0)', at: 40 }, { id: 'gold', name: 'Gold', bg: 'linear-gradient(160deg,#fff7c9,#ffd96a)', at: 70 }, { id: 'night', name: 'Night', bg: 'linear-gradient(160deg,#5c4fd0,#2a2470)', at: 100 }];
   const WORLD_NAMES = ['Lollipop Meadow', 'Chocolate River', 'Frosting Mountains', 'Cotton Candy Sky', 'Ice Cream Beach', 'Gingerbread Winter', 'Donut Lake', 'Cookie Canyon', 'Crystal Caves', 'Jelly Jungle', 'Cupcake Village', 'Candy Cane Forest', 'Caramel Falls', 'Carnival Fairground', 'Macaron Mesa', 'Waffle Castle', 'Soda Springs', 'Honey Hive Hills', 'Berry Bog', 'Mint Mountain', 'Licorice Night Market', 'Sugar Dunes Oasis', 'Pudding Pools', 'Cinnamon Autumn Forest', 'Starlight Sprinkle Galaxy', 'Toffee Treehouse Village', 'Gumdrop Garden', 'Royal Cake Palace', 'Rainbow Sherbet Glacier', 'Sweet Kingdom Gate'];
@@ -1132,10 +1167,16 @@
   const outfitOf = (id) => OUTFITS.find((o) => o.id === id) || OUTFITS[0], frameOf = (id) => FRAMES.find((f) => f.id === id) || FRAMES[0];
   function applyLook() {
     if (passed() < outfitOf(outfit).at) outfit = 'hero'; if (passed() < frameOf(frame).at) frame = 'cream';
-    const o = outfitOf(outfit); look = { stand: o.img, win: o.win, air: o.air };
-    const im = document.querySelector('#gumi image'); if (im) im.setAttribute('href', 'art/' + o.img + '.webp');
-    const iw = document.querySelector('#gumiwin image'); if (iw) iw.setAttribute('href', 'art/' + o.win + '.webp');
-    const gg = document.querySelector('#win .g-ground'), ga = document.querySelector('#win .g-air'); if (gg) gg.src = 'art/' + o.win + '.webp'; if (ga) ga.src = 'art/' + o.air + '.webp';
+    if (passed() < bearColorOf(bearColor).at) bearColor = 'pink';
+    const o = outfitOf(outfit), hue = bearColorOf(bearColor).hue;
+    Promise.all([recolor(o.img, hue), recolor(o.win, hue), recolor(o.air, hue), recolor('gumi_blink', hue), recolor('gumi_sad', hue)]).then(([st, wn, ar, bl, sd]) => {
+      look = { stand: st, win: wn, air: ar };
+      const im = document.querySelector('#gumi image'); if (im) im.setAttribute('href', st);
+      const iw = document.querySelector('#gumiwin image'); if (iw) iw.setAttribute('href', wn);
+      const ib = document.querySelector('#gumiblink image'); if (ib) ib.setAttribute('href', bl);
+      const gg = document.querySelector('#win .g-ground'), ga = document.querySelector('#win .g-air'); if (gg) gg.src = wn; if (ga) ga.src = ar;
+      const ls = document.querySelector('.lose-gumi img'); if (ls) ls.src = sd;
+    });
     document.body.dataset.outfit = o.id;
     const g = $('game'); if (g) g.style.setProperty('--fbg', frameOf(frame).bg);
     document.documentElement.style.setProperty('--fbg', frameOf(frame).bg);
@@ -1155,7 +1196,14 @@
         b.onclick = () => { if (!open) { toast('Pass ' + o.at + ' levels to unlock ' + o.name); return; } outfit = o.id; store.set('outfit', outfit); applyLook(); S.tap(); renderCollection(); };
         grid.appendChild(b);
       });
-      note.textContent = 'A new outfit for your bear every 20 levels you pass.';
+      const cr = document.createElement('div'); cr.className = 'colrow'; cr.innerHTML = '<b>Bear colour</b>';
+      BEARCOLORS.forEach((c) => {
+        const open = passed() >= c.at, d = document.createElement('button'); d.type = 'button'; d.className = 'cdot' + (bearColor === c.id ? ' sel' : '') + (open ? '' : ' lock'); d.style.setProperty('--cc', c.css); d.setAttribute('aria-label', c.name);
+        d.onclick = () => { if (!open) { toast('Pass ' + c.at + ' levels to unlock ' + c.name); return; } bearColor = c.id; store.set('bearColor', bearColor); applyLook(); S.tap(); renderCollection(); };
+        cr.appendChild(d);
+      });
+      grid.appendChild(cr);
+      note.textContent = 'A new outfit every 20 levels, and a new bear colour every 20 levels, from level 10.';
     } else if (colTab === 'frames') {
       FRAMES.forEach((f) => {
         const open = passed() >= f.at, b = document.createElement('button'); b.type = 'button'; b.className = 'colcell frm' + (frame === f.id ? ' sel' : '') + (open ? '' : ' lock');
@@ -1170,18 +1218,20 @@
         b.innerHTML = '<div class="sticker" style="background-image:url(art/bg_' + i + '.jpg)"></div><span>' + (open ? w : '?') + '</span>';
         grid.appendChild(b);
       });
-      note.textContent = stickerCount() + ' / ' + WORLD_NAMES.length + ' stickers · a prize at 5, 10, 20 and 30';
+      note.textContent = stickerCount() + ' / ' + WORLD_NAMES.length + ' stickers · a prize every 5 stickers';
     }
   }
   /* unlocks and sticker prizes announced the moment you earn them */
   function checkUnlocks(m) {
     const lv = m.level, extra = [];
     OUTFITS.filter((o) => o.at === lv && o.at > 0).forEach((o) => extra.push({ t: 'New outfit!', html: '<div class="rw-it"><img src="art/' + o.img + '.webp" alt="" draggable="false"><b>' + o.name + '</b></div>', big: true }));
+    if (lv % 50 === 0) { const n = lv / 50; extra.push({ t: 'Rare sticker!', html: '<div class="rw-it"><div class="sticker big rare">💀</div><b>Extreme Champion ' + n + '</b></div>', p: { coins: 200 }, big: true }); give({ coins: 200 }); }
     FRAMES.filter((f) => f.at === lv && f.at > 0).forEach((f) => extra.push({ t: 'New board frame!', html: '<div class="rw-it"><div class="swatch big" style="background:' + f.bg + '"><u></u><u></u><u></u><u></u></div><b>' + f.name + '</b></div>' }));
     if (lv % 10 === 0 && lv / 10 <= WORLD_NAMES.length) {
       const i = lv / 10 - 1; extra.push({ t: 'New sticker!', html: '<div class="rw-it"><div class="sticker big" style="background-image:url(art/bg_' + i + '.jpg)"></div><b>' + WORLD_NAMES[i] + '</b></div>' });
       const n = lv / 10, prizes = { 5: { coins: 150, lens: 1 }, 10: { coins: 300, wands: 1, shield: 1 }, 20: { coins: 600, wands: 2, double: 1 }, 30: { coins: 1000, wands: 3, shield: 2, lens: 2 } };
-      if (prizes[n]) { give(prizes[n]); extra.push({ p: prizes[n], t: 'Album prize! ' + n + ' stickers', big: true }); }
+      const pz = prizes[n] || (n % 5 === 0 ? { coins: 150 } : null);
+      if (pz) { give(pz); extra.push({ p: pz, t: 'Album prize! ' + n + ' stickers', big: true }); }
     }
     extra.forEach((e, k) => setTimeout(() => announce(e.p || {}, e.t, e.big, e.html), 5200 + k * 100));
   }

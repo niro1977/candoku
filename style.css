@@ -1022,3 +1022,11 @@ body:not(.in-game) #mapfx{display:block}
 
 /* the blink pose belongs to the varsity jacket only */
 body:not([data-outfit="hero"]) .mascot .blink{display:none}
+
+/* bear colour picker + rare sticker */
+.colrow{grid-column:1/-1;display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:center;padding:6px 4px 2px}
+.colrow b{width:100%;text-align:center;font-size:14px;color:#6b3f1d}
+.cdot{width:34px;height:34px;border-radius:50%;border:3px solid #fff;background:var(--cc);box-shadow:0 2px 0 rgba(0,0,0,.3);cursor:pointer;padding:0}
+.cdot.sel{outline:3px solid #2fd16b;outline-offset:1px}
+.cdot.lock{filter:grayscale(.9) brightness(.8);opacity:.6}
+.sticker.rare{display:grid;place-items:center;background:radial-gradient(circle,#555,#111);font-size:34px}
