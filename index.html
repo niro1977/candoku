@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap">
-<link rel="stylesheet" href="style.css?v=69">
+<link rel="stylesheet" href="style.css?v=73">
 </head>
 <body>
 <div id="scene" aria-hidden="true"></div>
@@ -178,13 +178,14 @@
   <div class="toast" id="toast"></div>
   <div class="tools">
     <button class="btn" id="undoBtn" type="button" aria-label="Undo" title="Undo"><img class="tico" src="art/tool_undo.webp" alt="" draggable="false"></button>
-    <button class="btn main" id="hintBtn" type="button" aria-label="Hint" title="Hint"><img class="tico" src="art/tool_hint.webp" alt="" draggable="false"><i class="badge" id="hintBadge">3</i></button>
+    <button class="btn" id="hintBtn" type="button" aria-label="Hint" title="Hint"><img class="tico" src="art/tool_hint.webp" alt="" draggable="false"><i class="badge" id="hintBadge">0</i></button>
     <button class="btn" id="wandBtn" type="button" aria-label="Magic wand" title="Magic wand"><img class="tico" src="art/tool_wand.webp" alt="" draggable="false"><i class="badge" id="wandBadge">0</i></button>
-    <button class="btn" id="maybeBtn" type="button" aria-pressed="false" aria-label="Maybe (mark a question)" title="Maybe"><img class="tico" src="art/tool_maybe.webp" alt="" draggable="false"></button>
+    <button class="btn" id="sweepBtn" type="button" aria-label="Sweeper" title="Sweeper"><img class="tico" src="art/tool_sweeper.webp" alt="" draggable="false"><i class="badge" id="sweepBtnBadge">0</i></button>
+    <button class="btn" id="lensBtn" type="button" aria-label="Magnifier" title="Magnifier"><img class="tico" src="art/tool_lens.webp" alt="" draggable="false"><i class="badge" id="lensBtnBadge">0</i></button>
+    <button class="btn" id="maybeBtn" type="button" aria-pressed="false" aria-label="Maybe" title="Maybe"><img class="tico" src="art/tool_maybe.webp" alt="" draggable="false"></button>
     <button class="btn" id="clearBtn" type="button" aria-label="Restart" title="Restart"><img class="tico" src="art/tool_restart.webp" alt="" draggable="false"></button>
   </div>
-  <div class="tools2"><button class="btn" id="sweepBtn" type="button" aria-label="Sweeper" title="Sweeper"><img class="tico" src="art/ic_sweeper.webp" alt="" draggable="false"><i class="badge" id="sweepBtnBadge">0</i></button><button class="btn" id="lensBtn" type="button" aria-label="Magnifier" title="Magnifier"><img class="tico" src="art/ic_lens.webp" alt="" draggable="false"><i class="badge" id="lensBtnBadge">0</i></button></div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v69</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v73</span></p>
 </main>
 
 <!-- WIN -->
@@ -288,7 +289,7 @@
 <!-- LUCKY WHEEL -->
 <div id="wheel" class="overlay" hidden><div class="card">
   <h2>Lucky Wheel</h2>
-  <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 220 220"></svg>
+  <div class="wheelbox" id="wheelBox"><svg class="wheel-svg" id="wheelSvg" viewBox="0 0 220 220"></svg><img class="wring" src="art/wheel_ring.webp" alt="" draggable="false"><img class="whub" src="art/wheel_hub.webp" alt="" draggable="false"><img class="wptr" src="art/wheel_pointer.webp" alt="" draggable="false"></div>
   <p id="wheelMsg"></p>
   <button class="btn main wide" id="wheelBtn" type="button">Spin</button>
   <button class="link" id="wheelClose" type="button">Close</button>
@@ -376,6 +377,7 @@
 <div id="how" class="overlay" hidden>
   <div class="card left">
     <h2>How to play</h2>
+    <div class="hscroll">
     <ol>
       <li>Put <b>one candy</b> in every color.</li>
       <li>Only <b>one candy per row</b> and <b>one per column</b>.</li>
@@ -383,11 +385,13 @@
     </ol>
     <p class="small">Tap a square once for an X, tap the X to remove it. Double tap a square for a candy. Hold a square, or switch on Maybe, to mark a ? on a square you are unsure about. You start with 3 hints and win 1 more for every 5 levels you pass. A hint shows where an X belongs, and places a candy only when it is the last choice. Every board has exactly one answer.</p>
     <div class="opts">
+      <div class="opt"><span>Touch vibration</span><button class="sw" id="optHaptic" role="switch" aria-checked="true" aria-label="Touch vibration"></button></div>
       <div class="opt"><span>Music</span><button class="sw" id="optMusic" role="switch" aria-checked="true" aria-label="Music"></button></div>
       <div class="opt"><span>Narrator voice</span><button class="sw" id="optVoice" role="switch" aria-checked="true" aria-label="Narrator voice"></button></div>
       <div class="opt"><span>All sound</span><button class="sw" id="optAll" role="switch" aria-checked="true" aria-label="All sound"></button></div>
       <button class="link" id="replayCoach" type="button">Replay the tutorial</button>
       <button class="link" id="replayIntro" type="button">Replay the story</button>
+    </div>
     </div>
     <button class="btn main wide" id="howClose" type="button">Got it</button>
   </div>
@@ -431,12 +435,12 @@
   <button type="button" id="navShop"><img class="navico" src="art/nav_shop.webp" alt="" draggable="false"><span>Shop</span></button>
   <button type="button" id="navRank"><img class="navico" src="art/nav_rank.webp" alt="" draggable="false"><span>Ranking</span></button>
 </nav>
-<script src="engine.js?v=69"></script>
-<script src="hints.js?v=69"></script>
-<script src="seeds.js?v=69"></script>
-<script src="sound.js?v=69"></script>
-<script src="music.js?v=69"></script>
-<script src="voice.js?v=69"></script>
-<script src="app.js?v=69"></script>
+<script src="engine.js?v=73"></script>
+<script src="hints.js?v=73"></script>
+<script src="seeds.js?v=73"></script>
+<script src="sound.js?v=73"></script>
+<script src="music.js?v=73"></script>
+<script src="voice.js?v=73"></script>
+<script src="app.js?v=73"></script>
 </body>
 </html>

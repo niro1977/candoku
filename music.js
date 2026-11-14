@@ -4,9 +4,9 @@
   const S = root.CandokuSound;
   let enabled = true;
   try { const v = localStorage.getItem('candoku.music'); if (v !== null) enabled = JSON.parse(v); } catch (e) {}
-  const FILES = { menu: 'audio/music/menu.mp3', w0: 'audio/music/w0.mp3', w1: 'audio/music/w1.mp3', w2: 'audio/music/w2.mp3', w3: 'audio/music/w3.mp3' };
-  const LEVEL = { menu: 1, w0: 0.85, w1: 0.85, w2: 0.85, w3: 0.85 };
-  const FADE = 1.2;
+  const FILES = { menu: 'audio/music/menu.mp3', w0: 'audio/music/w0.mp3', w1: 'audio/music/w1.mp3', w2: 'audio/music/w2.mp3', w3: 'audio/music/w3.mp3', w4: 'audio/music/w4.mp3', w5: 'audio/music/w5.mp3', w6: 'audio/music/w6.mp3', w7: 'audio/music/w7.mp3', w8: 'audio/music/w8.mp3' };
+  const LEVEL = { menu: 1, w0: 0.85, w1: 0.85, w2: 0.85, w3: 0.85, w4: 0.85, w5: 0.85, w6: 0.85, w7: 0.85, w8: 0.85 };
+  const FADE = 2.4;
   let ctx = null, bus = null, running = false, ducked = false, mood = 'menu', world = 0;
   let playing = null;                         // { key, src, gain }
   const buffers = {}, loading = {};
@@ -49,10 +49,10 @@
       if (!enabled || !S.isOn()) return;
       ctx = S.ctx(); if (!ctx) return;
       if (!bus) { bus = ctx.createGain(); bus.gain.value = 0.0001; bus.connect(S.dest()); }
-      running = true; applyGain(0.6); play();
+      running = true; applyGain(1.8); play();
     },
     mood(m) { mood = m; play(); },
-    world(i) { world = i % 4; if (mood === 'game') play(); },
+    world(i) { world = i % 9; if (mood === 'game') play(); },
     stop() {
       running = false;
       if (ctx && playing) { fadeOut(playing); playing = null; }

@@ -89,7 +89,9 @@
 
   function today() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
-  function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+  let hapticOn = store.get('haptic', true);
+  function buzz(p) { try { if (hapticOn && navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
+  document.addEventListener('pointerdown', (e) => { if (hapticOn && e.target.closest && e.target.closest('button,.cell,.node,.bcard,.mcard,.med,.chip,.colcell,.bst')) { try { if (navigator.vibrate) navigator.vibrate(7); } catch (_) {} } }, true);
   function show(id) { ['home', 'game'].forEach((s) => { $(s).hidden = s !== id; }); document.body.classList.toggle('in-game', id === 'game'); if (M) M.mood(id === 'game' ? 'game' : 'menu'); window.scrollTo(0, 0); }
 
   /* ---------- screen transition: a rainbow wipe with a spinning candy ---------- */
@@ -234,7 +236,7 @@
       { transform: 'translate(' + dx * 0.5 + 'px,' + (dy * 0.5 - 90) + 'px) scale(1.08,1.16)', offset: 0.5 },
       { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1.16,.84)', offset: 0.88 },
       { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(1,1)' }
-    ], { duration: 520, easing: 'cubic-bezier(.3,.1,.3,1)', fill: 'forwards' });
+    ], { duration: 900, easing: 'cubic-bezier(.35,.1,.3,1)', fill: 'forwards' });
     await anim.finished.catch(() => {});
     S.candy((to - 1) % 10, 3); buzz(15);
     const node = map.querySelector('.node[data-lv="' + to + '"]');
@@ -271,15 +273,25 @@
     t.hidden = tier === 'normal'; t.className = 'tier ' + tier; t.textContent = tierLabel[tier] || '';
     const bd = $('board'); bd.className = 'board ' + (tier === 'normal' ? '' : tier);
     bd.style.setProperty('--n', n);
-    bd.classList.toggle('n10', n === 10); bd.parentElement.classList.toggle('n10', n === 10); $('game').classList.toggle('n10', n === 10);
+    bd.classList.toggle('n10', n >= 9); bd.parentElement.classList.toggle('n10', n >= 9); $('game').classList.toggle('n10', n >= 9);
     $('maybeBtn').setAttribute('aria-pressed', 'false');
     $('lose').hidden = true; $('win').hidden = true; $('toast').classList.remove('show');
     buildBoard(); drawHearts(); drawFound();
   }
   const worldIdx = (lv) => Math.floor((lv - 1) / 10) % ZONES.length;
-  function setScene(i) {
+  function sparkField(box, n) {
+    if (!box || box.querySelector('.sparkfield')) return;
+    const f = document.createElement('div'); f.className = 'sparkfield';
+    for (let k = 0; k < n; k++) { const e = document.createElement('i'); e.style.cssText = '--x:' + Math.round(Math.random() * 100) + '%;--d:' + (9 + Math.random() * 11).toFixed(1) + 's;--dx:' + Math.round(Math.random() * 80 - 40) + 'px;--s:' + (3 + Math.random() * 5).toFixed(1) + 'px;animation-delay:-' + (Math.random() * 18).toFixed(1) + 's'; f.appendChild(e); }
+    box.appendChild(f);
+  }
+  function setScene(i, tier) {
     const box = $('scene');
-    if (box) { box.style.backgroundImage = 'url(art/bg_' + i + '.jpg)'; box.dataset.world = i; }
+    if (box) {
+      box.style.setProperty('--bgimg', 'url(art/bg_' + i + '.jpg)'); box.dataset.world = i;
+      box.classList.toggle('dark', !!tier && tier !== 'normal');   // special levels play on black
+      sparkField(box, 22);
+    }
     if (M) M.world(i);
   }
   /* ---------- keep the game in progress: leaving at any moment returns to the exact same board ---------- */
@@ -301,7 +313,7 @@
   }
   const savedFor = (meta) => { const g = store.get('game', null); if (!g || !g.meta || g.meta.kind !== meta.kind) return null; return (meta.kind === 'level' ? g.meta.level === meta.level : g.meta.date === meta.date) ? g : null; };
   /* ---------- the card shown before a level ---------- */
-  let pendingBoost = null;
+  let pendingBoost = null, preSpoken = false;
   function openPrelevel(lv, after) {
     const n = sizeFor(lv), tier = tierOf(lv), best = stars[lv] || 0, resume = !!savedFor({ kind: 'level', level: lv });
     $('plTitle').textContent = 'Level ' + lv;
@@ -314,12 +326,12 @@
     const drawBoost = () => { bx.innerHTML = resume ? '' : ['shield', 'double'].map((k) => '<button type="button" class="bst' + (pick[k] ? ' on' : '') + (items[k] > 0 ? '' : ' none') + '" data-k="' + k + '"><img src="art/ic_' + k + '.webp" alt="" draggable="false"><span>' + (k === 'shield' ? 'Shield' : 'x2 Points') + '</span><i>' + items[k] + '</i></button>').join('');
       bx.querySelectorAll('.bst').forEach((b) => { b.onclick = () => { const k = b.dataset.k; if (items[k] <= 0) { toast('You have none. Buy one in the shop!'); return; } pick[k] = !pick[k]; S.tap(); drawBoost(); }; }); };
     drawBoost();
-    $('plPlay').onclick = () => { S.unlock(); S.tap(); $('prelevel').hidden = true; pendingBoost = { shield: pick.shield && items.shield > 0, double: pick.double && items.double > 0 }; if (after) after(); else transition(() => startLevel(lv)); };
+    $('plPlay').onclick = () => { S.unlock(); S.tap(); $('prelevel').hidden = true; preSpoken = true; pendingBoost = { shield: pick.shield && items.shield > 0, double: pick.double && items.double > 0 }; if (after) after(); else transition(() => startLevel(lv)); };
     $('prelevel').hidden = false;
     if (V) setTimeout(() => V.say(tier === 'normal' ? 'ready' : tier === 'extreme' ? 'veryhard' : tier, true), 350);
   }
   function startLevel(lv) {
-    setScene(worldIdx(lv));
+    setScene(worldIdx(lv), tierOf(lv));
     const b = boardFor(lv);
     makeGame(b, 'Level ' + lv, { kind: 'level', level: lv }, tierOf(lv));
     const resumed = applySaved(savedFor(cur.meta));
@@ -328,7 +340,8 @@
     show('game');
     if (resumed) setTimeout(() => toast('Welcome back! Continuing where you left off.'), 500);
     if (cur.shield) setTimeout(() => toast('🛡 Heart Shield is on!'), 900);
-    if (V) setTimeout(() => V.start(lv, tierOf(lv)), 700);
+    if (V && !preSpoken) setTimeout(() => V.start(lv, tierOf(lv)), 700);
+    preSpoken = false;
     if (lv % 10 === 0) setTimeout(() => toast('👑 Boss level! Beat it for a big prize.'), 1200);
     if (lv === 1 && (forceCoach || !store.get('seenCoach', false))) setTimeout(startCoach, 1000);
     if (lv > 1 && sizeFor(lv) > sizeFor(lv - 1)) {
@@ -340,7 +353,7 @@
   }
   function startDaily() {
     const t = today(), n = dailySize();
-    setScene(new Date().getDate() % ZONES.length);
+    setScene(new Date().getDate() % ZONES.length, 'normal');
     makeGame(E.generate(n, hash('candoku-' + t)), 'Daily Candy', { kind: 'daily', date: t }, 'normal');
     const resumed = applySaved(savedFor(cur.meta));
     show('game');
@@ -916,7 +929,7 @@
   }
   function syncOpts() {
     const set = (id, on) => $(id).setAttribute('aria-checked', String(!!on));
-    set('optMusic', M && M.isEnabled()); set('optVoice', V && V.isEnabled()); set('optAll', S.isOn());
+    set('optHaptic', hapticOn); set('optMusic', M && M.isEnabled()); set('optVoice', V && V.isEnabled()); set('optAll', S.isOn());
   }
 
   /* ---------- navigation ---------- */
@@ -988,11 +1001,12 @@
   $('optMusic').onclick = () => { S.unlock(); M.setEnabled(!M.isEnabled()); syncOpts(); };
   $('optVoice').onclick = () => { V.setEnabled(!V.isEnabled()); syncOpts(); if (V.isEnabled()) V.say('Sweet!', true); };
   $('optAll').onclick = toggleSound;
+  $('optHaptic').onclick = () => { hapticOn = !hapticOn; store.set('haptic', hapticOn); syncOpts(); if (hapticOn) { try { navigator.vibrate && navigator.vibrate(25); } catch (_) {} } };
   $('replayIntro').onclick = () => { $('how').hidden = true; showIntro(); };
   $('introNext').onclick = () => { S.tap(); if (introStep >= PANELS.length) { if (V) V.say("Let's play!", true); endIntro(); } else { introStep++; renderIntro(); } };
   $('introSkip').onclick = () => { S.tap(); endIntro(); };
   document.addEventListener('pointerdown', () => { S.unlock(); if (M && $('intro').hidden) M.sync(); }, { once: true });
-  $('sndHome').onclick = toggleSound; $('sndGame').onclick = toggleSound;
+  $('sndHome').onclick = toggleSound; $('sndGame').onclick = () => { S.tap(); syncOpts(); $('how').hidden = false; };
   $('homeBtn').onclick = () => { $('win').hidden = true; toMap(); };
   $('loseHome').onclick = () => { $('lose').hidden = true; toMap(); };
   $('retryBtn').onclick = () => { S.tap(); $('lose').hidden = true; const m = cur.meta; transition(() => (m.kind === 'level' ? startLevel(m.level) : startDaily())); };
@@ -1120,9 +1134,11 @@
   const anyChallengeReady = () => { freshWeek(); return WDEF.some((w) => ready(weekly[w.key], w.goal, weekly.claimed[w.id])) || ADEF.some((x) => ready(x.get(), x.goal, achClaimed[x.id])); };
   let qTab = 'daily';
   function prizeChips(p) { return prizeKeys(p).map((k) => '<img src="art/ic_' + PICO[k] + '.webp" alt="" draggable="false"><em>' + p[k] + '</em>').join(''); }
+  const tabReady = () => ({ daily: QDEF.some((q) => quests.p[q.id] >= q.goal && !quests.claimed[q.id]), weekly: WDEF.some((w) => ready(weekly[w.key], w.goal, weekly.claimed[w.id])), trophies: ADEF.some((x) => ready(x.get(), x.goal, achClaimed[x.id])) });
   function renderQuests() {
     const list = $('questList'); list.innerHTML = ''; freshDay(); freshWeek();
-    document.querySelectorAll('#qTabs button').forEach((b) => b.classList.toggle('on', b.dataset.t === qTab));
+    const tr = tabReady();
+    document.querySelectorAll('#qTabs button').forEach((b) => { b.classList.toggle('on', b.dataset.t === qTab); b.classList.toggle('dot', !!tr[b.dataset.t]); });
     const row = (text, v, goal, claimed, prizeHtmlStr, claim) => {
       const val = Math.min(goal, v), done = val >= goal, d = document.createElement('div'); d.className = 'shoprow quest';
       d.innerHTML = '<span><b>' + text + '</b><small>' + val + ' / ' + goal + '</small><i class="qbar"><u style="width:' + (val / goal) * 100 + '%"></u></i></span>';
@@ -1202,7 +1218,7 @@
   }
   /* quests */
   function openQuests() {
-    S.unlock(); S.tap(); closeAll(); renderQuests(); $('quests').hidden = false;
+    S.unlock(); S.tap(); closeAll(); freshDay(); freshWeek(); { const tr = tabReady(); if (!tr[qTab]) qTab = tr.daily ? 'daily' : tr.weekly ? 'weekly' : tr.trophies ? 'trophies' : qTab; } renderQuests(); $('quests').hidden = false;
   }
   /* chest */
   function openChest() {
@@ -1210,31 +1226,52 @@
     const full = chest.n >= CHEST_AT;
     $('chestMsg').textContent = full ? 'Your chest is ready!' : 'Solve ' + (CHEST_AT - chest.n) + ' more level' + (CHEST_AT - chest.n > 1 ? 's' : '') + ' to open it';
     $('chestBar').style.width = (chest.n / CHEST_AT) * 100 + '%'; $('chestPrize').innerHTML = '';
+    document.querySelector('#chest .chest-art').classList.remove('opening', 'opened');
     const b = $('chestOpen'); b.disabled = !full; b.hidden = false; b.textContent = 'Open chest';
     $('chest').hidden = false;
+  }
+  function coinBurst(el) {
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height * 0.35, L = fxLayer();
+    for (let k = 0; k < 22; k++) {
+      const p = document.createElement('img'); p.src = k % 4 === 0 ? 'art/ic_double.webp' : 'art/ic_coin.webp'; p.className = 'fx-coin'; p.draggable = false;
+      p.style.left = cx + 'px'; p.style.top = cy + 'px'; L.appendChild(p);
+      const dx = (Math.random() - 0.5) * 260, up = 120 + Math.random() * 150, fall = 160 + Math.random() * 120;
+      const an = p.animate([{ transform: 'translate(-50%,-50%) scale(.3) rotate(0)', opacity: 1 }, { transform: 'translate(calc(-50% + ' + dx * 0.6 + 'px),' + (-up) + 'px) scale(1) rotate(200deg)', opacity: 1, offset: 0.45 }, { transform: 'translate(calc(-50% + ' + dx + 'px),' + fall + 'px) scale(.8) rotate(420deg)', opacity: 0 }], { duration: 1100 + Math.random() * 500, easing: 'cubic-bezier(.3,.6,.5,1)', fill: 'forwards' });
+      an.onfinish = () => p.remove();
+    }
   }
   function openChestNow() {
     if (chest.n < CHEST_AT) return;
     chest.n -= CHEST_AT; store.set('chest', chest);
     const p = rollPrize(5, true), bonus = { coins: 30 };
-    give(p); give(bonus); announce(Object.assign({}, p, { coins: (p.coins || 0) + 30 }), 'Candy Chest!', true); buzz([30, 40, 60]);
-    $('chestPrize').innerHTML = '<div class="rwd big">' + prizeHtml(p) + '</div><div class="rwd">' + prizeHtml(bonus) + '</div>';
-    $('chestMsg').textContent = 'You found ' + prizeText(p) + ' and 30 coins!';
-    $('chestOpen').hidden = true; $('chestBar').style.width = (chest.n / CHEST_AT) * 100 + '%'; updateSides();
+    give(p); give(bonus);
+    const art = document.querySelector('#chest .chest-art'), btn = $('chestOpen'); btn.hidden = true; $('chestMsg').textContent = 'Opening…';
+    art.classList.remove('opened'); void art.offsetWidth; art.classList.add('opening'); S.tap();
+    [0, 220, 440, 660].forEach((t) => setTimeout(() => { S.tap(); buzz(14); }, t));
+    setTimeout(() => {
+      art.classList.remove('opening'); art.classList.add('opened'); coinBurst(art); S.win(); buzz([30, 40, 60]);
+      $('chestPrize').innerHTML = '<div class="rwd big">' + prizeHtml(p) + '</div><div class="rwd">' + prizeHtml(bonus) + '</div>';
+      $('chestMsg').textContent = 'You found ' + prizeText(p) + ' and 30 coins!';
+      $('chestBar').style.width = (chest.n / CHEST_AT) * 100 + '%'; updateSides();
+      setTimeout(() => announce(Object.assign({}, p, { coins: (p.coins || 0) + 30 }), 'Candy Chest!', true), 1300);
+    }, 950);
   }
   /* lucky wheel */
   const WSEG = [{ c: 10 }, { h: 1 }, { s: 1 }, { k: 1 }, { w: 1 }, { l: 1 }, { d: 1 }, { c: 50 }], WW = [24, 16, 12, 12, 8, 12, 5, 3], WCOL = ['#ff5fa8', '#ffb347', '#7be37a', '#45d0ff', '#b07bff', '#ffe14d', '#ff7a5c', '#5fd8ff'];
   let wheelRot = 0, spinning = false;
   function buildWheel() {
-    let s = '<g id="wheelRot">';
+    const ICON = (g) => (g.c ? 'ic_coin' : g.h ? 'ic_hint' : g.w ? 'ic_wand' : g.s ? 'ic_shield' : g.k ? 'ic_sweeper' : g.l ? 'ic_lens' : 'ic_double');
+    let defs = '<defs><radialGradient id="wgloss" cx="50%" cy="30%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".5" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></radialGradient></defs>';
+    let s = defs + '<g id="wheelRot">';
+    const R = 90;
     for (let i = 0; i < 8; i++) {
-      const a0 = (i * 45 - 90) * Math.PI / 180, a1 = ((i + 1) * 45 - 90) * Math.PI / 180, R = 100;
-      s += '<path d="M110 110 L' + (110 + R * Math.cos(a0)).toFixed(1) + ' ' + (110 + R * Math.sin(a0)).toFixed(1) + ' A' + R + ' ' + R + ' 0 0 1 ' + (110 + R * Math.cos(a1)).toFixed(1) + ' ' + (110 + R * Math.sin(a1)).toFixed(1) + ' Z" fill="' + WCOL[i] + '" stroke="#fff" stroke-width="3"/>';
-      const am = (i * 45 + 22.5 - 90) * Math.PI / 180, x = 110 + 66 * Math.cos(am), y = 110 + 66 * Math.sin(am), g = WSEG[i];
-      const label = g.c ? g.c : g.h ? '💡' : g.w ? '🪄' : g.s ? '🛡' : g.k ? '🧹' : g.l ? '🔍' : '×2';
-      s += '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" dominant-baseline="central" font-size="' + (g.c ? 22 : 18) + '" font-weight="800" fill="#4a1a8f" transform="rotate(' + (i * 45 + 22.5) + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')">' + label + '</text>';
+      const a0 = (i * 45 - 90) * Math.PI / 180, a1 = ((i + 1) * 45 - 90) * Math.PI / 180;
+      s += '<path d="M110 110 L' + (110 + R * Math.cos(a0)).toFixed(1) + ' ' + (110 + R * Math.sin(a0)).toFixed(1) + ' A' + R + ' ' + R + ' 0 0 1 ' + (110 + R * Math.cos(a1)).toFixed(1) + ' ' + (110 + R * Math.sin(a1)).toFixed(1) + ' Z" fill="' + WCOL[i] + '" stroke="#fff" stroke-width="2"/>';
+      const am = (i * 45 + 22.5 - 90) * Math.PI / 180, g = WSEG[i], rr = 60, x = 110 + rr * Math.cos(am), y = 110 + rr * Math.sin(am), rot = i * 45 + 22.5;
+      s += '<g transform="rotate(' + rot + ' ' + x.toFixed(1) + ' ' + y.toFixed(1) + ')"><image href="art/' + ICON(g) + '.webp" x="' + (x - 14).toFixed(1) + '" y="' + (y - 21).toFixed(1) + '" width="28" height="28"/>' +
+        (g.c ? '<text x="' + x.toFixed(1) + '" y="' + (y + 14).toFixed(1) + '" text-anchor="middle" font-size="13" font-weight="900" fill="#fff" stroke="#3a0a4a" stroke-width="2.6" paint-order="stroke" style="font-family:Nunito,sans-serif">' + g.c + '</text>' : '') + '</g>';
     }
-    s += '</g><circle cx="110" cy="110" r="16" fill="#ffc247" stroke="#fff" stroke-width="4"/><path d="M110 4 L100 26 L120 26 Z" fill="#ff3f66" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>';
+    s += '<circle cx="110" cy="110" r="' + R + '" fill="url(#wgloss)"/></g>';
     $('wheelSvg').innerHTML = s;
   }
   function openWheel() {
@@ -1258,7 +1295,7 @@
     const target = (360 - (idx * 45 + 22.5) + 360) % 360, cur0 = wheelRot % 360;
     wheelRot += 360 * 5 + ((target - cur0 + 360) % 360);
     spinning = true; $('wheelBtn').disabled = true; $('wheelMsg').textContent = 'Good luck…';
-    const el = $('wheelRot'); el.style.transition = 'transform 4s cubic-bezier(.15,.7,.1,1)'; el.style.transformOrigin = '110px 110px'; el.style.transform = 'rotate(' + wheelRot + 'deg)';
+    const el = $('wheelRot'); el.style.transition = 'transform 4s cubic-bezier(.15,.7,.1,1)'; el.style.transformOrigin = '110px 110px'; el.style.transformBox = 'view-box'; el.style.transform = 'rotate(' + wheelRot + 'deg)';
     let ticks = 0; const tick = setInterval(() => { S.tap(); if (++ticks > 16) clearInterval(tick); }, 220);
     setTimeout(() => { spinning = false; $('wheelMsg').textContent = 'You won ' + prizeText(prize) + '!'; buzz([30, 40, 60]); openWheelState(); announce(prize, 'Lucky Wheel!', !!(prize.wands || prize.double || prize.coins >= 50)); }, 4200);
   }
@@ -1381,6 +1418,7 @@
   document.addEventListener('visibilitychange', () => { if (document.hidden) saveGame(); });
   window.addEventListener('pagehide', saveGame);
   applyLook();
+  (function () { const f = document.createElement('div'); f.id = 'mapfx'; document.body.appendChild(f); sparkField(f, 26); })();
   syncSound();
   renderHome();
   scrollToLevel(level);

@@ -854,3 +854,76 @@ body,button,input,textarea{font-family:'Nunito',system-ui,sans-serif;font-weight
 .btn,.btn.main,.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link,.play,.daily-go,#nextBtn,.pl-play,.col-tabs button,.nav button span,.med .tag,.tag,.node,.chip b,.card h2,.title b,.ribbon b{font-family:'Nunito',system-ui,sans-serif;font-weight:900}
 
 .mascot,.hopper.gumi,.win-gumi svg{filter:drop-shadow(0 3px 3px rgba(60,0,30,.35))}
+
+/* ===== batch of 20 fixes ===== */
+/* 1. seven equal framed helper tiles in one row, closer to the board */
+.tools2{display:none}
+.tools{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;align-items:center;justify-items:center;margin-top:-4px}
+.tools .btn,.tools .btn.main{width:100%;max-width:46px;aspect-ratio:1;padding:0;min-height:0;position:relative;background:none;border:0;box-shadow:none;border-radius:12px;filter:drop-shadow(0 3px 2px rgba(40,0,80,.45))}
+.tools .btn .tico{width:100%;height:100%;max-width:none;object-fit:contain;pointer-events:none}
+.tools .btn .badge{position:absolute;top:-6px;right:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#fff;color:#c2185b;font:900 11px/18px 'Nunito',system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,.3);-webkit-text-stroke:0;text-shadow:none}
+.boardwrap{padding:0}
+.screen{gap:9px}
+body.in-game .screen{gap:7px}
+.board{width:min(100%,calc(100dvh - 318px),440px)}
+.board.n10{width:min(calc(100vw - 8px),calc(100dvh - 250px),540px)}
+/* 3. the settings window always fits the screen */
+#how .card{max-height:calc(100dvh - 24px)}
+#how .hscroll{max-height:calc(100dvh - 330px);overflow-y:auto;overflow-x:hidden;padding-right:2px;-webkit-overflow-scrolling:touch}
+/* 8. a revealed candy: its square gets a thin black edge so it stands out */
+.cell.has{box-shadow:inset 0 0 0 3px #1b0d2e,inset 0 -3px 0 rgba(0,0,0,.16),0 0 0 1px rgba(255,255,255,.55)}
+/* 12. larger lettering in buttons */
+.btn,.btn.main{font-size:17px}
+.card .btn.main{font-size:19px}
+.card .btn{font-size:17px}
+#win .card .btn{font-size:22px}
+#win .card #nextBtn{font-size:24px}
+.nav button span{font-size:13.5px}
+.med .tag{font-size:13px}
+.card .link,.rank-btn,.coach-actions .link,.intro-ctl .link{font-size:16px}
+.col-tabs button{font-size:14.5px}
+.play,.daily-go{font-size:22px}
+/* 13. stars sit above the circle, clear of the level number */
+.node .st{top:-30px}
+.node .st img.star{width:19px;height:19px}
+.node .st{filter:drop-shadow(0 1px 1px rgba(0,0,0,.45))}
+/* 14. world titles centred */
+.map .ribbon{display:grid;place-items:center;text-align:center;padding:0 16%}
+.map .ribbon span{display:block;width:100%;text-align:center;transform:translateY(-2px)}
+.map .ribbon small,.map .ribbon b{text-align:center;display:block}
+/* 16. chest opening */
+.chest-art{transform-origin:50% 80%}
+.chest-art.opening{animation:chestshake .95s ease-in-out both;filter:drop-shadow(0 0 16px rgba(255,225,77,.95))}
+.chest-art.opened{animation:chestpop .5s cubic-bezier(.3,1.7,.5,1) both;filter:drop-shadow(0 0 22px rgba(255,225,77,.95))}
+@keyframes chestshake{0%{transform:rotate(0) scale(1)}12%{transform:rotate(-9deg) scale(1.04)}25%{transform:rotate(9deg) scale(1.08)}38%{transform:rotate(-11deg) scale(1.12)}52%{transform:rotate(11deg) scale(1.16)}68%{transform:rotate(-6deg) scale(1.2)}85%{transform:rotate(0) scale(1.3)}100%{transform:scale(1.34)}}
+@keyframes chestpop{0%{transform:scale(1.34)}45%{transform:scale(1.08) translateY(-6px)}100%{transform:scale(1.12)}}
+#fx{z-index:45}
+.fx-coin{position:absolute;width:34px;height:34px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 2px 2px rgba(80,40,0,.5))}
+/* 19 + 20. live wallpaper: the world drifts slowly and sparkles float up; special levels are black */
+#scene{background:#2a1450}
+#scene::before{content:"";position:absolute;inset:-6%;background:var(--bgimg,none) center/cover no-repeat;animation:lwp 28s ease-in-out infinite alternate;will-change:transform}
+@keyframes lwp{from{transform:scale(1) translate(-1.6%,-1.2%)}to{transform:scale(1.09) translate(1.6%,1.2%)}}
+.sparkfield{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.sparkfield i{position:absolute;left:var(--x);bottom:-12px;width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle,#fff,rgba(255,255,255,0) 72%);opacity:0;animation:floatup var(--d) linear infinite}
+@keyframes floatup{0%{opacity:0;transform:translate(0,0)}12%{opacity:.95}100%{opacity:0;transform:translate(var(--dx),-112vh)}}
+#scene.dark{background:#000}
+#scene.dark::before{display:none}
+#scene.dark::after{background:none}
+#scene.dark .sparkfield i{background:radial-gradient(circle,#fff,rgba(190,170,255,0) 72%);animation-name:twinkle;bottom:auto;top:calc(var(--x) * .9);animation-duration:calc(var(--d) * .35)}
+@keyframes twinkle{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1.5)}}
+#mapfx{position:fixed;inset:0;z-index:1;pointer-events:none;display:none}
+body:not(.in-game) #mapfx{display:block}
+.zone{background-size:cover;animation:zonepan 34s ease-in-out infinite alternate}
+@keyframes zonepan{from{background-position:34% 50%}to{background-position:66% 50%}}
+@media (prefers-reduced-motion:reduce){#scene::before,.zone,.sparkfield i{animation:none}}
+
+/* ===== new lucky wheel ===== */
+.wheelbox{position:relative;width:min(300px,92%);aspect-ratio:1;margin:2px auto 0}
+.wheelbox .wheel-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.wheelbox .wring{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;filter:drop-shadow(0 6px 5px rgba(60,20,0,.5))}
+.wheelbox .whub{position:absolute;left:50%;top:50%;width:21%;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 3px 3px rgba(60,20,0,.55))}
+.wheelbox .wptr{position:absolute;left:50%;top:-3%;width:15%;transform:translateX(-50%);pointer-events:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.5))}
+#wheel .card{--cw:min(360px,calc(100vw - 24px))}
+
+.col-tabs button{position:relative}
+.col-tabs button.dot::after{content:"";position:absolute;top:-4px;right:-3px;width:13px;height:13px;border-radius:50%;background:#ff3f3f;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)}
