@@ -957,3 +957,29 @@ body:not(.in-game) #mapfx{display:block}
 .node.extreme .badge{top:8px}
 .node .st,.node.hasst .st{top:auto;bottom:5px;left:50%;transform:translateX(-50%);gap:0;z-index:2}
 .node .st img.star{width:15px;height:15px}
+
+/* win celebration: crouch, launch, tucked mid-air pose, fall, squash on landing. Gravity-style timing (ease-out up, ease-in down), pure transform/opacity. */
+#win .win-gumi{position:relative;width:132px;height:128px;margin:-8px auto -4px;display:block}
+#win .win-gumi .gbody{position:absolute;left:50%;bottom:6px;width:112px;height:112px;margin-left:-56px;transform-origin:50% 100%;animation:gjump 1.5s linear .5s infinite;will-change:transform;filter:drop-shadow(0 3px 3px rgba(60,0,30,.35))}
+#win .win-gumi .gbody img{position:absolute;left:0;bottom:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+#win .win-gumi .g-air{opacity:0;animation:gair 1.5s linear .5s infinite}
+#win .win-gumi .g-ground{animation:gground 1.5s linear .5s infinite}
+#win .win-gumi .gshadow{position:absolute;left:50%;bottom:2px;width:70px;height:10px;margin-left:-35px;border-radius:50%;background:rgba(40,0,60,.38);filter:blur(2px);animation:gshadow 1.5s linear .5s infinite;z-index:0}
+#win .win-gumi .halo{z-index:0}
+@keyframes gjump{
+  0%{transform:translateY(0) scale(1,1);animation-timing-function:cubic-bezier(.23,1,.32,1)}
+  12%{transform:translateY(0) scale(1.1,.86);animation-timing-function:cubic-bezier(.23,1,.32,1)}
+  18%{transform:translateY(-6px) scale(.94,1.1);animation-timing-function:cubic-bezier(.23,1,.32,1)}
+  46%{transform:translateY(-33px) scale(1,1) rotate(-4deg);animation-timing-function:linear}
+  52%{transform:translateY(-36px) scale(1,1) rotate(0);animation-timing-function:cubic-bezier(.55,0,1,.45)}
+  78%{transform:translateY(0) scale(.96,1.08) rotate(3deg);animation-timing-function:cubic-bezier(.23,1,.32,1)}
+  84%{transform:translateY(0) scale(1.12,.84) rotate(0);animation-timing-function:cubic-bezier(.23,1,.32,1)}
+  92%{transform:translateY(0) scale(.98,1.03)}
+  100%{transform:translateY(0) scale(1,1)}
+}
+@keyframes gair{0%,17%{opacity:0}18%,76%{opacity:1}77%,100%{opacity:0}}
+@keyframes gground{0%,17%{opacity:1}18%,76%{opacity:0}77%,100%{opacity:1}}
+@keyframes gshadow{0%,12%{transform:scale(1);opacity:1}46%,52%{transform:scale(.55);opacity:.5}78%,100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  #win .win-gumi .gbody,#win .win-gumi .g-air,#win .win-gumi .g-ground,#win .win-gumi .gshadow{animation:none}
+}
