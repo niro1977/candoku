@@ -1199,14 +1199,16 @@
       OUTFITS.forEach((o) => {
         const open = passed() >= o.at, b = document.createElement('button'); b.type = 'button'; b.className = 'colcell' + (outfit === o.id ? ' sel' : '') + (open ? '' : ' lock');
         b.innerHTML = '<img src="art/' + o.img + '.webp" alt="" draggable="false"><span>' + o.name + '</span>' + (open ? '' : '<i>Level ' + o.at + '</i>');
+        { const th = b.querySelector('img'), hh = bearColorOf(bearColor).hue; if (hh) recolor(o.img, hh).then((u) => { th.src = u; }); }
         b.onclick = () => { if (!open) { toast('Pass ' + o.at + ' levels to unlock ' + o.name); return; } outfit = o.id; store.set('outfit', outfit); applyLook(); S.tap(); renderCollection(); };
         grid.appendChild(b);
       });
-      const cr = document.createElement('div'); cr.className = 'colrow'; cr.innerHTML = '<b>Bear colour</b>';
+      const cr = document.createElement('div'); cr.className = 'colrow'; cr.innerHTML = '<b>Bear colour · tap one, then pick an outfit</b>';
       BEARCOLORS.forEach((c) => {
-        const open = passed() >= c.at, d = document.createElement('button'); d.type = 'button'; d.className = 'cdot' + (bearColor === c.id ? ' sel' : '') + (open ? '' : ' lock'); d.style.setProperty('--cc', c.css); d.setAttribute('aria-label', c.name);
-        d.onclick = () => { if (!open) { toast('Pass ' + c.at + ' levels to unlock ' + c.name); return; } bearColor = c.id; store.set('bearColor', bearColor); applyLook(); S.tap(); renderCollection(); };
-        cr.appendChild(d);
+        const open = passed() >= c.at, w = document.createElement('div'); w.className = 'cwrap'; const d = document.createElement('button'); d.type = 'button'; d.className = 'cdot' + (bearColor === c.id ? ' sel' : '') + (open ? '' : ' lock'); d.style.setProperty('--cc', c.css); d.setAttribute('aria-label', c.name);
+        w.appendChild(d); const lb = document.createElement('small'); lb.textContent = open ? c.name : '🔒 Lv ' + c.at; w.appendChild(lb);
+        d.onclick = () => { if (!open) { toast('Pass ' + c.at + ' levels to unlock the ' + c.name + ' bear (you are at ' + passed() + ')'); return; } bearColor = c.id; store.set('bearColor', bearColor); applyLook(); S.tap(); renderCollection(); };
+        cr.appendChild(w);
       });
       grid.appendChild(cr);
       note.textContent = 'Start with two bears, and win a new outfit every 15 levels. A new colour comes every 20 levels, from level 10.';
