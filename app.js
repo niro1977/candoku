@@ -82,7 +82,10 @@
     $('scoreSub').textContent = (next ? (next[0] - score.points) + ' pts to ' + next[1] : 'Top rank reached!') + (score.run ? ' · next board ×' + Math.min(10, score.run + 1) : '') + (score.best ? ' · best day ' + score.best : '');
   }
 
-  const sizeFor = (lv) => Math.min(10, 5 + Math.floor((lv - 1) / 4));
+  const baseSize = (lv) => Math.min(10, 5 + Math.floor((lv - 1) / 4));
+  // from level 21 the boards are 10x10, with a hard 9x9 or 8x8 mixed in now and then (never on Hard/Very Hard/Extreme levels)
+  const varietySize = (lv) => { if (lv < 21 || lv % 5 === 0) return 0; const h = Math.imul(lv, 2654435761) >>> 0; const r = (h >>> 8) % 100; return r < 16 ? 9 : r < 30 ? 8 : 0; };
+  const sizeFor = (lv) => varietySize(lv) || baseSize(lv);
   const tierOf = (lv) => (lv % 50 === 0 ? 'extreme' : lv % 10 === 0 ? 'veryhard' : lv % 5 === 0 ? 'hard' : 'normal');
   const dailySize = () => [6, 7, 8, 9, 10, 8, 7][new Date().getDay()];
   const tierLabel = { hard: 'Hard', veryhard: '👑 Very Hard', extreme: '💀 Extremely Hard' };
@@ -206,7 +209,7 @@
       b.dataset.lv = lv;
       b.style.left = p.x + 'px'; b.style.top = p.y + 'px';
       if (tier === 'normal') { const hue = WORLD_HUES[Math.floor((lv - 1) / 10) % 10]; b.style.setProperty('--c', 'hsl(' + hue + ',78%,50%)'); b.style.setProperty('--cb', 'hsl(' + hue + ',85%,88%)'); }
-      let html = lv + '<small>' + n + '×' + n + '</small>';
+      let html = '' + lv;
       if (tier !== 'normal') html += '<span class="badge">' + (tier === 'hard' ? 'HARD' : tier === 'extreme' ? 'EXTREME' : 'VERY HARD') + '</span>';
       if (lv < level && stars[lv]) { b.classList.add('hasst'); html += '<span class="st">'; for (let i = 1; i <= 3; i++) html += starSvg(i <= stars[lv]); html += '</span>'; }
       b.innerHTML = html;
@@ -253,6 +256,7 @@
       const pool = (SEEDS[tier] || {})[n];
       if (pool && pool.length) return E.generate(n, pool[Math.floor(lv / (tier === 'hard' ? 5 : tier === 'extreme' ? 50 : 10)) % pool.length]);
     }
+    if (varietySize(lv)) { const pool = (SEEDS.hard || {})[n]; if (pool && pool.length) return E.generate(n, pool[lv % pool.length]); }
     // normal levels: skip boards that would need guessing
     let b = null;
     for (let k = 0, tries = n >= 9 ? 2 : 6; k < tries; k++) {
@@ -344,7 +348,7 @@
     preSpoken = false;
     if (lv % 10 === 0) setTimeout(() => toast('👑 Boss level! Beat it for a big prize.'), 1200);
     if (lv === 1 && (forceCoach || !store.get('seenCoach', false))) setTimeout(startCoach, 1000);
-    if (lv > 1 && sizeFor(lv) > sizeFor(lv - 1)) {
+    if (lv > 1 && sizeFor(lv) === baseSize(lv) && baseSize(lv) > baseSize(lv - 1)) {
       const id = sizeFor(lv) - 1;
       $('unlockIcon').innerHTML = '<use href="#c' + id + '"/>'; $('unlockName').textContent = NAMES[id];
       const u = $('unlock'); u.hidden = true; void u.offsetWidth; u.hidden = false;
