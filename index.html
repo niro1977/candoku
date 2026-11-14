@@ -44,6 +44,7 @@
     <linearGradient id="gGumi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8dffd8"/><stop offset="1" stop-color="#12bd91"/></linearGradient>
     <!-- Gumi: original mascot, a smiling gumdrop -->
     <symbol id="gumiwin" viewBox="0 0 100 112"><ellipse cx="50" cy="104" rx="26" ry="4.5" fill="#000" opacity=".2"/><image href="art/gumi_win.webp" x="0" y="2" width="100" height="100" preserveAspectRatio="xMidYMax meet"/></symbol>
+    <symbol id="gumiblink" viewBox="0 0 100 112"><image href="art/gumi_blink.webp" x="0" y="4" width="100" height="100" preserveAspectRatio="xMidYMax meet"/></symbol>
     <symbol id="gumi" viewBox="0 0 100 112"><ellipse cx="50" cy="104" rx="26" ry="4.5" fill="#000" opacity=".2"/><image href="art/gumi_hero.webp" x="0" y="4" width="100" height="100" preserveAspectRatio="xMidYMax meet"/></symbol>
     <!-- world decorations -->
     <symbol id="d-lolly" viewBox="0 0 60 100"><rect x="27" y="46" width="6" height="54" rx="3" fill="#fff" stroke="#8a2d5e" stroke-width="2"/><circle cx="30" cy="30" r="26" fill="url(#gLolly)" stroke="#8a2d5e" stroke-width="2.6"/><path d="M30 30a3 3 0 0 1 6 0a7 7 0 0 1-14 0a11 11 0 0 1 22 0a15 15 0 0 1-30 0" fill="none" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/><ellipse cx="19" cy="17" rx="7" ry="3.4" fill="#fff" opacity=".65" transform="rotate(-35 19 17)"/></symbol>
@@ -185,7 +186,7 @@
     <button class="btn" id="maybeBtn" type="button" aria-pressed="false" aria-label="Maybe" title="Maybe"><img class="tico" src="art/tool_maybe.webp" alt="" draggable="false"></button>
     <button class="btn" id="clearBtn" type="button" aria-label="Restart" title="Restart"><img class="tico" src="art/tool_restart_red.webp" alt="" draggable="false"></button>
   </div>
-  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v91</span></p>
+  <p class="help">Tap: X (tap again to remove). Double tap: candy. Hold a square or use Maybe to mark a ? <span class="ver">v93</span></p>
 </main>
 
 <!-- WIN -->
@@ -211,7 +212,7 @@
 <!-- OUT OF HEARTS -->
 <div id="lose" class="overlay" hidden>
   <div class="card">
-    <div class="lose-hearts">💔</div>
+    <div class="lose-gumi"><img src="art/gumi_sad.webp" alt="" draggable="false"></div>
     <h2>Out of hearts</h2>
     <p>Take a breath and try this level again.</p>
     <button class="btn main wide" id="retryBtn" type="button">Try again</button>

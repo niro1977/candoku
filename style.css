@@ -997,3 +997,13 @@ body:not(.in-game) #mapfx{display:block}
 .hopper.gumi img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%;pointer-events:none}
 .hopper.gumi{animation:none}
 .hopper.gumi{transform-origin:50% 100%}
+
+/* the map bear blinks now and then (second pose faded in for a split second), and the Out-of-hearts card shows the sad bear */
+.mascot .blink{position:absolute;left:0;top:0;opacity:0;animation:gblink 4.6s linear infinite;animation-delay:1.2s}
+@keyframes gblink{0%,94%{opacity:0}95%,97%{opacity:1}98%,100%{opacity:0}}
+.lose-gumi{width:120px;height:140px;margin:-6px auto 4px;animation:gsad 2.4s ease-in-out infinite;transform-origin:50% 100%}
+.lose-gumi img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 3px rgba(60,0,30,.35))}
+@keyframes gsad{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(2px) rotate(-1.5deg) scale(1,.985)}}
+@media (prefers-reduced-motion:reduce){.mascot .blink,.lose-gumi{animation:none}}
+.lose-gumi{display:flex;justify-content:center;align-items:flex-end;width:auto;height:150px;margin:-6px auto 6px}
+.lose-gumi img{width:auto;height:100%;max-width:100%}
