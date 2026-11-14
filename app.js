@@ -185,6 +185,14 @@
     zoneObs = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { en.target.style.backgroundImage = 'url(' + en.target.dataset.bg + ')'; zoneObs.unobserve(en.target); } }), { rootMargin: '900px 0px' });
     els.forEach((e) => zoneObs.observe(e));
   }
+  // keep every world title on one line, centred, shrinking long names until they fit the ribbon body
+  function fitRibbons() {
+    document.querySelectorAll('.map .ribbon').forEach((r) => {
+      const b = r.querySelector('b'), sp = r.querySelector('span'); if (!b || !sp || !sp.clientWidth) return;
+      let fs = 17; b.style.fontSize = fs + 'px';
+      while (b.scrollWidth > sp.clientWidth && fs > 10) { fs -= 0.5; b.style.fontSize = fs + 'px'; }
+    });
+  }
   function renderHome() {
     const t = today();
     $('dailyInfo').textContent = daily.last === t ? 'Solved today ✓ come back tomorrow' : dailySize() + '×' + dailySize() + ' · new board today';
@@ -217,6 +225,7 @@
       map.appendChild(b);
       if (lv === (mascotAt || level)) map.insertAdjacentHTML('beforeend', '<div class="mascot" style="left:' + p.x + 'px;top:' + (p.y - 30) + 'px"><svg><use href="#gumi"/></svg><svg class="blink"><use href="#gumiblink"/></svg></div>');
     }
+    fitRibbons(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitRibbons);
   }
   function scrollToLevel(lv) {
     const g = mapGeom(), map = $('map');

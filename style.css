@@ -1009,3 +1009,9 @@ body:not(.in-game) #mapfx{display:block}
 .lose-gumi img{width:auto;height:100%;max-width:100%}
 
 .bank{display:none!important}
+
+/* world titles: one line, exactly centred on the banner body (the ribbon art's body sits ~5% above its box centre) */
+.map .ribbon{padding:0!important;display:grid!important;place-items:center!important;grid-template-columns:100%!important}
+.map .ribbon span{width:78%!important;margin:0 auto!important;transform:translateY(-4px)!important;text-align:center!important;display:block}
+.map .ribbon b{white-space:nowrap!important;display:block;text-align:center}
+.map .ribbon small{padding-left:2.5px!important;text-align:center}
