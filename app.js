@@ -267,9 +267,19 @@
   }
 
   /* ---------- game ---------- */
+  // which candy sits in which colour region is shuffled per board (stable for the same board), so a colour no longer always has the same candy
+  function candyMapFor(board) {
+    let h = 2166136261; const str = board.regions.map((r) => r.join('')).join('');
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    let a = h >>> 0; const rnd = () => { a = (a + 0x6D2B79F5) >>> 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const ids = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+    return ids;
+  }
   function makeGame(board, label, meta, tier) {
     const n = board.n;
     cur = { n, regions: board.regions, solution: board.solution, state: [], history: [], hearts: MAX_HEARTS, done: false, hints: 0, label, meta, tier, maybeMode: false, foundPrev: new Set(), wrongMarks: new Set(), penalized: new Set() };
+    cur.cmap = candyMapFor(board);
     updateHintUi();
     for (let y = 0; y < n; y++) cur.state.push(new Array(n).fill(0)); // 0 empty, 1 X, 2 candy, 3 ?
     $('gTitle').textContent = label;
@@ -373,7 +383,7 @@
     f.innerHTML = '';
     for (let g = 0; g < cur.n; g++) {
       const on = have.has(g), isNew = on && !cur.foundPrev.has(g);
-      f.insertAdjacentHTML('beforeend', '<svg class="' + (on ? 'on' : '') + (isNew ? ' new' : '') + '"><use href="#c' + g + '"/></svg>');
+      f.insertAdjacentHTML('beforeend', '<svg class="' + (on ? 'on' : '') + (isNew ? ' new' : '') + '"><use href="#c' + cur.cmap[g] + '"/></svg>');
     }
     cur.foundPrev = have;
   }
@@ -481,7 +491,7 @@
       el.classList.toggle('has', s === 2);
       if (el.dataset.k === key) continue;      // leave unchanged squares alone so animations don't replay
       el.dataset.k = key;
-      if (s === 2) el.innerHTML = '<svg class="candy" style="--idur:' + (3 + Math.random() * 2.5).toFixed(1) + 's;--idelay:' + (0.4 + Math.random() * 1.6).toFixed(1) + 's"><use href="#c' + cur.regions[y][x] + '"/></svg>';
+      if (s === 2) el.innerHTML = '<svg class="candy" style="--idur:' + (3 + Math.random() * 2.5).toFixed(1) + 's;--idelay:' + (0.4 + Math.random() * 1.6).toFixed(1) + 's"><use href="#c' + cur.cmap[cur.regions[y][x]] + '"/></svg>';
       else if (s === 1) el.innerHTML = '<span class="x' + (wrongX ? ' bad' : '') + '"></span>';
       else if (s === 3) el.innerHTML = '<span class="q">?</span>';
       else el.innerHTML = '';
@@ -592,6 +602,7 @@
     const wal = $('walletCoins'), home = !$('home').hidden && wal && wal.getBoundingClientRect().width > 0 && wal.getBoundingClientRect().top >= -4;
     const bank = $('bank'), tgt = home ? wal : bank;
     const settle = () => { coinHold = Math.max(0, coinHold - amount); updateHintUi(); };
+    if (!home) { settle(); return; }
     if (!fromEl || !fromEl.getBoundingClientRect) { settle(); return; }
     setTimeout(() => {
       if (!home) { clearTimeout(bankT); bank.hidden = false; updateHintUi(); }
