@@ -927,3 +927,16 @@ body:not(.in-game) #mapfx{display:block}
 
 .col-tabs button{position:relative}
 .col-tabs button.dot::after{content:"";position:absolute;top:-4px;right:-3px;width:13px;height:13px;border-radius:50%;background:#ff3f3f;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+
+/* Hard/Very Hard tags sit above the stars */
+.node.hasst .badge{top:-47px;z-index:3}
+.node .st{top:-27px;z-index:2}
+.node .st img.star{width:17px;height:17px}
+/* world titles: dead centre on the ribbon body */
+.map .ribbon{padding:0;grid-template-columns:100%}
+.map .ribbon span{transform:translateY(1px);margin:0 auto;width:62%;text-align:center}
+.map .ribbon small{margin:0 0 1px;padding-left:2.5px}
+/* long lists scroll inside their window instead of leaving the screen */
+.shoplist{max-height:calc(100dvh - 350px);overflow-y:auto;overflow-x:hidden;padding-right:2px;-webkit-overflow-scrolling:touch}
+#quests .card{max-height:calc(100dvh - 20px)}
+.col-tabs button.on{background-image:url(art/btn_green.webp);background-size:100% 100%}
